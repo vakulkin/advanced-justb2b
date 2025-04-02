@@ -1,0 +1,10 @@
+{
+    "require": {
+        "htmlburger/carbon-fields": "^3.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "JustB2b\\": "includes/"
+        }
+    }
+}
