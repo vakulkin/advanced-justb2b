@@ -5,7 +5,7 @@ namespace JustB2b\Fields\Definitions;
 defined('ABSPATH') || exit;
 
 use JustB2b\Fields\TextField;
-use JustB2b\Fields\NonNegativeNumberField;
+use JustB2b\Fields\NonNegativeFloatField;
 use JustB2b\Fields\SelectField;
 
 class GlobalFieldsDefinition
@@ -21,13 +21,61 @@ class GlobalFieldsDefinition
                     'loop_and_product' => 'loop_and_product',
                 ])
                 ->setWidth(50),
+            (new SelectField('b2b_rule_base', 'b2b_rule_base'))
+                ->setOptions([
+                    'net' => 'net',
+                    'gross' => 'gross',
+                ])
+                ->setWidth(50),
+            (new SelectField('b2c_rule_base', 'b2c_rule_base'))
+                ->setOptions([
+                    'net' => 'net',
+                    'gross' => 'gross',
+                ])
+                ->setWidth(50),
+            (new SelectField('rrp_price', 'rrp_price'))
+                ->setOptions([
+                    'net' => 'net',
+                    'gross' => 'gross',
+                ])
+                ->setWidth(50),
             (new SelectField('base_price_1', 'base_price_1'))
                 ->setOptions([
                     'net' => 'net',
                     'gross' => 'gross',
                 ])
                 ->setWidth(50),
+            (new SelectField('base_price_2', 'base_price_2'))
+                ->setOptions([
+                    'net' => 'net',
+                    'gross' => 'gross',
+                ])
+                ->setWidth(50),
+            (new SelectField('base_price_3', 'base_price_3'))
+                ->setOptions([
+                    'net' => 'net',
+                    'gross' => 'gross',
+                ])
+                ->setWidth(50),
+            (new SelectField('base_price_4', 'base_price_4'))
+                ->setOptions([
+                    'net' => 'net',
+                    'gross' => 'gross',
+                ])
+                ->setWidth(50),
+            (new SelectField('base_price_5', 'base_price_5'))
+                ->setOptions([
+                    'net' => 'net',
+                    'gross' => 'gross',
+                ])
+                ->setWidth(50),
             (new SelectField('b2b_base_net', 'b2b_base_net'))
+                ->setOptions([
+                    'show' => 'show',
+                    'hide' => 'hide',
+                ])
+                ->setWidth(50),
+            (new SelectField('b2b_base_gross', 'b2b_base_gross'))
                 ->setOptions([
                     'show' => 'show',
                     'hide' => 'hide',
@@ -45,28 +93,34 @@ class GlobalFieldsDefinition
                     'hide' => 'hide',
                 ])
                 ->setWidth(50),
+            (new SelectField('b2b_rrp_net', 'b2b_rrp_net'))
+                ->setOptions([
+                    'show' => 'show',
+                    'hide' => 'hide',
+                ])
+                ->setWidth(50),
             (new SelectField('b2b_rrp_gross', 'b2b_rrp_gross'))
                 ->setOptions([
                     'show' => 'show',
                     'hide' => 'hide',
                 ])
                 ->setWidth(50),
-            (new SelectField('show_html_for_b2c', 'show_html_for_b2c'))
+            (new SelectField('show_b2c_html', 'show_b2c_html'))
                 ->setOptions([
                     'show' => 'show',
                     'hide' => 'hide',
                 ])
                 ->setWidth(50),
-            (new TextField('html_for_b2c', 'html_for_b2c'))
+            (new TextField('b2c_html', 'b2c_html'))
                 ->setWidth(50),
-            (new SelectField('shipping', 'shipping'))
+            (new SelectField('b2b_shipping', 'b2b_shipping'))
                 ->setOptions([
                     'incherit' => 'on',
                     'dont_show' => 'off',
                 ])->setWidth(50),
-            (new NonNegativeNumberField('shipping_price', 'shipping_price'))
+            (new NonNegativeFloatField('b2b_shipping_price', 'b2b_shipping_price'))
                 ->setWidth(50),
-            (new NonNegativeNumberField('free_shipping_from', 'free_shipping_from'))
+            (new NonNegativeFloatField('b2b_shipping_free_from', 'b2b_shipping_free_from'))
                 ->setWidth(50),
         ];
     }

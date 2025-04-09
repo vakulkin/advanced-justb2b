@@ -57,8 +57,13 @@ class AdvancedJustB2b
     public function display_active_rules_after_header()
     {
         echo '<pre>';
-        $product_103 = new ProductModel(103);
-        var_dump($product_103->getFinalPrice());
+        $product_103 = new ProductModel(111);
+        // var_dump($product_103->getRules());
+        var_dump("base net price", $product_103->getPriceDisplay()->getBaseNetPrice());
+        var_dump("base gross price", $product_103->getPriceDisplay()->getBaseGrossPrice());
+        var_dump("final net price", $product_103->getPriceDisplay()->getFinalNetPrice());
+        var_dump("final gross price", $product_103->getPriceDisplay()->getFinalGrossPrice());
+        echo $product_103->getPriceDisplay()->getB2BPrices();
         echo '</pre>';
     }
 

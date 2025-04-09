@@ -2,6 +2,8 @@
 
 namespace JustB2b\Models;
 
+use JustB2b\Utils\Pricing\PriceCalculator;
+
 defined('ABSPATH') || exit;
 
 use JustB2b\Utils\Prefixer;
@@ -89,11 +91,13 @@ class RuleModel extends BaseModel
 
     protected function initStartPriceSource(): void
     {
-        $this->startPriceSource = get_post_meta(
+        $startPriceSource = get_post_meta(
             $this->id,
             Prefixer::getPrefixedMeta('start_price'),
             true
-        );
+        ) ?: '_price';
+
+        $this->startPriceSource = $startPriceSource;
     }
 
     public function getValue(): float
@@ -103,10 +107,8 @@ class RuleModel extends BaseModel
 
     protected function initValue(): void
     {
-        $this->value = (float) carbon_get_post_meta(
-            $this->id,
-            Prefixer::getPrefixed('value')
-        );
+        $value = carbon_get_post_meta($this->id, Prefixer::getPrefixed('value'));
+        $this->value = abs(PriceCalculator::getFloat($value));
     }
 
     public function getMinQty(): int
@@ -135,7 +137,7 @@ class RuleModel extends BaseModel
         );
     }
 
-    public function getShowInTable(): string
+    public function showInTable(): string
     {
         return $this->showInTable;
     }

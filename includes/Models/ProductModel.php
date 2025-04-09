@@ -2,31 +2,44 @@
 
 namespace JustB2b\Models;
 
+use JustB2b\Utils\Pricing\PriceDisplay;
+
 
 defined('ABSPATH') || exit;
 
 use WP_Query;
+use WC_Product;
+
 use JustB2b\Utils\Prefixer;
 use JustB2b\Utils\Pricing\PriceCalculator;
 
 class ProductModel extends BaseModel
 {
+    protected WC_Product $WCProduct;
     protected array $rules;
-    protected float $startPrice;
+    protected float $startNetPrice;
     protected PriceCalculator $priceCalculator;
+    protected PriceDisplay $priceDisplay;
     protected static string $key = 'product';
 
     public function __construct(int $id, int $conditionUserId = null, int $conditionQty = null)
     {
         parent::__construct($id);
+        $this->WCProduct = wc_get_product($id);
+
         $this->initRules($conditionUserId, $conditionQty);
-        $this->initStartPrice();
         $this->initPriceCalculator();
+        $this->initPriceDisplay();
     }
 
-    public function getFinalPrice()
+    public function getWCProduct(): WC_Product
     {
-        return $this->priceCalculator->getFinalPrice();
+        return $this->WCProduct;
+    }
+
+    public function getFinalNetPrice()
+    {
+        return $this->priceCalculator->getFinalNetPrice();
     }
 
     public function getRules(): array
@@ -57,68 +70,59 @@ class ProductModel extends BaseModel
         $args = [
             'post_type' => Prefixer::getPrefixed('rule'),
             'post_status' => 'publish',
-            'posts_per_page' => 1,
-            'orderby' => 'meta_value_num',
-            'meta_key' => Prefixer::getPrefixedMeta('priority'),
-            'order' => 'ASC',
+            'posts_per_page' => -1,
+            'meta_query' => [
+                'priority_clause' => [
+                    'key' => Prefixer::getPrefixedMeta('priority'),
+                    'type' => 'NUMERIC',
+                ],
+                'min_qty_clause' => [
+                    'key' => Prefixer::getPrefixedMeta('min_qty'),
+                    'type' => 'NUMERIC',
+                ],
+                'max_qty_clause' => [
+                    'key' => Prefixer::getPrefixedMeta('max_qty'),
+                    'type' => 'NUMERIC',
+                ],
+            ],
+            'orderby' => [
+                'priority_clause' => 'ASC',
+                'min_qty_clause' => 'ASC',
+                'max_qty_clause' => 'ASC',
+                'ID' => 'ASC',
+            ],
         ];
 
         if ($conditionQty !== null) {
-            $args['meta_query'] = [
-                [
-                    'key' => Prefixer::getPrefixedMeta('min_qty'),
-                    'value' => $conditionQty,
-                    'compare' => '<=',
-                    'type' => 'NUMERIC',
-                ],
-                [
-                    'key' => Prefixer::getPrefixedMeta('max_qty'),
-                    'value' => $conditionQty,
-                    'compare' => '>=',
-                    'type' => 'NUMERIC',
-                ],
-            ];
+            $args['meta_query']['min_qty_clause']['value'] = $conditionQty;
+            $args['meta_query']['min_qty_clause']['compare'] = '<=';
+
+            $args['meta_query']['max_qty_clause']['value'] = $conditionQty;
+            $args['meta_query']['max_qty_clause']['compare'] = '>=';
         }
 
         return $args;
     }
 
-    protected function initPriceCalculator(): void
+    public function getPriceCalculator(): PriceCalculator
     {
-        $rule = $this->getFirstRule();
-        if ($rule !== null) {
-            $this->priceCalculator = new PriceCalculator($this->startPrice, $rule->getKind(), $rule->getValue());
-        }
+        return $this->priceCalculator;
     }
 
-    protected function initStartPrice()
+    protected function initPriceCalculator(): void
     {
-        $firstRule = $this->getFirstRule();
-        $startPriceSource = $firstRule->getStartPriceSource();
-        switch ($startPriceSource) {
-            case 'regular_price':
-                $this->startPrice = (float) get_post_meta($this->id, '_regular_price', true);
-                return;
-            case 'sale_price':
-                $this->startPrice = (float) get_post_meta($this->id, '_sale_price', true);
-                return;
-            case 'base_price_1':
-                $this->startPrice = (float) carbon_get_post_meta($this->id, Prefixer::getPrefixed('base_price_1'));
-                return;
-            case 'base_price_2':
-                $this->startPrice = (float) carbon_get_post_meta($this->id, Prefixer::getPrefixed('base_price_2'));
-                return;
-            case 'base_price_3':
-                $this->startPrice = (float) carbon_get_post_meta($this->id, Prefixer::getPrefixed('base_price_3'));
-                return;
-            case 'base_price_4':
-                $this->startPrice = (float) carbon_get_post_meta($this->id, Prefixer::getPrefixed('base_price_4'));
-                return;
-            case 'base_price_5':
-                $this->startPrice = (float) carbon_get_post_meta($this->id, Prefixer::getPrefixed('base_price_5'));
-                return;
-        }
-        $this->startPrice = (float) get_post_meta($this->id, '_price', true);
+        $this->priceCalculator = new PriceCalculator($this);
+
+    }
+
+    public function getPriceDisplay(): PriceDisplay
+    {
+        return $this->priceDisplay;
+    }
+
+    protected function initPriceDisplay()
+    {
+        $this->priceDisplay = new PriceDisplay($this);
     }
 
 }

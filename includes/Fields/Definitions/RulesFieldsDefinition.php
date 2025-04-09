@@ -13,9 +13,10 @@ use JustB2b\Fields\AssociationField;
 class RulesFieldsDefinition
 {
     protected static array $startPrices = [
-        'price' => 'price',
-        'regular_price' => 'regular_price',
-        'sale_price' => 'sale_price',
+        '_price' => '_price',
+        '_regular_price' => '_regular_price',
+        '_sale_price' => '_sale_price',
+        'rrp_price' => 'rrp_price',
         'base_price_1' => 'base_price_1',
         'base_price_2' => 'base_price_2',
         'base_price_3' => 'base_price_3',
@@ -34,11 +35,16 @@ class RulesFieldsDefinition
             (new SelectField('kind', 'Rodzaj'))
                 ->setOptions([
                     'start_price' => 'start_price',
-                    'minus_percent' => 'minus_percent',
-                    'plus_percent' => 'plus_percent',
-                    'minus_number' => 'minus_number',
-                    'plus_number' => 'plus_number',
-                    'equals_number' => 'equals_number',
+                    'net_minus_percent' => 'net_minus_percent',
+                    'net_plus_percent' => 'net_plus_percent',
+                    'net_minus_number' => 'net_minus_number',
+                    'net_plus_number' => 'net_plus_number',
+                    'net_equals_number' => 'net_equals_number',
+                    'gross_minus_percent' => 'gross_minus_percent',
+                    'gross_plus_percent' => 'gross_plus_percent',
+                    'gross_minus_number' => 'gross_minus_number',
+                    'gross_plus_number' => 'gross_plus_number',
+                    'gross_equals_number' => 'gross_equals_number',
                     'request_price' => 'request_price',
                     'hide_product' => 'hide_product',
                 ])
