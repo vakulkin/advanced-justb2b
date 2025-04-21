@@ -10,8 +10,8 @@ class NumberField extends TextField
 {
     public function toCarbonField(): Field
     {
-        $field = parent::toCarbonField()
-            ->set_attribute('type', 'number');
+        $field = parent::toCarbonField();
+        $field->set_attribute('type', 'number');
         return $field;
     }
 }

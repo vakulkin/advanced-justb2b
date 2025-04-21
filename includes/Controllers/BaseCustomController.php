@@ -17,7 +17,7 @@ abstract class BaseCustomController extends BaseController
     {
         parent::__construct();
         add_action('init', [$this, 'registerPostType']);
-        add_action('admin_menu', [$this, 'register_submenus'], 100);
+        add_action('admin_menu', [$this, 'registerSubmenus'], 100);
     }
 
     public function registerPostType()
@@ -32,7 +32,7 @@ abstract class BaseCustomController extends BaseController
         ]);
     }
 
-    public function register_submenus()
+    public function registerSubmenus()
     {
         $prefixedKey = static::$modelClass::getPrefixedKey();
         add_submenu_page(

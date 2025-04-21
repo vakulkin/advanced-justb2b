@@ -13,7 +13,7 @@ use WC_Product;
 use JustB2b\Utils\Prefixer;
 use JustB2b\Utils\Pricing\PriceCalculator;
 
-class ProductModel extends BaseModel
+class ProductModel extends BasePostModel
 {
     protected WC_Product $WCProduct;
     protected array $rules;

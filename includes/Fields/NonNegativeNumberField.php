@@ -10,8 +10,8 @@ class NonNegativeNumberField extends NumberField
 {
     public function toCarbonField(): Field
     {
-        $field = parent::toCarbonField()
-            ->set_attribute('min', 0);
+        $field = parent::toCarbonField();
+        $field->set_attribute('min', 0);
         return $field;
     }
 }

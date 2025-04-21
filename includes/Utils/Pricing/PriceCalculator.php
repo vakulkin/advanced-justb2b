@@ -21,8 +21,10 @@ class PriceCalculator
     protected ?float $finalNetPrice = null;
     protected ?float $finalGrossPrice = null;
     protected ?float $RRPNetPrice = null;
+    protected ?float $RRPGrossPrice = null;
     protected bool $requestPrice = false;
     protected bool $hideProduct = false;
+    protected bool $nonPurchasable = false;
 
 
     public function __construct(ProductModel $product)
@@ -37,6 +39,7 @@ class PriceCalculator
         $this->initTaxRates();
 
         $this->initRRPNetPrice();
+        $this->initRRPGrossPrice();
 
         $this->initBaseNetPrice();
         $this->initBaseGrossPrice();
@@ -46,6 +49,7 @@ class PriceCalculator
 
         $this->initRequestPrice();
         $this->initHideProduct();
+        $this->initNonPurchasable();
     }
 
     public function getTaxRates(): array
@@ -87,6 +91,16 @@ class PriceCalculator
         $this->RRPNetPrice = $justB2bRRPNetPrice;
     }
 
+    public function getRRPGrossPrice(): ?float
+    {
+        return $this->RRPGrossPrice;
+    }
+
+    public function initRRPGrossPrice(): void
+    {
+        $this->RRPGrossPrice = self::calcGrossFromNetPrice($this->RRPNetPrice, $this->taxRates);
+    }
+
     public function getBaseNetPrice(): ?float
     {
         return $this->baseNetPrice;
@@ -119,7 +133,9 @@ class PriceCalculator
 
     protected function initBaseGrossPrice(): void
     {
-        $this->baseGrossPrice = self::calcGrossFromNetPrice($this->baseNetPrice, $this->taxRates);
+        if (!empty($this->baseNetPrice)) {
+            $this->baseGrossPrice = self::calcGrossFromNetPrice($this->baseNetPrice, $this->taxRates);
+        }
     }
 
     public function getFinalNetPrice(): ?float
@@ -176,7 +192,7 @@ class PriceCalculator
 
     protected function initFinalGrossPrice(): void
     {
-        if ($this->finalNetPrice) {
+        if (!empty($this->finalNetPrice)) {
             $this->finalGrossPrice = self::calcGrossFromNetPrice($this->finalNetPrice, $this->taxRates);
         }
     }
@@ -193,6 +209,11 @@ class PriceCalculator
         $this->hideProduct = $rule->getKind() === 'hide_product';
     }
 
+    protected function initNonPurchasable()
+    {
+        $rule = $this->product->getFirstRule();
+        $this->nonPurchasable = $rule->getKind() === 'non_purchasable';
+    }
 
     protected function calcNetFromWCMeta(string $key): float
     {

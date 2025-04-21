@@ -2,109 +2,80 @@
 
 namespace JustB2b\Fields\Definitions;
 
+use JustB2b\Fields\SeparatorField;
+
 defined('ABSPATH') || exit;
 
 use JustB2b\Fields\TextField;
-use JustB2b\Fields\NonNegativeFloatField;
 use JustB2b\Fields\SelectField;
 
 class GlobalFieldsDefinition
 {
+    public static function getBaseFields(): array
+    {
+        $fieldsData = [
+            ['key' => 'rrp_price', 'label' => 'rrp_price'],
+            ['key' => 'base_price_1', 'label' => 'base_price_1'],
+            ['key' => 'base_price_2', 'label' => 'base_price_2'],
+            ['key' => 'base_price_3', 'label' => 'base_price_3'],
+            ['key' => 'base_price_4', 'label' => 'base_price_4'],
+            ['key' => 'base_price_5', 'label' => 'base_price_5'],
+        ];
+        $filedsDefinition = [];
+        foreach ($fieldsData as $field) {
+            $filedsDefinition[] = (new SelectField($field['key'], $field['label']))
+                ->setOptions([
+                    'net' => 'net',
+                    'gross' => 'gross',
+                ])
+                ->setWidth(50);
+        }
+        return $filedsDefinition;
+    }
+
     public static function getMainFileds(): array
     {
+        $fieldsData = [
+            ['key' => 'base_net', 'label' => 'Base Net'],
+            ['key' => 'base_gross', 'label' => 'Base Gross'],
+            ['key' => 'final_net', 'label' => 'Final Net'],
+            ['key' => 'final_gross', 'label' => 'Final Gross'],
+            ['key' => 'rrp_net', 'label' => 'RRP Net'],
+            ['key' => 'rrp_gross', 'label' => 'RRP Gross'],
+            ['key' => 'qty_table', 'label' => 'Qty Table'],
+        ];
+
+        $showOptions = [
+            'show' => 'show',
+            'dont_show' => 'hide',
+            'only_product' => 'only_product',
+            'only_loop' => 'only_loop',
+        ];
+
+        $filedsDefinition = [];
+        foreach ($fieldsData as $field) {
+            $key = $field['key'];
+
+            $sepKey = "sep_{$key}";
+            $filedsDefinition[] = (new SeparatorField($sepKey, $field['label']));
+            foreach (['b2c', 'b2b'] as $type) {
+                $typeKey = "{$type}_{$key}";
+                $filedsDefinition[] = (new SelectField($typeKey, $type))
+                    ->setOptions($showOptions)
+                    ->setWidth(25);
+            }
+            $prefixKey = "prefix_{$key}";
+            $filedsDefinition[] = (new TextField($prefixKey, 'Prefix'))->setWidth(width: 25);
+            $postfixKey = "postfix_{$key}";
+            $filedsDefinition[] = (new TextField($postfixKey, 'Postfix'))->setWidth(25);
+        }
+        
+        return $filedsDefinition;
+    }
+
+    public static function getB2cFileds(): array
+    {
         return [
-            (new SelectField('qty_tabel', 'qty_tabel'))
-                ->setOptions([
-                    'dont_show' => 'dont_show',
-                    'only_product' => 'only_product',
-                    'only_loop' => 'only_loop',
-                    'loop_and_product' => 'loop_and_product',
-                ])
-                ->setWidth(50),
-            (new SelectField('b2b_rule_base', 'b2b_rule_base'))
-                ->setOptions([
-                    'net' => 'net',
-                    'gross' => 'gross',
-                ])
-                ->setWidth(50),
-            (new SelectField('b2c_rule_base', 'b2c_rule_base'))
-                ->setOptions([
-                    'net' => 'net',
-                    'gross' => 'gross',
-                ])
-                ->setWidth(50),
-            (new SelectField('rrp_price', 'rrp_price'))
-                ->setOptions([
-                    'net' => 'net',
-                    'gross' => 'gross',
-                ])
-                ->setWidth(50),
-            (new SelectField('base_price_1', 'base_price_1'))
-                ->setOptions([
-                    'net' => 'net',
-                    'gross' => 'gross',
-                ])
-                ->setWidth(50),
-            (new SelectField('base_price_2', 'base_price_2'))
-                ->setOptions([
-                    'net' => 'net',
-                    'gross' => 'gross',
-                ])
-                ->setWidth(50),
-            (new SelectField('base_price_3', 'base_price_3'))
-                ->setOptions([
-                    'net' => 'net',
-                    'gross' => 'gross',
-                ])
-                ->setWidth(50),
-            (new SelectField('base_price_4', 'base_price_4'))
-                ->setOptions([
-                    'net' => 'net',
-                    'gross' => 'gross',
-                ])
-                ->setWidth(50),
-            (new SelectField('base_price_5', 'base_price_5'))
-                ->setOptions([
-                    'net' => 'net',
-                    'gross' => 'gross',
-                ])
-                ->setWidth(50),
-            (new SelectField('b2b_base_net', 'b2b_base_net'))
-                ->setOptions([
-                    'show' => 'show',
-                    'hide' => 'hide',
-                ])
-                ->setWidth(50),
-            (new SelectField('b2b_base_gross', 'b2b_base_gross'))
-                ->setOptions([
-                    'show' => 'show',
-                    'hide' => 'hide',
-                ])
-                ->setWidth(50),
-            (new SelectField('b2b_final_net', 'b2b_final_net'))
-                ->setOptions([
-                    'show' => 'show',
-                    'hide' => 'hide',
-                ])
-                ->setWidth(50),
-            (new SelectField('b2b_final_gross', 'b2b_final_gross'))
-                ->setOptions([
-                    'show' => 'show',
-                    'hide' => 'hide',
-                ])
-                ->setWidth(50),
-            (new SelectField('b2b_rrp_net', 'b2b_rrp_net'))
-                ->setOptions([
-                    'show' => 'show',
-                    'hide' => 'hide',
-                ])
-                ->setWidth(50),
-            (new SelectField('b2b_rrp_gross', 'b2b_rrp_gross'))
-                ->setOptions([
-                    'show' => 'show',
-                    'hide' => 'hide',
-                ])
-                ->setWidth(50),
             (new SelectField('show_b2c_html', 'show_b2c_html'))
                 ->setOptions([
                     'show' => 'show',
@@ -113,15 +84,7 @@ class GlobalFieldsDefinition
                 ->setWidth(50),
             (new TextField('b2c_html', 'b2c_html'))
                 ->setWidth(50),
-            (new SelectField('b2b_shipping', 'b2b_shipping'))
-                ->setOptions([
-                    'incherit' => 'on',
-                    'dont_show' => 'off',
-                ])->setWidth(50),
-            (new NonNegativeFloatField('b2b_shipping_price', 'b2b_shipping_price'))
-                ->setWidth(50),
-            (new NonNegativeFloatField('b2b_shipping_free_from', 'b2b_shipping_free_from'))
-                ->setWidth(50),
         ];
     }
+
 }

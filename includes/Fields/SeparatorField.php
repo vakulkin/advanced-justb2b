@@ -6,7 +6,7 @@ defined('ABSPATH') || exit;
 
 use JustB2b\Fields\BaseField;
 
-class TextField extends BaseField
+class SeparatorField extends BaseField
 {
-    protected string $type = 'text';
+    protected string $type = 'separator';
 }

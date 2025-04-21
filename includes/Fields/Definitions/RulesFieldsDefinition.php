@@ -47,6 +47,7 @@ class RulesFieldsDefinition
                     'gross_equals_number' => 'gross_equals_number',
                     'request_price' => 'request_price',
                     'hide_product' => 'hide_product',
+                    'non_purchasable' => 'non_purchasable',
                 ])
                 ->setWidth(50),
 
@@ -69,28 +70,61 @@ class RulesFieldsDefinition
                 ->setAttribute('step', 'any')
                 ->setWidth(50),
 
-            (new SelectField('show_in_table', 'Pokazac w tabeli'))
+            (new SelectField('show_in_qty_table', 'Pokazac w tabeli'))
                 ->setOptions([
-                    'incherit' => 'incherit',
-                    'dont_show' => 'dont_show',
-                    'only_product' => 'only_product',
-                    'only_loop' => 'only_loop',
-                    'loop_and_product' => 'loop_and_product',
+                    'show' => 'show',
+                    'hide' => 'hide',
                 ])->setWidth(50),
 
         ];
     }
 
-    public static function getLogicBlocksFields(): array
+    public static function getMainConditions(): array
     {
         return [
-            (new AssociationField('logic_blocks', 'Warunki'))
+
+            (new AssociationField('roles', 'Roles'))
                 ->setTypes([
                     [
                         'type' => 'post',
-                        'post_type' => Prefixer::getPrefixed('logic-block'),
+                        'post_type' => Prefixer::getPrefixed('role'),
+                    ]
+                ]),
+            (new AssociationField('products', 'Products'))
+                ->setTypes([
+                    [
+                        'type' => 'post',
+                        'post_type' => 'product',
+                    ],
+                    [
+                        'type' => 'post',
+                        'post_type' => 'product_variation',
+                    ]
+                ]),
+            (new AssociationField('woo_terms', 'Woo Terms'))
+                ->setTypes([
+                    [
+                        'type' => 'term',
+                        'taxonomy' => 'product_cat',
+                    ],
+                    [
+                        'type' => 'term',
+                        'taxonomy' => 'product_tag',
                     ]
                 ]),
         ];
     }
+
+    // public static function getLogicBlocksFields(): array
+    // {
+    //     return [
+    //         (new AssociationField('logic_blocks', 'Warunki'))
+    //             ->setTypes([
+    //                 [
+    //                     'type' => 'post',
+    //                     'post_type' => Prefixer::getPrefixed('logic-block'),
+    //                 ]
+    //             ]),
+    //     ];
+    // }
 }

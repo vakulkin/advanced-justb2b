@@ -10,8 +10,8 @@ class NonNegativeFloatField extends NonNegativeNumberField
 {
     public function toCarbonField(): Field
     {
-        $field = parent::toCarbonField()
-            ->set_attribute('step', '0.01');
+        $field = parent::toCarbonField();
+        $field->set_attribute('step', '0.01');
         return $field;
     }
 }

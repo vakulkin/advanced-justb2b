@@ -9,6 +9,7 @@ use JustB2b\Fields\BaseField;
 
 class SelectField extends BaseField
 {
+    protected string $type = 'select';
     protected array $options = [];
 
     public function setOptions(array $options): static
@@ -19,13 +20,9 @@ class SelectField extends BaseField
 
     public function toCarbonField(): Field
     {
-        $field = Field::make('select', $this->prefixedKey, $this->label)
-            ->add_options($this->options)
-            ->set_width($this->width);
-
-        foreach ($this->attributes as $attr => $val) {
-            $field->set_attribute($attr, $val);
-        }
+        /** @var Field $field */
+        $field = parent::toCarbonField();
+        $field->add_options($this->options);
 
         return $field;
     }

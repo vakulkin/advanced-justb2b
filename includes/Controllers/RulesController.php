@@ -2,8 +2,6 @@
 
 namespace JustB2b\Controllers;
 
-use JustB2b\Utils\Prefixer;
-
 
 defined('ABSPATH') || exit;
 
@@ -28,8 +26,7 @@ class RulesController extends BaseCustomController
             ->set_priority('default')
             ->add_fields($fields);
 
-
-        $definitions = RulesFieldsDefinition::getLogicBlocksFields();
+        $definitions = RulesFieldsDefinition::getMainConditions();
         $fields = FieldBuilder::buildFields($definitions);
 
         Container::make('post_meta', 'JustB2B')

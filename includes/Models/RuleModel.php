@@ -8,16 +8,16 @@ defined('ABSPATH') || exit;
 
 use JustB2b\Utils\Prefixer;
 
-class RuleModel extends BaseModel
+class RuleModel extends BasePostModel
 {
-    protected bool $isFits = false;
+    protected bool $isFits;
     protected int $priority;
     protected string $kind;
     protected string $startPriceSource;
     protected float $value;
     protected int $minQty;
     protected int $maxQty;
-    protected string $showInTable;
+    protected bool $showInQtyTable;
 
     protected static string $key = 'rule';
 
@@ -31,30 +31,7 @@ class RuleModel extends BaseModel
         $this->initValue();
         $this->initMinQty();
         $this->initMaxQty();
-        $this->initShowInTable();
-    }
-
-    public function isFits(): bool
-    {
-        return $this->isFits;
-    }
-
-    protected function initFit($conditionProductId, $conditionUserId)
-    {
-        $logicBlocks = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('logic_blocks'));
-
-        foreach ($logicBlocks as $logicBlockId => $logicBlock) {
-            $logicBlockModelObject = new LogicBlockModel(
-                $logicBlockId,
-                $conditionProductId,
-                $conditionUserId
-            );
-
-            if ($logicBlockModelObject->isFits()) {
-                $this->isFits = true;
-                break;
-            }
-        }
+        $this->initShowInQtyTable();
     }
 
     public function getPriority(): int
@@ -137,18 +114,55 @@ class RuleModel extends BaseModel
         );
     }
 
-    public function showInTable(): string
+    public function showInQtyTable(): bool
     {
-        return $this->showInTable;
+        return $this->showInQtyTable;
     }
 
-    protected function initShowInTable(): void
+    protected function initShowInQtyTable(): void
     {
-        $this->showInTable = get_post_meta(
+        $showInQtyTable = get_post_meta(
             $this->id,
-            Prefixer::getPrefixedMeta('show_in_table'),
+            Prefixer::getPrefixedMeta('show_in_qty_table'),
             true
         );
+        // var_dump($showInQtyTable);
+        $this->showInQtyTable = $showInQtyTable !== 'hide';
+    }
+
+    protected function initFit(int $conditionProductId = null, int $conditionUserId = null)
+    {
+        $this->isFits = $this->checkRoles($conditionUserId) &&
+            ($this->checkProduct($conditionProductId)
+                || $this->checkTerms($conditionProductId));
+    }
+
+    public function isFits(): bool
+    {
+        return $this->isFits;
+    }
+
+
+    protected function checkProduct(int $productId = null): bool
+    {
+        $products = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('products'));
+        return isset($products[$productId]);
+    }
+
+    protected function checkTerms(int $productId = null)
+    {
+        $terms = self::getAssociatedTerms($this->id, Prefixer::getPrefixed('woo_terms'));
+        foreach ($terms as $term) {
+            if (has_term($term['id'], $term['taxonomy'], $productId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected function checkRoles(int $userId = null): bool
+    {
+        return true; // TODO: Implement checkRoles() method.
     }
 
 }
