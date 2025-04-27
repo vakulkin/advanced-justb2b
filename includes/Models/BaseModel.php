@@ -10,7 +10,7 @@ abstract class BaseModel
 
     public function __construct(int $id)
     {
-        $this->id = $id;
+        $this->initId($id);
     }
 
     public function getId(): int
@@ -18,4 +18,8 @@ abstract class BaseModel
         return $this->id;
     }
 
+    protected function initId(int $id): void
+    {
+        $this->id = $id;
+    }
 }

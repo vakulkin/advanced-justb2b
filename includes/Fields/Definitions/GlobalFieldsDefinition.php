@@ -2,6 +2,7 @@
 
 namespace JustB2b\Fields\Definitions;
 
+use JustB2b\Fields\RichText;
 use JustB2b\Fields\SeparatorField;
 
 defined('ABSPATH') || exit;
@@ -14,16 +15,19 @@ class GlobalFieldsDefinition
     public static function getBaseFields(): array
     {
         $fieldsData = [
-            ['key' => 'rrp_price', 'label' => 'rrp_price'],
-            ['key' => 'base_price_1', 'label' => 'base_price_1'],
-            ['key' => 'base_price_2', 'label' => 'base_price_2'],
-            ['key' => 'base_price_3', 'label' => 'base_price_3'],
-            ['key' => 'base_price_4', 'label' => 'base_price_4'],
-            ['key' => 'base_price_5', 'label' => 'base_price_5'],
+            ['key' => 'rrp_price', 'label' => 'RRP Prce'],
+            ['key' => 'base_price_1', 'label' => 'Base price 1'],
+            ['key' => 'base_price_2', 'label' => 'Base price 2'],
+            ['key' => 'base_price_3', 'label' => 'Base price 3'],
+            ['key' => 'base_price_4', 'label' => 'Base price 4'],
+            ['key' => 'base_price_5', 'label' => 'Base price 5'],
         ];
         $filedsDefinition = [];
         foreach ($fieldsData as $field) {
-            $filedsDefinition[] = (new SelectField($field['key'], $field['label']))
+            $key = $field['key'];
+            $label = $field['label'];
+
+            $filedsDefinition[] = (new SelectField($key, $label))
                 ->setOptions([
                     'net' => 'net',
                     'gross' => 'gross',
@@ -58,18 +62,22 @@ class GlobalFieldsDefinition
 
             $sepKey = "sep_{$key}";
             $filedsDefinition[] = (new SeparatorField($sepKey, $field['label']));
+
+            foreach (['single', 'loop'] as $place) {
+                foreach (['prefix', 'postfix'] as $position) {
+                    $prefix = "{$position}_{$key}_{$place}";
+                    $filedsDefinition[] = (new TextField($prefix, "Prefix {$place}"))->setWidth(width: 25);
+                }
+            }
+
             foreach (['b2c', 'b2b'] as $type) {
                 $typeKey = "{$type}_{$key}";
-                $filedsDefinition[] = (new SelectField($typeKey, $type))
+                $filedsDefinition[] = (new SelectField($typeKey, "Show for {$type} users"))
                     ->setOptions($showOptions)
-                    ->setWidth(25);
+                    ->setWidth(50);
             }
-            $prefixKey = "prefix_{$key}";
-            $filedsDefinition[] = (new TextField($prefixKey, 'Prefix'))->setWidth(width: 25);
-            $postfixKey = "postfix_{$key}";
-            $filedsDefinition[] = (new TextField($postfixKey, 'Postfix'))->setWidth(25);
         }
-        
+
         return $filedsDefinition;
     }
 
@@ -81,9 +89,9 @@ class GlobalFieldsDefinition
                     'show' => 'show',
                     'hide' => 'hide',
                 ])
-                ->setWidth(50),
-            (new TextField('b2c_html', 'b2c_html'))
-                ->setWidth(50),
+                ->setWidth(100),
+            (new RichText('b2c_html', 'b2c_html'))
+                ->setWidth(100),
         ];
     }
 

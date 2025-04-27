@@ -8,7 +8,7 @@ trait SingletonTrait
 {
     private static array $instances = [];
 
-    public static function get_instance(...$args): static
+    public static function getInstance(...$args): static
     {
         $called_class = static::class;
 

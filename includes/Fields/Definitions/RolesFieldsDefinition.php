@@ -5,7 +5,6 @@ namespace JustB2b\Fields\Definitions;
 
 defined('ABSPATH') || exit;
 
-use JustB2b\Fields\SelectField;
 use JustB2b\Fields\AssociationField;
 
 class RolesFieldsDefinition

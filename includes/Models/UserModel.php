@@ -2,31 +2,33 @@
 
 namespace JustB2b\Models;
 
-defined('ABSPATH') || exit;
-
+use JustB2b\Traits\LazyLoaderTrait;
 use JustB2b\Utils\Prefixer;
+
+defined('ABSPATH') || exit;
 
 class UserModel extends BaseModel
 {
-    protected bool $isB2b;
+    use LazyLoaderTrait;
 
-    public function __construct(int $id) {
-        parent::__construct($id);
+    protected ?bool $isB2b = null;
+
+    public function isB2b(): bool
+    {
         $this->initIsB2b();
-    }
-
-    public function isB2b() {
         return $this->isB2b;
     }
 
-    protected function initIsB2b() {
+    protected function initIsB2b(): void
+    {
+        $this->lazyLoad($this->isB2b, function () {
+            $isB2b = get_user_meta(
+                $this->id,
+                Prefixer::getPrefixedMeta('kind'),
+                true
+            );
 
-        $isB2b = get_user_meta(
-            $this->id,
-            Prefixer::getPrefixedMeta('kind'),
-            true
-        );
-        
-        $this->isB2b = $isB2b === 'b2b';
+            return $isB2b === 'b2b';
+        });
     }
 }

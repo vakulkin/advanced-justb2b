@@ -6,12 +6,9 @@ defined('ABSPATH') || exit;
 
 use JustB2b\Traits\SingletonTrait;
 
-
 abstract class BaseController
 {
     use SingletonTrait;
-
-    protected static string $modelClass;
 
     public function __construct()
     {

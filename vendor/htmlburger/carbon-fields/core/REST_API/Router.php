@@ -531,7 +531,7 @@ class Router {
 			setup_postdata( $post );
 		}
 
-		$registry = \WP_Block_Type_Registry::get_instance();
+		$registry = \WP_Block_Type_Registry::getInstance();
 		$block    = $registry->get_registered( $request['name'] );
 
 		if ( null === $block ) {

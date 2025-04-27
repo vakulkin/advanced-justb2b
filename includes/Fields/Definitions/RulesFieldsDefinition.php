@@ -115,16 +115,76 @@ class RulesFieldsDefinition
         ];
     }
 
-    // public static function getLogicBlocksFields(): array
-    // {
-    //     return [
-    //         (new AssociationField('logic_blocks', 'Warunki'))
-    //             ->setTypes([
-    //                 [
-    //                     'type' => 'post',
-    //                     'post_type' => Prefixer::getPrefixed('logic-block'),
-    //                 ]
-    //             ]),
-    //     ];
-    // }
+    public static function getGualifyingConditions(): array
+    {
+        return [
+
+            (new AssociationField('qualifying_roles', 'Roles'))
+                ->setTypes([
+                    [
+                        'type' => 'post',
+                        'post_type' => Prefixer::getPrefixed('role'),
+                    ]
+                ]),
+            (new AssociationField('qualifying_products', 'Products'))
+                ->setTypes([
+                    [
+                        'type' => 'post',
+                        'post_type' => 'product',
+                    ],
+                    [
+                        'type' => 'post',
+                        'post_type' => 'product_variation',
+                    ]
+                ]),
+            (new AssociationField('qualifying_woo_terms', 'Woo Terms'))
+                ->setTypes([
+                    [
+                        'type' => 'term',
+                        'taxonomy' => 'product_cat',
+                    ],
+                    [
+                        'type' => 'term',
+                        'taxonomy' => 'product_tag',
+                    ]
+                ]),
+        ];
+    }
+
+    public static function getExcludingConditions(): array
+    {
+        return [
+
+            (new AssociationField('excluding_roles', 'Roles'))
+                ->setTypes([
+                    [
+                        'type' => 'post',
+                        'post_type' => Prefixer::getPrefixed('role'),
+                    ]
+                ]),
+            (new AssociationField('excluding_products', 'Products'))
+                ->setTypes([
+                    [
+                        'type' => 'post',
+                        'post_type' => 'product',
+                    ],
+                    [
+                        'type' => 'post',
+                        'post_type' => 'product_variation',
+                    ]
+                ]),
+            (new AssociationField('excluding_woo_terms', 'Woo Terms'))
+                ->setTypes([
+                    [
+                        'type' => 'term',
+                        'taxonomy' => 'product_cat',
+                    ],
+                    [
+                        'type' => 'term',
+                        'taxonomy' => 'product_tag',
+                    ]
+                ]),
+        ];
+    }
+
 }

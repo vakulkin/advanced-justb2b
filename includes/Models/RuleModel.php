@@ -2,156 +2,248 @@
 
 namespace JustB2b\Models;
 
+use JustB2b\Utils\Prefixer;
+use JustB2b\Controllers\UsersController;
 use JustB2b\Utils\Pricing\PriceCalculator;
+use JustB2b\Traits\LazyLoaderTrait;
 
 defined('ABSPATH') || exit;
 
-use JustB2b\Utils\Prefixer;
-
 class RuleModel extends BasePostModel
 {
-    protected bool $isFits;
-    protected int $priority;
-    protected string $kind;
-    protected string $startPriceSource;
-    protected float $value;
-    protected int $minQty;
-    protected int $maxQty;
-    protected bool $showInQtyTable;
+    use LazyLoaderTrait;
 
     protected static string $key = 'rule';
 
-    public function __construct(int $id, int $conditionProductId = null, int $conditionUserId = null)
-    {
+    protected int $conditionProductId;
+    protected int $conditionQty;
+
+    protected ?int $priority = null;
+    protected ?string $kind = null;
+    protected ?string $startPriceSource = null;
+    protected ?float $value = null;
+    protected ?int $minQty = null;
+    protected ?int $maxQty = null;
+    protected ?bool $showInQtyTable = null;
+    protected ?bool $isQtyFits = null;
+    protected ?bool $isAssociationFits = null;
+
+    public function __construct(
+        int $id,
+        int $conditionProductId,
+        int $conditionQty
+    ) {
         parent::__construct($id);
-        $this->initFit($conditionProductId, $conditionUserId);
-        $this->initPriority();
-        $this->initKind();
-        $this->initStartPriceSource();
-        $this->initValue();
-        $this->initMinQty();
-        $this->initMaxQty();
-        $this->initShowInQtyTable();
+
+        $this->initConditionProductId($conditionProductId);
+        $this->initConditionQty($conditionQty);
     }
 
     public function getPriority(): int
     {
+        $this->initPriority();
         return $this->priority;
     }
 
     protected function initPriority(): void
     {
-        $this->priority = (int) carbon_get_post_meta(
-            $this->id,
-            Prefixer::getPrefixed('priority')
-        );
+        $this->lazyLoad($this->priority, function () {
+            return (int) carbon_get_post_meta($this->id, Prefixer::getPrefixed('priority'));
+        });
     }
 
     public function getKind(): string
     {
+        $this->initKind();
         return $this->kind;
     }
 
     protected function initKind(): void
     {
-        $this->kind = get_post_meta(
-            $this->id,
-            Prefixer::getPrefixedMeta('kind'),
-            true
-        );
+        $this->lazyLoad($this->kind, function () {
+            return carbon_get_post_meta($this->id, Prefixer::getPrefixed('kind'), true) ?: '';
+        });
     }
 
     public function getStartPriceSource(): string
     {
+        $this->initStartPriceSource();
         return $this->startPriceSource;
     }
 
     protected function initStartPriceSource(): void
     {
-        $startPriceSource = get_post_meta(
-            $this->id,
-            Prefixer::getPrefixedMeta('start_price'),
-            true
-        ) ?: '_price';
-
-        $this->startPriceSource = $startPriceSource;
+        $this->lazyLoad($this->startPriceSource, function () {
+            return carbon_get_post_meta($this->id, Prefixer::getPrefixed('start_price'), true) ?: '_price';
+        });
     }
 
     public function getValue(): float
     {
+        $this->initValue();
         return $this->value;
     }
 
     protected function initValue(): void
     {
-        $value = carbon_get_post_meta($this->id, Prefixer::getPrefixed('value'));
-        $this->value = abs(PriceCalculator::getFloat($value));
+        $this->lazyLoad($this->value, function () {
+            $value = carbon_get_post_meta($this->id, Prefixer::getPrefixed('value'));
+            return PriceCalculator::getFloat($value);
+        });
     }
 
     public function getMinQty(): int
     {
+        $this->initMinQty();
         return $this->minQty;
     }
 
     protected function initMinQty(): void
     {
-        $this->minQty = (int) carbon_get_post_meta(
-            $this->id,
-            Prefixer::getPrefixed('min_qty')
-        );
+        $this->lazyLoad($this->minQty, function () {
+            $minQty = carbon_get_post_meta($this->id, Prefixer::getPrefixed('min_qty'));
+            return abs((int) $minQty);
+        });
     }
 
     public function getMaxQty(): int
     {
+        $this->initMaxQty();
         return $this->maxQty;
     }
 
     protected function initMaxQty(): void
     {
-        $this->maxQty = (int) carbon_get_post_meta(
-            $this->id,
-            Prefixer::getPrefixed('max_qty')
-        );
+        $this->lazyLoad($this->maxQty, function () {
+            $maxQty = carbon_get_post_meta($this->id, Prefixer::getPrefixed('max_qty'));
+            return abs((int) $maxQty);
+        });
     }
 
     public function showInQtyTable(): bool
     {
+        $this->initShowInQtyTable();
         return $this->showInQtyTable;
     }
 
     protected function initShowInQtyTable(): void
     {
-        $showInQtyTable = get_post_meta(
-            $this->id,
-            Prefixer::getPrefixedMeta('show_in_qty_table'),
-            true
-        );
-        // var_dump($showInQtyTable);
-        $this->showInQtyTable = $showInQtyTable !== 'hide';
+        $this->lazyLoad($this->showInQtyTable, function () {
+            $show = carbon_get_post_meta($this->id, Prefixer::getPrefixed('show_in_qty_table'));
+            return $show !== 'hide';
+        });
     }
 
-    protected function initFit(int $conditionProductId = null, int $conditionUserId = null)
+    public function isQtyFits(): bool
     {
-        $this->isFits = $this->checkRoles($conditionUserId) &&
-            ($this->checkProduct($conditionProductId)
-                || $this->checkTerms($conditionProductId));
+        $this->initQtyFits();
+        return $this->isQtyFits;
     }
 
-    public function isFits(): bool
+    protected function initQtyFits(): void
     {
-        return $this->isFits;
+        $this->lazyLoad($this->isQtyFits, function () {
+            $minQty = $this->getMinQty();
+            $maxQty = $this->getMaxQty();
+            $qty = $this->getConditionQty();
+            return ($minQty === 0 || $minQty <= $qty) && ($maxQty === 0 || $qty <= $maxQty);
+        });
     }
 
-
-    protected function checkProduct(int $productId = null): bool
+    public function isAssociationFits(): bool
     {
-        $products = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('products'));
+        $this->initAssociationFits();
+        return $this->isAssociationFits;
+    }
+
+    protected function initAssociationFits(): void
+    {
+        $this->lazyLoad($this->isAssociationFits, function () {
+            $userController = UsersController::getInstance();
+            $currentUser = $userController->getCurrentUser();
+            $currentUserId = $currentUser->getId();
+            $productId = $this->getConditionProductId();
+
+            if (!$this->passesMainRolesCheck($currentUserId)) {
+                return false;
+            }
+
+            if (!$this->passesMainProductsTermsCheck($productId)) {
+                return false;
+            }
+
+            if (!$this->passesQualifyingRolesCheck($currentUserId)) {
+                return false;
+            }
+
+            if (!$this->passesQualifyingProductsTermsCheck($productId)) {
+                return false;
+            }
+
+            if (!$this->passesExcludingRolesCheck($currentUserId)) {
+                return false;
+            }
+
+            if (!$this->passesExcludingProductsTermsCheck()) {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
+    private function passesMainRolesCheck(int $userId): bool
+    {
+        $mainRoles = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('roles'));
+        return $this->checkRoles($mainRoles, $userId);
+    }
+
+    private function passesMainProductsTermsCheck(int $productId): bool
+    {
+        $mainProducts = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('products'));
+        $mainTerms = self::getAssociatedTerms($this->id, Prefixer::getPrefixed('woo_terms'));
+        return $this->checkProduct($mainProducts, $productId) || $this->checkTerms($mainTerms, $productId);
+    }
+
+    private function passesQualifyingRolesCheck(int $userId): bool
+    {
+        $qualifyingRoles = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('qualifying_roles'));
+        return empty($qualifyingRoles) || $this->checkRoles($qualifyingRoles, $userId);
+    }
+
+    private function passesQualifyingProductsTermsCheck(int $productId): bool
+    {
+        $qualifyingProducts = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('qualifying_products'));
+        $qualifyingTerms = self::getAssociatedTerms($this->id, Prefixer::getPrefixed('qualifying_woo_terms'));
+
+        if (empty($qualifyingProducts) && empty($qualifyingTerms)) {
+            return true;
+        }
+
+        return $this->checkProduct($qualifyingProducts, $productId) || $this->checkTerms($qualifyingTerms, $productId);
+    }
+
+    private function passesExcludingRolesCheck(int $userId): bool
+    {
+        $excludingRoles = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('excluding_roles'));
+        return !$this->checkRoles($excludingRoles, $userId);
+    }
+
+    private function passesExcludingProductsTermsCheck(): bool
+    {
+        $excludingProducts = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('excluding_products'));
+        $excludingTerms = self::getAssociatedTerms($this->id, Prefixer::getPrefixed('excluding_woo_terms'));
+
+        return empty($excludingProducts) && empty($excludingTerms);
+    }
+
+    protected function checkProduct(array $products, int $productId): bool
+    {
         return isset($products[$productId]);
     }
 
-    protected function checkTerms(int $productId = null)
+    protected function checkTerms(array $terms, int $productId): bool
     {
-        $terms = self::getAssociatedTerms($this->id, Prefixer::getPrefixed('woo_terms'));
         foreach ($terms as $term) {
             if (has_term($term['id'], $term['taxonomy'], $productId)) {
                 return true;
@@ -160,9 +252,35 @@ class RuleModel extends BasePostModel
         return false;
     }
 
-    protected function checkRoles(int $userId = null): bool
+    protected function checkRoles(array $roles, int $userId): bool
     {
-        return true; // TODO: Implement checkRoles() method.
+        foreach ($roles as $role) {
+            $roleId = $role['id'];
+            $users = self::getAssociatedUsers($roleId, Prefixer::getPrefixed('users'));
+            if (isset($users[$userId])) {
+                return true;
+            }
+        }
+        return false;
     }
 
+    public function getConditionProductId(): int
+    {
+        return $this->conditionProductId;
+    }
+
+    protected function initConditionProductId(?int $conditionProductId = null): void
+    {
+        $this->conditionProductId = $conditionProductId;
+    }
+
+    public function getConditionQty(): int
+    {
+        return $this->conditionQty;
+    }
+
+    protected function initConditionQty(?int $conditionQty = null): void
+    {
+        $this->conditionQty = $conditionQty;
+    }
 }

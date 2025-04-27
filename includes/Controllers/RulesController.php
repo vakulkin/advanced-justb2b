@@ -11,7 +11,7 @@ use JustB2b\Fields\FieldBuilder;
 use JustB2b\Fields\Definitions\RulesFieldsDefinition;
 
 
-class RulesController extends BaseCustomController
+class RulesController extends BaseCustomPostController
 {
     protected static string $modelClass = RuleModel::class;
 
@@ -29,7 +29,21 @@ class RulesController extends BaseCustomController
         $definitions = RulesFieldsDefinition::getMainConditions();
         $fields = FieldBuilder::buildFields($definitions);
 
-        Container::make('post_meta', 'JustB2B')
+        Container::make('post_meta', 'Main Conditions')
+            ->where('post_type', '=', self::$modelClass::getPrefixedKey())
+            ->add_fields($fields);
+
+        $definitions = RulesFieldsDefinition::getGualifyingConditions();
+        $fields = FieldBuilder::buildFields(definitions: $definitions);
+
+        Container::make('post_meta', 'Qualifying Conditions')
+            ->where('post_type', '=', self::$modelClass::getPrefixedKey())
+            ->add_fields($fields);
+
+        $definitions = RulesFieldsDefinition::getExcludingConditions();
+        $fields = FieldBuilder::buildFields($definitions);
+
+        Container::make('post_meta', 'Excluding Conditions')
             ->where('post_type', '=', self::$modelClass::getPrefixedKey())
             ->add_fields($fields);
     }

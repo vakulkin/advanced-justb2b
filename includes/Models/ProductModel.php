@@ -2,76 +2,132 @@
 
 namespace JustB2b\Models;
 
+use JustB2b\Utils\Prefixer;
+use JustB2b\Utils\Pricing\PriceCalculator;
 use JustB2b\Utils\Pricing\PriceDisplay;
-
-
-defined('ABSPATH') || exit;
-
+use JustB2b\Traits\LazyLoaderTrait;
 use WP_Query;
 use WC_Product;
 
-use JustB2b\Utils\Prefixer;
-use JustB2b\Utils\Pricing\PriceCalculator;
+defined('ABSPATH') || exit;
 
 class ProductModel extends BasePostModel
 {
-    protected WC_Product $WCProduct;
-    protected array $rules;
-    protected float $startNetPrice;
-    protected PriceCalculator $priceCalculator;
-    protected PriceDisplay $priceDisplay;
+    use LazyLoaderTrait;
+
     protected static string $key = 'product';
 
-    public function __construct(int $id, int $conditionUserId = null, int $conditionQty = null)
+    protected int $qty;
+    protected ?WC_Product $WCProduct = null;
+    protected ?array $associationsRules = null;
+    protected ?RuleModel $firstFullFitRule = null;
+    protected ?PriceCalculator $priceCalculator = null;
+    protected ?PriceDisplay $priceDisplay = null;
+
+    public function __construct(int $id, int $conditionQty)
     {
         parent::__construct($id);
-        $this->WCProduct = wc_get_product($id);
-
-        $this->initRules($conditionUserId, $conditionQty);
-        $this->initPriceCalculator();
-        $this->initPriceDisplay();
+        $this->initQty($conditionQty);
     }
 
     public function getWCProduct(): WC_Product
     {
+        $this->initWCProduct();
         return $this->WCProduct;
     }
 
-    public function getFinalNetPrice()
+    protected function initWCProduct(): void
     {
-        return $this->priceCalculator->getFinalNetPrice();
+        $this->lazyLoad($this->WCProduct, function () {
+            return wc_get_product($this->id);
+        });
+    }
+
+    public function getQty(): int
+    {
+        return $this->qty;
+    }
+
+    protected function initQty(int $conditionQty): void
+    {
+        $this->qty = $conditionQty;
     }
 
     public function getRules(): array
     {
-        return $this->rules;
+        $this->initAssociationRules();
+        return $this->associationsRules;
     }
 
-    public function getFirstRule(): ?RuleModel
+    protected function initAssociationRules(): void
     {
-        return $this->rules[0] ?? null;
-    }
+        $this->lazyLoad($this->associationsRules, function () {
+            $query = new WP_Query($this->getRuleQueryArgs());
+            $results = [];
 
-    public function initRules(int $conditionUserId = null, int $conditionQty = null): void
-    {
-        $query = new WP_Query(self::getRuleQueryArgs($conditionQty));
-        $results = [];
-        foreach ($query->posts as $post) {
-            $rule = new RuleModel($post->ID, $this->id, $conditionUserId);
-            if ($rule->isFits()) {
-                $results[] = $rule;
+            foreach ($query->posts as $post) {
+                $rule = new RuleModel($post->ID, $this->id, $this->getQty());
+                if ($rule->isAssociationFits()) {
+                    $results[] = $rule;
+                }
             }
-        }
-        $this->rules = $results;
+
+            return $results;
+        });
     }
 
-    protected function getRuleQueryArgs(int $conditionQty = null): array
+    public function getFirstFullFitRule(): ?RuleModel
     {
-        $args = [
+        $this->initFirstFullFitRule();
+        return $this->firstFullFitRule;
+    }
+
+    protected function initFirstFullFitRule(): void
+    {
+        $this->lazyLoad($this->firstFullFitRule, function () {
+            foreach ($this->getRules() as $rule) {
+                if ($rule->isQtyFits()) {
+                    return $rule;
+                }
+            }
+            return null;
+        });
+    }
+
+    public function getPriceCalculator(): PriceCalculator
+    {
+        $this->initPriceCalculator();
+        return $this->priceCalculator;
+    }
+
+    protected function initPriceCalculator(): void
+    {
+        $this->lazyLoad($this->priceCalculator, function () {
+            return new PriceCalculator($this);
+        });
+    }
+
+    public function getPriceDisplay(): PriceDisplay
+    {
+        $this->initPriceDisplay();
+        return $this->priceDisplay;
+    }
+
+    protected function initPriceDisplay(): void
+    {
+        $this->lazyLoad($this->priceDisplay, function () {
+            return new PriceDisplay($this);
+        });
+    }
+
+    protected function getRuleQueryArgs(): array
+    {
+        return [
             'post_type' => Prefixer::getPrefixed('rule'),
             'post_status' => 'publish',
             'posts_per_page' => -1,
             'meta_query' => [
+                'relation' => 'AND',
                 'priority_clause' => [
                     'key' => Prefixer::getPrefixedMeta('priority'),
                     'type' => 'NUMERIC',
@@ -88,41 +144,9 @@ class ProductModel extends BasePostModel
             'orderby' => [
                 'priority_clause' => 'ASC',
                 'min_qty_clause' => 'ASC',
-                'max_qty_clause' => 'ASC',
+                'max_qty_clause' => 'DESC',
                 'ID' => 'ASC',
             ],
         ];
-
-        if ($conditionQty !== null) {
-            $args['meta_query']['min_qty_clause']['value'] = $conditionQty;
-            $args['meta_query']['min_qty_clause']['compare'] = '<=';
-
-            $args['meta_query']['max_qty_clause']['value'] = $conditionQty;
-            $args['meta_query']['max_qty_clause']['compare'] = '>=';
-        }
-
-        return $args;
     }
-
-    public function getPriceCalculator(): PriceCalculator
-    {
-        return $this->priceCalculator;
-    }
-
-    protected function initPriceCalculator(): void
-    {
-        $this->priceCalculator = new PriceCalculator($this);
-
-    }
-
-    public function getPriceDisplay(): PriceDisplay
-    {
-        return $this->priceDisplay;
-    }
-
-    protected function initPriceDisplay()
-    {
-        $this->priceDisplay = new PriceDisplay($this);
-    }
-
 }

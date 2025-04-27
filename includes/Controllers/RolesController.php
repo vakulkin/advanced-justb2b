@@ -11,7 +11,7 @@ use JustB2b\Fields\FieldBuilder;
 use JustB2b\Fields\Definitions\RolesFieldsDefinition;
 
 
-class RolesController extends BaseCustomController
+class RolesController extends BaseCustomPostController
 {
     protected static string $modelClass = RoleModel::class;
 

@@ -3,24 +3,33 @@
 namespace JustB2b\Models;
 
 use JustB2b\Utils\Prefixer;
+use JustB2b\Traits\LazyLoaderTrait;
 
 defined('ABSPATH') || exit;
 
 abstract class BasePostModel extends BaseModel
 {
-    protected string $title;
+    use LazyLoaderTrait;
+
     protected static string $key;
-    protected static array $prefixedKeys = [];
+    protected ?string $title = null;
 
     public function __construct(int $id)
     {
         parent::__construct($id);
-        $this->title = get_the_title($id);
     }
 
     public function getTitle(): string
     {
+        $this->initTitle();
         return $this->title;
+    }
+
+    protected function initTitle(): void
+    {
+        $this->lazyLoad($this->title, function () {
+            return get_the_title($this->id);
+        });
     }
 
     public static function getKey(): string
@@ -30,25 +39,21 @@ abstract class BasePostModel extends BaseModel
 
     public static function getPrefixedKey(): string
     {
-        $class = static::class;
-
-        if (!isset(self::$prefixedKeys[$class])) {
-            self::$prefixedKeys[$class] = Prefixer::getPrefixed(static::$key);
-        }
-
-        return self::$prefixedKeys[$class];
+        return Prefixer::getPrefixed(static::getKey());
     }
 
     protected static function getAssociatedPosts(int $parentId, string $postType): array
     {
         $posts = carbon_get_post_meta($parentId, $postType);
         $published = [];
+
         foreach ($posts as $post) {
             $postId = (int) ($post['id'] ?? 0);
             if (get_post_status($postId) === 'publish') {
                 $published[$postId] = $post;
             }
         }
+
         return $published;
     }
 
@@ -56,17 +61,17 @@ abstract class BasePostModel extends BaseModel
     {
         $terms = carbon_get_post_meta($parentId, $metaKey);
         $result = [];
+
         foreach ($terms as $termData) {
             $termId = (int) ($termData['id'] ?? 0);
-            if ($termId && ($term = get_term($termId))) {
-                if (!is_wp_error($term)) {
-                    $result[$term->term_id] = [
-                        'id' => $term->term_id,
-                        'taxonomy' => $term->taxonomy,
-                    ];
-                }
+            if ($termId && ($term = get_term($termId)) && !is_wp_error($term)) {
+                $result[$term->term_id] = [
+                    'id' => $term->term_id,
+                    'taxonomy' => $term->taxonomy,
+                ];
             }
         }
+
         return $result;
     }
 
@@ -88,6 +93,4 @@ abstract class BasePostModel extends BaseModel
 
         return $result;
     }
-
-
 }

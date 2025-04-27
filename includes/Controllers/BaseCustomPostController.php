@@ -6,8 +6,7 @@ defined('ABSPATH') || exit;
 
 use JustB2b\Traits\SingletonTrait;
 
-
-abstract class BaseCustomController extends BaseController
+abstract class BaseCustomPostController extends BaseController
 {
     use SingletonTrait;
 

@@ -12,14 +12,14 @@ defined('ABSPATH') || exit;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use Carbon_Fields\Carbon_Fields;
-
 use JustB2b\Traits\SingletonTrait;
 use JustB2b\Controllers\GlobalController;
+use JustB2b\Controllers\ShippingController;
 use JustB2b\Controllers\RolesController;
 use JustB2b\Controllers\RulesController;
 use JustB2b\Controllers\ProductsController;
 use JustB2b\Controllers\UsersController;
+// use JustB2b\Integrations\WoodMartIntegration;
 
 define('JUSTB2B_PLUGIN_VERSION', '3.0.5');
 define('JUSTB2B_PLUGIN_FILE', __FILE__);
@@ -33,29 +33,15 @@ class AdvancedJustB2b
 
     public function __construct()
     {
-        GlobalController::get_instance();
-        RolesController::get_instance();
-        RulesController::get_instance();
-        ProductsController::get_instance();
-        UsersController::get_instance();
-
-        add_action('after_setup_theme', [$this, 'crb_load']);
-        add_action('admin_menu', [$this, 'register_submenus'], 100);
-    }
-
-    public function crb_load()
-    {
-        Carbon_Fields::boot();
-    }
-
-    public function register_submenus()
-    {
-        global $submenu;
-        if (isset($submenu['justb2b-settings'][0])) {
-            $submenu['justb2b-settings'][0][0] = 'Settings';
-        }
+        GlobalController::getInstance();
+        ShippingController::getInstance();
+        RolesController::getInstance();
+        RulesController::getInstance();
+        ProductsController::getInstance();
+        UsersController::getInstance();
+        // WoodMartIntegration::getInstance();
     }
 }
 
 
-AdvancedJustB2b::get_instance();
+AdvancedJustB2b::getInstance();
