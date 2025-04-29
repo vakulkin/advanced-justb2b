@@ -61,7 +61,7 @@ class GlobalController extends BaseController
         $this->getGlobalSettings()
             ->add_tab('Display', $fields)
             ->add_tab('Pricing base', $baseFields)
-            ->add_tab('B2C', $b2cFields);
+            ->add_tab('HTML', $b2cFields);
     }
 
     public function registerSubmenus()

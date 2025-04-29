@@ -30,6 +30,11 @@ class PriceCalculator
     public function __construct(ProductModel $product)
     {
         $this->initProduct($product);
+
+        $firstRule = $this->product->getFirstFullFitRule();
+        if (!$firstRule) {
+            return;
+        }
     }
 
     protected function initProduct(ProductModel $product): void
@@ -70,11 +75,10 @@ class PriceCalculator
 
     protected function initRRPNetPrice(): float
     {
-        $price = $this->calcNetFromJustB2bMeta('rrp_price');
-        if ($price <= 0) {
-            return $this->calcNetFromWCMeta('_price');
-        }
-        return $price;
+        $RRP = $this->calcNetFromJustB2bMeta('rrp_price');
+        $rule = $this->product->getFirstFullFitRule();
+        $secondaryRRPSource = $rule->getSecondaryRRPSource();
+        return $this->getSecondaryPrice($RRP, $secondaryRRPSource);
     }
 
     public function getRRPGrossPrice(): float
@@ -88,23 +92,35 @@ class PriceCalculator
         return self::calcGrossFromNetPrice($this->getRRPNetPrice(), $this->getTaxRates());
     }
 
-    public function getBaseNetPrice(): ?float
+    public function getBaseNetPrice(): float
     {
         $this->lazyLoad($this->baseNetPrice, [$this, 'initBaseNetPrice']);
         return $this->baseNetPrice;
     }
 
-    protected function initBaseNetPrice(): ?float
+    protected function initBaseNetPrice(): float
     {
         $firstRule = $this->product->getFirstFullFitRule();
-        if ($firstRule) {
-            $source = $firstRule->getStartPriceSource();
-            if (str_starts_with($source, 'base_price') || $source === 'rrp_price') {
-                return $this->calcNetFromJustB2bMeta($source);
-            }
-            return $this->calcNetFromWCMeta($source);
+        $baseNetPrice = $this->getNetBykey($firstRule->getPrimaryPriceSource());
+        $secondaryPriceSource = $firstRule->getSecondaryPriceSource();
+        return $this->getSecondaryPrice($baseNetPrice, $secondaryPriceSource);
+    }
+
+    protected function getSecondaryPrice(float $primaryPrice, string $secodaryPriceSource): float
+    {
+        if ('disabled' !== $secodaryPriceSource && $primaryPrice <= 0) {
+            return $this->getNetBykey($secodaryPriceSource);
         }
-        return 0;
+        return $primaryPrice;
+    }
+
+    protected function getNetBykey(string $source): float
+    {
+        if (str_starts_with($source, 'base_price') || $source === 'rrp_price') {
+            return $this->calcNetFromJustB2bMeta($source);
+        }
+
+        return $this->calcNetFromWCMeta($source);
     }
 
     public function getBaseGrossPrice(): float
@@ -147,18 +163,6 @@ class PriceCalculator
     {
         $net = $this->getFinalNetPrice();
         return self::calcGrossFromNetPrice($net, $this->getTaxRates());
-    }
-
-    public function isRequestPrice(): bool
-    {
-        $this->lazyLoad($this->requestPrice, [$this, 'initRequestPrice']);
-        return $this->requestPrice;
-    }
-
-    protected function initRequestPrice(): bool
-    {
-        $rule = $this->product->getFirstFullFitRule();
-        return $rule && $rule->getKind() === 'request_price';
     }
 
     public function isHideProduct(): bool
@@ -223,7 +227,7 @@ class PriceCalculator
     public static function calcRule($kind, $value, $baseNet, $baseGross, $taxRates): float
     {
         switch ($kind) {
-            case 'start_price':
+            case 'primary_price_source':
                 return $baseNet;
             case 'net_minus_percent':
                 return max(0, $baseNet - $baseNet * $value * 0.01);

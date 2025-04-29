@@ -2,6 +2,7 @@
 
 namespace JustB2b;
 
+
 /*
 Plugin Name:  Advanced JustB2B Plugin
 Description: A plugin to manage B2B interactions with custom business rules, user roles, product groups, and pricing strategies.
@@ -19,7 +20,9 @@ use JustB2b\Controllers\RolesController;
 use JustB2b\Controllers\RulesController;
 use JustB2b\Controllers\ProductsController;
 use JustB2b\Controllers\UsersController;
-// use JustB2b\Integrations\WoodMartIntegration;
+use JustB2b\Integrations\WoodMartIntegration;
+use JustB2b\Integrations\WCProductTableLitePro;
+
 
 define('JUSTB2B_PLUGIN_VERSION', '3.0.5');
 define('JUSTB2B_PLUGIN_FILE', __FILE__);
@@ -39,7 +42,8 @@ class AdvancedJustB2b
         RulesController::getInstance();
         ProductsController::getInstance();
         UsersController::getInstance();
-        // WoodMartIntegration::getInstance();
+        WoodMartIntegration::getInstance();
+        WCProductTableLitePro::getInstance();
     }
 }
 

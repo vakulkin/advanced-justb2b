@@ -23,10 +23,10 @@ class ShippingMethodModel
     protected ?string $sepKey = null;
     protected ?string $showKey = null;
     protected ?string $freeKey = null;
+    protected null|false|float $freeFrom = null;
     protected ?string $label = null;
 
     protected ?bool $isActive = null;
-    protected ?float $cost = null;
     protected ?array $fields = null;
 
     public function __construct($WCMethod, $WCZone)
@@ -136,28 +136,23 @@ class ShippingMethodModel
         });
     }
 
-    public function getCost(): float
+    protected function initFreeFrom(): void
     {
-        $this->initCost();
-        return $this->cost;
-    }
+        $this->lazyLoad($this->freeFrom, function (): false|float {
+            $optionValue = get_option(Prefixer::getPrefixedMeta($this->getFreeKey()));
 
-    protected function initCost(): void
-    {
-        $this->lazyLoad($this->cost, function () {
-            $freeFrom = get_option(Prefixer::getPrefixedMeta($this->getFreeKey()));
-
-            if (is_numeric($freeFrom)) {
-                $freeFrom = PriceCalculator::getFloat($freeFrom);
-                $cartTotal = WC()->cart->get_subtotal();
-
-                if ($cartTotal >= $freeFrom) {
-                    return 0.0;
-                }
+            if (is_numeric($optionValue)) {
+                return PriceCalculator::getFloat($optionValue);
             }
 
-            return (float) $this->getWCMethod()->cost;
+            return false;
         });
+    }
+
+    public function getFreeFrom(): false|float
+    {
+        $this->initFreeFrom();
+        return $this->freeFrom;
     }
 
     public function getFields(): array

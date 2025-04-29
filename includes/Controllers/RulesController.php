@@ -17,7 +17,7 @@ class RulesController extends BaseCustomPostController
 
     public function registerFields()
     {
-        $definitions = RulesFieldsDefinition::getMainFileds();
+        $definitions = RulesFieldsDefinition::getMainFields();
         $fields = FieldBuilder::buildFields($definitions);
 
         Container::make('post_meta', 'JustB2B')

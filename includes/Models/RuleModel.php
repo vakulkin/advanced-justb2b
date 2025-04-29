@@ -20,7 +20,9 @@ class RuleModel extends BasePostModel
 
     protected ?int $priority = null;
     protected ?string $kind = null;
-    protected ?string $startPriceSource = null;
+    protected ?string $primaryPriceSource = null;
+    protected ?string $secondaryPriceSource = null;
+    protected ?string $secondaryRRPSource = null;
     protected ?float $value = null;
     protected ?int $minQty = null;
     protected ?int $maxQty = null;
@@ -65,18 +67,45 @@ class RuleModel extends BasePostModel
         });
     }
 
-    public function getStartPriceSource(): string
+    public function getPrimaryPriceSource(): string
     {
-        $this->initStartPriceSource();
-        return $this->startPriceSource;
+        $this->initPrimaryPriceSource();
+        return $this->primaryPriceSource;
     }
 
-    protected function initStartPriceSource(): void
+    protected function initPrimaryPriceSource(): void
     {
-        $this->lazyLoad($this->startPriceSource, function () {
-            return carbon_get_post_meta($this->id, Prefixer::getPrefixed('start_price'), true) ?: '_price';
+        $this->lazyLoad($this->primaryPriceSource, function () {
+            return carbon_get_post_meta($this->id, Prefixer::getPrefixed('primary_price_source'), true) ?: '_price';
         });
     }
+
+    public function getSecondaryPriceSource(): string
+    {
+        $this->initSecondaryPriceSource();
+        return $this->secondaryPriceSource;
+    }
+
+    protected function initSecondaryPriceSource(): void
+    {
+        $this->lazyLoad($this->secondaryPriceSource, function () {
+            return carbon_get_post_meta($this->id, Prefixer::getPrefixed('secondary_primary_price_source'), true) ?: 'disabled';
+        });
+    }
+
+    public function getSecondaryRRPSource(): string
+    {
+        $this->initSecondaryRRPSource();
+        return $this->secondaryRRPSource;
+    }
+
+    protected function initSecondaryRRPSource(): void
+    {
+        $this->lazyLoad($this->secondaryRRPSource, function () {
+            return carbon_get_post_meta($this->id, Prefixer::getPrefixed('secondary_rrp_source'), true) ?: 'disabled';
+        });
+    }
+
 
     public function getValue(): float
     {
@@ -176,7 +205,7 @@ class RuleModel extends BasePostModel
                 return false;
             }
 
-            if (!$this->passesQualifyingProductsTermsCheck($productId)) {
+            if (!$this->passesQualifyingTermsCheck($productId)) {
                 return false;
             }
 
@@ -184,7 +213,7 @@ class RuleModel extends BasePostModel
                 return false;
             }
 
-            if (!$this->passesExcludingProductsTermsCheck()) {
+            if (!$this->passesExcludingProductsTermsCheck($productId)) {
                 return false;
             }
 
@@ -202,66 +231,92 @@ class RuleModel extends BasePostModel
     {
         $mainProducts = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('products'));
         $mainTerms = self::getAssociatedTerms($this->id, Prefixer::getPrefixed('woo_terms'));
-        return $this->checkProduct($mainProducts, $productId) || $this->checkTerms($mainTerms, $productId);
+        return $this->checkProduct($mainProducts, $productId)
+            || $this->checkTerms($mainTerms, $productId);
     }
 
     private function passesQualifyingRolesCheck(int $userId): bool
     {
         $qualifyingRoles = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('qualifying_roles'));
-        return empty($qualifyingRoles) || $this->checkRoles($qualifyingRoles, $userId);
+        return $this->checkRoles($qualifyingRoles, $userId);
     }
 
-    private function passesQualifyingProductsTermsCheck(int $productId): bool
+    private function passesQualifyingTermsCheck(int $productId): bool
     {
-        $qualifyingProducts = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('qualifying_products'));
         $qualifyingTerms = self::getAssociatedTerms($this->id, Prefixer::getPrefixed('qualifying_woo_terms'));
-
-        if (empty($qualifyingProducts) && empty($qualifyingTerms)) {
-            return true;
-        }
-
-        return $this->checkProduct($qualifyingProducts, $productId) || $this->checkTerms($qualifyingTerms, $productId);
+        return $this->checkTerms($qualifyingTerms, $productId);
     }
 
     private function passesExcludingRolesCheck(int $userId): bool
     {
         $excludingRoles = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('excluding_roles'));
-        return !$this->checkRoles($excludingRoles, $userId);
+        return $this->checkRoles($excludingRoles, $userId, true);
     }
 
-    private function passesExcludingProductsTermsCheck(): bool
+    private function passesExcludingProductsTermsCheck(int $productId): bool
     {
-        $excludingProducts = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('excluding_products'));
-        $excludingTerms = self::getAssociatedTerms($this->id, Prefixer::getPrefixed('excluding_woo_terms'));
+        $excludingProducts = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('products'));
+        $excludingTerms = self::getAssociatedTerms($this->id, Prefixer::getPrefixed('woo_terms'));
 
-        return empty($excludingProducts) && empty($excludingTerms);
+        return $this->checkProduct($excludingProducts, $productId, true)
+            || $this->checkTerms($excludingTerms, $productId, true);
     }
 
-    protected function checkProduct(array $products, int $productId): bool
+    protected function checkProduct(false|array $products, int $productId, bool $excludingLogic = false): bool
     {
-        return isset($products[$productId]);
-    }
+        if (false === $products) {
+            return false;
+        }
 
-    protected function checkTerms(array $terms, int $productId): bool
+        if (empty($products)) {
+            return true;
+        }
+
+        $result = isset($products[$productId]);
+        return $excludingLogic ? !$result : $result;
+    }
+    protected function checkTerms(false|array $terms, int $productId, bool $excludingLogic = false): bool
     {
+        if (false === $terms) {
+            return false;
+        }
+
+        if (empty($terms)) {
+            return true;
+        }
+
+        $result = false;
         foreach ($terms as $term) {
             if (has_term($term['id'], $term['taxonomy'], $productId)) {
-                return true;
+                $result = true;
+                break;
             }
         }
-        return false;
+
+        return $excludingLogic ? !$result : $result;
     }
 
-    protected function checkRoles(array $roles, int $userId): bool
+
+    protected function checkRoles(false|array $roles, int $userId, bool $excludingLogic = false): bool
     {
+        if (false === $roles) {
+            return false;
+        }
+
+        if (empty($roles)) {
+            return true;
+        }
+
+        $result = false;
         foreach ($roles as $role) {
             $roleId = $role['id'];
             $users = self::getAssociatedUsers($roleId, Prefixer::getPrefixed('users'));
             if (isset($users[$userId])) {
-                return true;
+                $result = true;
+                break;
             }
         }
-        return false;
+        return $excludingLogic ? !$result : $result;
     }
 
     public function getConditionProductId(): int

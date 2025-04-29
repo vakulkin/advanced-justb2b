@@ -2,14 +2,18 @@
 
 namespace JustB2b\Controllers;
 
+
+
 defined('ABSPATH') || exit;
 
+use WC_Product_Simple;
 use WC_Shipping_Zone;
 use WC_Shipping_Zones;
+
+use JustB2b\Traits\LazyLoaderTrait;
 use JustB2b\Utils\Prefixer;
 use JustB2b\Models\ShippingMethodModel;
 use JustB2b\Fields\FieldBuilder;
-use JustB2b\Traits\LazyLoaderTrait;
 
 class ShippingController extends BaseController
 {
@@ -17,11 +21,13 @@ class ShippingController extends BaseController
 
     protected ?array $shippingMethods = null;
     protected ?array $shippingFieldsDefinition = null;
+    protected ShippingMethodModel|false|null $minimalFreeFromMethod = null;
 
     public function __construct()
     {
         parent::__construct();
-        add_filter('woocommerce_package_rates', [$this, 'filterShippingRates'], 10, 2);
+        add_filter('woocommerce_package_rates', [$this, 'filterShippingRates']);
+        add_action('woocommerce_checkout_update_order_review', [$this, 'resetShippingCache']);
     }
 
     public function registerFields()
@@ -106,21 +112,161 @@ class ShippingController extends BaseController
             WHERE option_name LIKE '{$tempKey}' {$prefixedActiveKeysCondition}");
     }
 
+    public function getMethodWithMinimalFreeFrom(): ShippingMethodModel|false
+    {
+        $this->initMethodWithMinimalFreeFrom();
+        return $this->minimalFreeFromMethod;
+    }
+
+    protected function initMethodWithMinimalFreeFrom(): void
+    {
+        $this->lazyLoad($this->minimalFreeFromMethod, function () {
+            if (!function_exists('WC') || !WC()->shipping) {
+                return false;
+            }
+
+            $packages = $this->getShippingPackagesForFakeProduct();
+
+            if (empty($packages)) {
+                return false;
+            }
+
+            $package = $packages[0]; // We have only 1 fake package
+
+            // Find the correct shipping zone for the current destination
+            $zone = WC_Shipping_Zones::get_zone_matching_package($package);
+
+            if (!$zone) {
+                return false;
+            }
+
+            $zoneId = $zone->get_id(); // 💥 Save current zone ID
+
+            $availableRates = [];
+
+            foreach ($zone->get_shipping_methods(true) as $method) { // true = enabled only
+                if ($method->enabled === 'yes') {
+                    $instance = clone $method;
+                    $instance->calculate_shipping($package);
+
+                    foreach ($instance->rates as $rateId => $rateObject) {
+                        $availableRates[$rateId] = $rateObject;
+                    }
+                }
+            }
+
+            if (empty($availableRates)) {
+                return false;
+            }
+
+            $bestMethod = null;
+            $smallestFreeFrom = null;
+
+            foreach ($availableRates as $rateId => $rateObject) {
+                if (!isset($this->shippingMethods[$rateId])) {
+                    continue;
+                }
+
+                /** @var ShippingMethodModel $method */
+                $method = $this->shippingMethods[$rateId];
+
+
+                if (!$method->isActive()) {
+                    continue;
+                }
+
+                $freeFrom = $method->getFreeFrom();
+
+                if ($freeFrom === false) {
+                    continue;
+                }
+
+                if ($smallestFreeFrom === null || $freeFrom < $smallestFreeFrom) {
+                    $smallestFreeFrom = $freeFrom;
+                    $bestMethod = $method;
+                }
+            }
+
+            return $bestMethod ?: false;
+        });
+    }
+
+    public function getShippingPackagesForFakeProduct(): array
+    {
+        $product = new WC_Product_Simple();
+        $product->set_id(0); // ID 0 means "not saved"
+        $product->set_name('Fake Product');
+        $product->set_price(0.01);
+        $product->set_regular_price(0.01);
+        $product->set_weight(''); // optional, or set weight like '1'
+        $product->set_shipping_class_id(0); // optional
+
+        $cartItem = [
+            'key' => 'fake_product_' . uniqid(),
+            'product_id' => 0,
+            'variation_id' => 0,
+            'variation' => [],
+            'quantity' => 1,
+            'data' => $product,
+            'data_hash' => md5(serialize($product)),
+            'line_tax_data' => ['subtotal' => [], 'total' => []],
+        ];
+
+        $package = [
+            'contents' => [$cartItem],
+            'contents_cost' => 0.01,
+            'applied_coupons' => [],
+            'destination' => [
+                'country' => WC()->customer->get_shipping_country(),
+                'state' => WC()->customer->get_shipping_state(),
+                'postcode' => WC()->customer->get_shipping_postcode(),
+                'city' => WC()->customer->get_shipping_city(),
+                'address' => WC()->customer->get_shipping_address(),
+                'address_2' => WC()->customer->get_shipping_address_2(),
+            ],
+        ];
+
+        return [$package];
+    }
+
     public function filterShippingRates($rates)
     {
-        $shippingMethods = $this->getShippingMethods();
+        $this->initShippingMethods();
 
         foreach ($rates as $rate_id => $rate) {
-            if (isset($shippingMethods[$rate_id])) {
-                $method = $shippingMethods[$rate_id];
+            if (isset($this->shippingMethods[$rate_id])) {
+                $method = $this->shippingMethods[$rate_id];
+
                 if (!$method->isActive()) {
                     unset($rates[$rate_id]);
                     continue;
                 }
-                $rates[$rate_id]->cost = $method->getCost();
+
+                $freeFrom = $method->getFreeFrom();
+                $cartSubTotal = WC()->cart->get_subtotal();
+
+                if ($freeFrom !== false && $cartSubTotal > 0 && $cartSubTotal >= $freeFrom) {
+                    $rates[$rate_id]->cost = 0.0;
+                }
             }
         }
 
         return $rates;
     }
+
+    public function resetShippingCache()
+    {
+        if (!function_exists('WC') || !WC()->cart || !WC()->session) {
+            return;
+        }
+
+        $packages = WC()->cart->get_shipping_packages();
+
+        foreach ($packages as $key => $value) {
+            $shipping_session_key = "shipping_for_package_$key";
+            WC()->session->set($shipping_session_key, null);
+        }
+    }
+
+
 }

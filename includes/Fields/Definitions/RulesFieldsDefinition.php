@@ -2,7 +2,6 @@
 
 namespace JustB2b\Fields\Definitions;
 
-
 defined('ABSPATH') || exit;
 
 use JustB2b\Utils\Prefixer;
@@ -12,19 +11,29 @@ use JustB2b\Fields\AssociationField;
 
 class RulesFieldsDefinition
 {
-    protected static array $startPrices = [
-        '_price' => '_price',
-        '_regular_price' => '_regular_price',
-        '_sale_price' => '_sale_price',
-        'rrp_price' => 'rrp_price',
-        'base_price_1' => 'base_price_1',
-        'base_price_2' => 'base_price_2',
-        'base_price_3' => 'base_price_3',
-        'base_price_4' => 'base_price_4',
-        'base_price_5' => 'base_price_5',
-    ];
+    protected static function getPrimaryPriceSources(): array
+    {
+        return [
+            '_price' => '_price',
+            '_regular_price' => '_regular_price',
+            '_sale_price' => '_sale_price',
+            'rrp_price' => 'rrp_price',
+            'base_price_1' => 'base_price_1',
+            'base_price_2' => 'base_price_2',
+            'base_price_3' => 'base_price_3',
+            'base_price_4' => 'base_price_4',
+            'base_price_5' => 'base_price_5',
+        ];
+    }
 
-    public static function getMainFileds(): array
+    protected static function getSecondaryPriceSources(): array
+    {
+        return [
+            'disabled' => 'disabled',
+        ] + self::getPrimaryPriceSources();
+    }
+
+    public static function getMainFields(): array
     {
         return [
             (new TextField('priority', 'Priority'))
@@ -32,9 +41,22 @@ class RulesFieldsDefinition
                 ->setAttribute('step', 'any')
                 ->setWidth(50),
 
+            (new SelectField('primary_price_source', 'Primary price source'))
+                ->setOptions(self::getPrimaryPriceSources())
+                ->setWidth(50),
+
+            (new SelectField('secondary_primary_price_source', 'Secondary price source'))
+                ->setOptions(self::getSecondaryPriceSources())
+                ->setWidth(50),
+
+            (new SelectField('secondary_rrp_source', 'Secondary RPP source'))
+                ->setOptions(self::getSecondaryPriceSources())
+                ->setWidth(50),
+
             (new SelectField('kind', 'Rodzaj'))
                 ->setOptions([
-                    'start_price' => 'start_price',
+                    'primary_price_source' => 'primary_price_source',
+                    'secondary_primary_price_source' => 'secondary_primary_price_source',
                     'net_minus_percent' => 'net_minus_percent',
                     'net_plus_percent' => 'net_plus_percent',
                     'net_minus_number' => 'net_minus_number',
@@ -45,21 +67,30 @@ class RulesFieldsDefinition
                     'gross_minus_number' => 'gross_minus_number',
                     'gross_plus_number' => 'gross_plus_number',
                     'gross_equals_number' => 'gross_equals_number',
-                    'request_price' => 'request_price',
-                    'hide_product' => 'hide_product',
-                    'non_purchasable' => 'non_purchasable',
+                    'loop_hidden_product' => 'loop_hidden_product',
+                    'full_hidden_product' => 'full_hidden_product',
+                    'non_purchasable_product' => 'non_purchasable_product',
                 ])
-                ->setWidth(50),
-
-            (new SelectField('start_price', 'Start price'))
-                ->setOptions(self::$startPrices)
                 ->setWidth(50),
 
             (new TextField('value', 'Wartość'))
                 ->setAttribute('type', 'number')
                 ->setAttribute('step', 'any')
                 ->setWidth(50),
-
+            (new SelectField('order_for_price', 'order_for_price'))
+                ->setOptions([
+                    'disabled' => 'disabled',
+                    'enabled' => 'enabled',
+                ])
+                ->setWidth(50),
+            (new SelectField('custom_html', 'custom_html'))
+                ->setOptions([
+                    'disabled' => 'disabled',
+                    'html_1' => 'html_1',
+                    'html_2' => 'html_2',
+                    'html_3' => 'html_3',
+                ])
+                ->setWidth(50),
             (new TextField('min_qty', 'Min ilość'))
                 ->setAttribute('type', 'number')
                 ->setAttribute('step', 'any')
@@ -70,19 +101,18 @@ class RulesFieldsDefinition
                 ->setAttribute('step', 'any')
                 ->setWidth(50),
 
-            (new SelectField('show_in_qty_table', 'Pokazac w tabeli'))
+            (new SelectField('show_in_qty_table', 'Pokazać w tabeli'))
                 ->setOptions([
                     'show' => 'show',
                     'hide' => 'hide',
-                ])->setWidth(50),
-
+                ])
+                ->setWidth(50),
         ];
     }
 
     public static function getMainConditions(): array
     {
         return [
-
             (new AssociationField('roles', 'Roles'))
                 ->setTypes([
                     [
@@ -90,6 +120,7 @@ class RulesFieldsDefinition
                         'post_type' => Prefixer::getPrefixed('role'),
                     ]
                 ]),
+
             (new AssociationField('products', 'Products'))
                 ->setTypes([
                     [
@@ -101,6 +132,7 @@ class RulesFieldsDefinition
                         'post_type' => 'product_variation',
                     ]
                 ]),
+
             (new AssociationField('woo_terms', 'Woo Terms'))
                 ->setTypes([
                     [
@@ -118,7 +150,6 @@ class RulesFieldsDefinition
     public static function getGualifyingConditions(): array
     {
         return [
-
             (new AssociationField('qualifying_roles', 'Roles'))
                 ->setTypes([
                     [
@@ -126,17 +157,7 @@ class RulesFieldsDefinition
                         'post_type' => Prefixer::getPrefixed('role'),
                     ]
                 ]),
-            (new AssociationField('qualifying_products', 'Products'))
-                ->setTypes([
-                    [
-                        'type' => 'post',
-                        'post_type' => 'product',
-                    ],
-                    [
-                        'type' => 'post',
-                        'post_type' => 'product_variation',
-                    ]
-                ]),
+
             (new AssociationField('qualifying_woo_terms', 'Woo Terms'))
                 ->setTypes([
                     [
@@ -154,7 +175,6 @@ class RulesFieldsDefinition
     public static function getExcludingConditions(): array
     {
         return [
-
             (new AssociationField('excluding_roles', 'Roles'))
                 ->setTypes([
                     [
@@ -162,6 +182,7 @@ class RulesFieldsDefinition
                         'post_type' => Prefixer::getPrefixed('role'),
                     ]
                 ]),
+
             (new AssociationField('excluding_products', 'Products'))
                 ->setTypes([
                     [
@@ -173,6 +194,7 @@ class RulesFieldsDefinition
                         'post_type' => 'product_variation',
                     ]
                 ]),
+
             (new AssociationField('excluding_woo_terms', 'Woo Terms'))
                 ->setTypes([
                     [
@@ -186,5 +208,4 @@ class RulesFieldsDefinition
                 ]),
         ];
     }
-
 }

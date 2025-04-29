@@ -42,7 +42,7 @@ abstract class BasePostModel extends BaseModel
         return Prefixer::getPrefixed(static::getKey());
     }
 
-    protected static function getAssociatedPosts(int $parentId, string $postType): array
+    protected static function getAssociatedPosts(int $parentId, string $postType): false|array
     {
         $posts = carbon_get_post_meta($parentId, $postType);
         $published = [];
@@ -51,13 +51,15 @@ abstract class BasePostModel extends BaseModel
             $postId = (int) ($post['id'] ?? 0);
             if (get_post_status($postId) === 'publish') {
                 $published[$postId] = $post;
+            } else {
+                return false;
             }
         }
 
         return $published;
     }
 
-    protected static function getAssociatedTerms(int $parentId, string $metaKey): array
+    protected static function getAssociatedTerms(int $parentId, string $metaKey): false|array
     {
         $terms = carbon_get_post_meta($parentId, $metaKey);
         $result = [];
@@ -69,13 +71,15 @@ abstract class BasePostModel extends BaseModel
                     'id' => $term->term_id,
                     'taxonomy' => $term->taxonomy,
                 ];
+            } else {
+                return false;
             }
         }
 
         return $result;
     }
 
-    protected static function getAssociatedUsers(int $parentId, string $metaKey): array
+    protected static function getAssociatedUsers(int $parentId, string $metaKey): false|array
     {
         $users = carbon_get_post_meta($parentId, $metaKey);
         $result = [];
@@ -88,6 +92,8 @@ abstract class BasePostModel extends BaseModel
                     'display_name' => $user->display_name,
                     'user_email' => $user->user_email,
                 ];
+            } else {
+                return false;
             }
         }
 

@@ -220,7 +220,7 @@ class PriceDisplay
 
                     $html .= '<tr>';
                     $html .= '<td>' . $rule->getTitle() . '</td>';
-                    $html .= '<td>' . $rule->getStartPriceSource() . '</td>';
+                    $html .= '<td>' . $rule->getPrimaryPriceSource() . '</td>';
                     $html .= '<td>' . $rule->getPriority() . '</td>';
                     $html .= '<td>' . $rule->getMinQty() . '</td>';
                     $html .= '<td>' . $rule->getMaxQty() . '</td>';
