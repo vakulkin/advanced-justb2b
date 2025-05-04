@@ -2,6 +2,9 @@
 
 namespace JustB2b\Models;
 
+use WC_Shipping_Method;
+use WC_Shipping_Zone;
+
 use JustB2b\Utils\Prefixer;
 use JustB2b\Controllers\UsersController;
 use JustB2b\Utils\Pricing\PriceCalculator;
@@ -10,14 +13,14 @@ use JustB2b\Fields\SelectField;
 use JustB2b\Fields\SeparatorField;
 use JustB2b\Traits\LazyLoaderTrait;
 
+
 defined('ABSPATH') || exit;
 
 class ShippingMethodModel
 {
     use LazyLoaderTrait;
-
-    protected ?object $WCMethod = null;
-    protected ?object $WCZone = null;
+    protected ?WC_Shipping_Method $WCMethod = null;
+    protected ?WC_Shipping_Zone $WCZone = null;
 
     protected ?string $key = null;
     protected ?string $sepKey = null;
@@ -25,7 +28,6 @@ class ShippingMethodModel
     protected ?string $freeKey = null;
     protected null|false|float $freeFrom = null;
     protected ?string $label = null;
-
     protected ?bool $isActive = null;
     protected ?array $fields = null;
 
@@ -35,12 +37,12 @@ class ShippingMethodModel
         $this->WCZone = $WCZone;
     }
 
-    public function getWCMethod(): object
+    public function getWCMethod(): WC_Shipping_Method
     {
         return $this->WCMethod;
     }
 
-    public function getWCZone(): object
+    public function getWCZone(): WC_Shipping_Zone
     {
         return $this->WCZone;
     }
@@ -55,7 +57,7 @@ class ShippingMethodModel
     {
         $this->lazyLoad($this->key, function () {
             $rateId = str_replace(':', '---', $this->getWCMethod()->get_rate_id());
-            return "temp---{$rateId}";
+            return "temp_shipping---{$rateId}";
         });
     }
 
@@ -101,11 +103,14 @@ class ShippingMethodModel
     protected function initLabel(): void
     {
         $this->lazyLoad($this->label, function () {
+            $status = $this->getWCMethod()->enabled === 'yes' ? 'enabled' : 'disabled';
+
             return sprintf(
-                '%s: %s — %s',
+                '%s: %s — %s (%s)',
                 $this->getWCMethod()->get_instance_id(),
                 $this->getWCZone()->get_zone_name(),
-                $this->getWCMethod()->get_title()
+                $this->getWCMethod()->get_title(),
+                $status
             );
         });
     }
@@ -168,7 +173,7 @@ class ShippingMethodModel
                 new SeparatorField($this->getSepKey(), $this->getLabel()),
                 (new SelectField($this->getShowKey(), "Show for users"))
                     ->setOptions([
-                        'b2x' => 'b2x [all]',
+                        'b2x' => 'b2x',
                         'b2c' => 'b2c',
                         'b2b' => 'b2b',
                     ])

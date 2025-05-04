@@ -12,7 +12,11 @@ abstract class BasePostModel extends BaseModel
     use LazyLoaderTrait;
 
     protected static string $key;
+    
     protected ?string $title = null;
+
+    abstract static public function getSingleName(): string;
+    abstract static public function getPluralName(): string;
 
     public function __construct(int $id)
     {

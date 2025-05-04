@@ -95,7 +95,7 @@ class ShippingController extends BaseController
     {
         global $wpdb;
 
-        $tempKey = Prefixer::getPrefixedMeta('temp---%');
+        $tempKey = Prefixer::getPrefixedMeta('temp_shipping---%');
         $prefixedActiveKeys = [];
 
         foreach ($this->getShippingFieldsDefinition() as $field) {

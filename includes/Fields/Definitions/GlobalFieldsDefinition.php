@@ -51,7 +51,7 @@ class GlobalFieldsDefinition
 
         $showOptions = [
             'show' => 'show',
-            'dont_show' => 'hide',
+            'hide' => 'hide',
             'only_product' => 'only_product',
             'only_loop' => 'only_loop',
         ];
@@ -83,16 +83,21 @@ class GlobalFieldsDefinition
 
     public static function getB2cFileds(): array
     {
-        return [
-            (new SelectField('show_b2c_html', 'show_b2c_html'))
+        $fieldsDefinition = [];
+        $types = ['b2c', 'b2b'];
+
+        foreach ($types as $type) {
+            $fieldsDefinition[] = (new SelectField("show_{$type}_html_1", "show_{$type}_html_1"))
                 ->setOptions([
                     'show' => 'show',
                     'hide' => 'hide',
                 ])
-                ->setWidth(100),
-            (new RichText('b2c_html', 'b2c_html'))
-                ->setWidth(100),
-        ];
+                ->setWidth(100);
+            $fieldsDefinition[] = (new RichText("{$type}_html_1", "{$type}_html_1"))
+                ->setWidth(100);
+        }
+
+        return $fieldsDefinition;
     }
 
 }

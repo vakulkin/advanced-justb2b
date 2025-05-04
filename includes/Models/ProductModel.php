@@ -2,6 +2,7 @@
 
 namespace JustB2b\Models;
 
+use JustB2b\Controllers\UsersController;
 use JustB2b\Utils\Prefixer;
 use JustB2b\Utils\Pricing\PriceCalculator;
 use JustB2b\Utils\Pricing\PriceDisplay;
@@ -16,8 +17,11 @@ class ProductModel extends BasePostModel
     use LazyLoaderTrait;
 
     protected static string $key = 'product';
-
     protected int $qty;
+    protected ?bool $isSimpleProduct = null;
+    protected ?bool $isVariableProduct = null;
+    protected ?bool $isVariation;
+    protected ?bool $isDifferntTypeProduct = null;
     protected ?WC_Product $WCProduct = null;
     protected ?array $associationsRules = null;
     protected ?RuleModel $firstFullFitRule = null;
@@ -30,9 +34,17 @@ class ProductModel extends BasePostModel
         $this->initQty($conditionQty);
     }
 
+    public static function getSingleName(): string {
+        return __('Product', 'justb2b');
+    }
+    public static function getPluralName(): string {
+        return __('Products', 'justb2b');
+    }
+
     public function getWCProduct(): WC_Product
     {
         $this->initWCProduct();
+        error_log($this->WCProduct->get_id());
         return $this->WCProduct;
     }
 
@@ -53,6 +65,52 @@ class ProductModel extends BasePostModel
         $this->qty = $conditionQty;
     }
 
+    public function isSimpleProduct(): bool
+    {
+        $this->initIsSimpleProduct();
+        return $this->isSimpleProduct;
+    }
+
+    protected function initIsSimpleProduct(): void
+    {
+        $this->lazyLoad($this->isSimpleProduct, function () {
+            return $this->getWCProduct()->is_type('simple');
+        });
+    }
+    public function isVariableProduct(): bool
+    {
+        $this->initIsVariableProduct();
+        return $this->isVariableProduct;
+    }
+    protected function initIsVariableProduct(): void
+    {
+        $this->lazyLoad($this->isVariableProduct, function () {
+            return $this->getWCProduct()->is_type('variable');
+        });
+    }
+    public function isVariation(): bool
+    {
+        $this->initIsVariation();
+        return $this->isVariation;
+    }
+    protected function initIsVariation(): void
+    {
+        $this->lazyLoad($this->isVariation, function () {
+            return $this->getWCProduct()->is_type('variation');
+        });
+    }
+    public function isDifferentTypeProduct(): bool
+    {
+        $this->initIsDifferentTypeProduct();
+        return $this->isDifferntTypeProduct;
+    }
+    protected function initIsDifferentTypeProduct(): void
+    {
+        $this->lazyLoad($this->isDifferntTypeProduct, function () {
+            return !$this->isSimpleProduct() && !$this->isVariableProduct() && !$this->isVariation();
+        });
+    }
+
     public function getRules(): array
     {
         $this->initAssociationRules();
@@ -66,8 +124,8 @@ class ProductModel extends BasePostModel
             $results = [];
 
             foreach ($query->posts as $post) {
-                $rule = new RuleModel($post->ID, $this->id, $this->getQty());
-                if ($rule->isAssociationFits()) {
+                $rule = new RuleModel($post->ID, $this);
+                if ($rule->isAssociationFit()) {
                     $results[] = $rule;
                 }
             }
@@ -86,7 +144,7 @@ class ProductModel extends BasePostModel
     {
         $this->lazyLoad($this->firstFullFitRule, function () {
             foreach ($this->getRules() as $rule) {
-                if ($rule->isQtyFits()) {
+                if ($rule->doesQtyFits()) {
                     return $rule;
                 }
             }
@@ -107,22 +165,26 @@ class ProductModel extends BasePostModel
         });
     }
 
-    public function getPriceDisplay(): PriceDisplay
+    public function getPriceDisplay(string $defaultPriceHtml, bool $isInLoop): PriceDisplay
     {
-        $this->initPriceDisplay();
+        $this->initPriceDisplay($defaultPriceHtml, $isInLoop);
         return $this->priceDisplay;
     }
 
-    protected function initPriceDisplay(): void
+    protected function initPriceDisplay(string $defaultPriceHtml, bool $isInLoop): void
     {
-        $this->lazyLoad($this->priceDisplay, function () {
-            return new PriceDisplay($this);
+        $this->lazyLoad($this->priceDisplay, function () use ($defaultPriceHtml, $isInLoop) {
+            return new PriceDisplay($this, $defaultPriceHtml, $isInLoop);
         });
     }
 
+
     protected function getRuleQueryArgs(): array
     {
-        return [
+        $usersController = UsersController::getInstance();
+        $currentUser = $usersController->getCurrentUser();
+
+        $params = [
             'post_type' => Prefixer::getPrefixed('rule'),
             'post_status' => 'publish',
             'posts_per_page' => -1,
@@ -148,5 +210,21 @@ class ProductModel extends BasePostModel
                 'ID' => 'ASC',
             ],
         ];
+
+        $params['meta_query']['user_type_clause'] = [
+            'relation' => 'OR',
+            [
+                'key' => Prefixer::getPrefixedMeta('user_type'),
+                'value' => $currentUser->isB2b() ? ['b2b', 'b2x'] : ['b2c', 'b2x'],
+                'compare' => 'IN',
+            ],
+            [
+                'key' => Prefixer::getPrefixedMeta('user_type'),
+                'compare' => 'NOT EXISTS',
+            ],
+        ];
+
+
+        return $params;
     }
 }

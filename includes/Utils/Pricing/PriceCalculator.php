@@ -23,18 +23,10 @@ class PriceCalculator
     protected ?float $finalGrossPrice = null;
     protected ?float $RRPNetPrice = null;
     protected ?float $RRPGrossPrice = null;
-    protected ?bool $requestPrice = null;
-    protected ?bool $hideProduct = null;
-    protected ?bool $isPurchasable = null;
 
     public function __construct(ProductModel $product)
     {
         $this->initProduct($product);
-
-        $firstRule = $this->product->getFirstFullFitRule();
-        if (!$firstRule) {
-            return;
-        }
     }
 
     protected function initProduct(ProductModel $product): void
@@ -77,8 +69,11 @@ class PriceCalculator
     {
         $RRP = $this->calcNetFromJustB2bMeta('rrp_price');
         $rule = $this->product->getFirstFullFitRule();
-        $secondaryRRPSource = $rule->getSecondaryRRPSource();
-        return $this->getSecondaryPrice($RRP, $secondaryRRPSource);
+        if ($rule) {
+            $secondaryRRPSource = $rule->getSecondaryRRPSource();
+            return $this->getSecondaryPrice($RRP, $secondaryRRPSource);
+        }
+        return 0;
     }
 
     public function getRRPGrossPrice(): float
@@ -100,10 +95,13 @@ class PriceCalculator
 
     protected function initBaseNetPrice(): float
     {
-        $firstRule = $this->product->getFirstFullFitRule();
-        $baseNetPrice = $this->getNetBykey($firstRule->getPrimaryPriceSource());
-        $secondaryPriceSource = $firstRule->getSecondaryPriceSource();
-        return $this->getSecondaryPrice($baseNetPrice, $secondaryPriceSource);
+        $rule = $this->product->getFirstFullFitRule();
+        if ($rule) {
+            $baseNetPrice = $this->getNetBykey($rule->getPrimaryPriceSource());
+            $secondaryPriceSource = $rule->getSecondaryPriceSource();
+            return $this->getSecondaryPrice($baseNetPrice, $secondaryPriceSource);
+        }
+        return 0;
     }
 
     protected function getSecondaryPrice(float $primaryPrice, string $secodaryPriceSource): float
@@ -143,10 +141,13 @@ class PriceCalculator
 
     protected function initFinalNetPrice(): float
     {
-        $rule = $this->product->getFirstFullFitRule();
+        $firstFitRule = $this->product->getFirstFullFitRule();
+        if (!$firstFitRule) {
+            return 0;
+        }
         return self::calcRule(
-            $rule->getKind(),
-            $rule->getValue(),
+            $firstFitRule->getKind(),
+            $firstFitRule->getValue(),
             $this->getBaseNetPrice(),
             $this->getBaseGrossPrice(),
             $this->getTaxRates()
@@ -164,31 +165,6 @@ class PriceCalculator
         $net = $this->getFinalNetPrice();
         return self::calcGrossFromNetPrice($net, $this->getTaxRates());
     }
-
-    public function isHideProduct(): bool
-    {
-        $this->lazyLoad($this->hideProduct, [$this, 'initHideProduct']);
-        return $this->hideProduct;
-    }
-
-    protected function initHideProduct(): bool
-    {
-        $rule = $this->product->getFirstFullFitRule();
-        return $rule && $rule->getKind() === 'hide_product';
-    }
-
-    public function isPurchasable(): bool
-    {
-        $this->lazyLoad($this->isPurchasable, [$this, 'initIsPurchasable']);
-        return $this->isPurchasable;
-    }
-
-    protected function initIsPurchasable(): bool
-    {
-        $rule = $this->product->getFirstFullFitRule();
-        return $rule && $rule->getKind() !== 'non_purchasable';
-    }
-
 
     protected function calcNetFromWCMeta(string $key): float
     {
@@ -227,7 +203,7 @@ class PriceCalculator
     public static function calcRule($kind, $value, $baseNet, $baseGross, $taxRates): float
     {
         switch ($kind) {
-            case 'primary_price_source':
+            case 'price_source':
                 return $baseNet;
             case 'net_minus_percent':
                 return max(0, $baseNet - $baseNet * $value * 0.01);

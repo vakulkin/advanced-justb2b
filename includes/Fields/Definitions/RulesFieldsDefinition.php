@@ -2,6 +2,8 @@
 
 namespace JustB2b\Fields\Definitions;
 
+use JustB2b\Fields\RichText;
+
 defined('ABSPATH') || exit;
 
 use JustB2b\Utils\Prefixer;
@@ -41,11 +43,27 @@ class RulesFieldsDefinition
                 ->setAttribute('step', 'any')
                 ->setWidth(50),
 
+            (new SelectField('user_type', 'User type'))
+                ->setOptions([
+                    'b2x' => 'b2x',
+                    'b2b' => 'b2b',
+                    'b2c' => 'b2c',
+                ])
+                ->setWidth(50),
+
+            (new SelectField('visibility', 'Visibility'))
+                ->setOptions([
+                    'show' => 'show',
+                    'loop_hidden' => 'loop_hidden',
+                    'fully_hidden' => 'fully_hidden',
+                ])
+                ->setWidth(50),
+
             (new SelectField('primary_price_source', 'Primary price source'))
                 ->setOptions(self::getPrimaryPriceSources())
                 ->setWidth(50),
 
-            (new SelectField('secondary_primary_price_source', 'Secondary price source'))
+            (new SelectField('secondary_price_source', 'Secondary price source'))
                 ->setOptions(self::getSecondaryPriceSources())
                 ->setWidth(50),
 
@@ -55,8 +73,7 @@ class RulesFieldsDefinition
 
             (new SelectField('kind', 'Rodzaj'))
                 ->setOptions([
-                    'primary_price_source' => 'primary_price_source',
-                    'secondary_primary_price_source' => 'secondary_primary_price_source',
+                    'price_source' => 'price_source',
                     'net_minus_percent' => 'net_minus_percent',
                     'net_plus_percent' => 'net_plus_percent',
                     'net_minus_number' => 'net_minus_number',
@@ -67,9 +84,8 @@ class RulesFieldsDefinition
                     'gross_minus_number' => 'gross_minus_number',
                     'gross_plus_number' => 'gross_plus_number',
                     'gross_equals_number' => 'gross_equals_number',
-                    'loop_hidden_product' => 'loop_hidden_product',
-                    'full_hidden_product' => 'full_hidden_product',
-                    'non_purchasable_product' => 'non_purchasable_product',
+                    'non_purchasable' => 'non_purchasable',
+                    'zero_order_for_price' => 'zero_order_for_price',
                 ])
                 ->setWidth(50),
 
@@ -77,20 +93,7 @@ class RulesFieldsDefinition
                 ->setAttribute('type', 'number')
                 ->setAttribute('step', 'any')
                 ->setWidth(50),
-            (new SelectField('order_for_price', 'order_for_price'))
-                ->setOptions([
-                    'disabled' => 'disabled',
-                    'enabled' => 'enabled',
-                ])
-                ->setWidth(50),
-            (new SelectField('custom_html', 'custom_html'))
-                ->setOptions([
-                    'disabled' => 'disabled',
-                    'html_1' => 'html_1',
-                    'html_2' => 'html_2',
-                    'html_3' => 'html_3',
-                ])
-                ->setWidth(50),
+
             (new TextField('min_qty', 'Min ilość'))
                 ->setAttribute('type', 'number')
                 ->setAttribute('step', 'any')
@@ -107,6 +110,8 @@ class RulesFieldsDefinition
                     'hide' => 'hide',
                 ])
                 ->setWidth(50),
+            (new RichText('custom_html_1', 'custom_html_1'))
+                ->setWidth(100),
         ];
     }
 
@@ -120,17 +125,22 @@ class RulesFieldsDefinition
                         'post_type' => Prefixer::getPrefixed('role'),
                     ]
                 ]),
-
+            (new AssociationField('users', 'Users'))
+                ->setTypes([
+                    [
+                        'type' => 'user',
+                    ]
+                ]),
             (new AssociationField('products', 'Products'))
                 ->setTypes([
                     [
                         'type' => 'post',
                         'post_type' => 'product',
                     ],
-                    [
-                        'type' => 'post',
-                        'post_type' => 'product_variation',
-                    ]
+                    // [
+                    //     'type' => 'post',
+                    //     'post_type' => 'product_variation',
+                    // ]
                 ]),
 
             (new AssociationField('woo_terms', 'Woo Terms'))
@@ -147,7 +157,7 @@ class RulesFieldsDefinition
         ];
     }
 
-    public static function getGualifyingConditions(): array
+    public static function getQualifyingConditions(): array
     {
         return [
             (new AssociationField('qualifying_roles', 'Roles'))
@@ -182,17 +192,22 @@ class RulesFieldsDefinition
                         'post_type' => Prefixer::getPrefixed('role'),
                     ]
                 ]),
-
+            (new AssociationField('excluding_users', 'Users'))
+                ->setTypes([
+                    [
+                        'type' => 'user',
+                    ]
+                ]),
             (new AssociationField('excluding_products', 'Products'))
                 ->setTypes([
                     [
                         'type' => 'post',
                         'post_type' => 'product',
                     ],
-                    [
-                        'type' => 'post',
-                        'post_type' => 'product_variation',
-                    ]
+                    // [
+                    //     'type' => 'post',
+                    //     'post_type' => 'product_variation',
+                    // ]
                 ]),
 
             (new AssociationField('excluding_woo_terms', 'Woo Terms'))

@@ -21,13 +21,28 @@ abstract class BaseCustomPostController extends BaseController
 
     public function registerPostType()
     {
+        $singleName = static::$modelClass::getSingleName();
+        $pluralName = static::$modelClass::getPluralName();
+
         register_post_type(static::$modelClass::getPrefixedKey(), [
-            'label' => static::$modelClass::getKey(),
+            'label' => $singleName,
             'public' => false,
             'show_ui' => true,
             'show_in_menu' => false,
             'capability_type' => 'post',
             'supports' => ['title'],
+            'labels' => [
+                'name' => $pluralName,
+                'singular_name' => $singleName,
+                'add_new' => __("Add New {$singleName}", 'justb2b'),
+                'add_new_item' => __("Add New {$singleName}", 'justb2b'),
+                'edit_item' => __("Edit {$singleName}", 'justb2b'),
+                'new_item' => __("New {$singleName}", 'justb2b'),
+                'view_item' => __("View {$singleName}", 'justb2b'),
+                'search_items' => __("Search {$pluralName}", 'justb2b'),
+                'not_found' => __("Not Found {$pluralName}", 'justb2b'),
+                'not_found_in_trash' => __("Not Found {$pluralName} in Trash", 'justb2b'),
+            ],
         ]);
     }
 
@@ -36,8 +51,8 @@ abstract class BaseCustomPostController extends BaseController
         $prefixedKey = static::$modelClass::getPrefixedKey();
         add_submenu_page(
             'justb2b-settings',
-            static::$modelClass::getKey(),
-            static::$modelClass::getKey(),
+            static::$modelClass::getPluralName(),
+            static::$modelClass::getPluralName(),
             'edit_posts',
             "edit.php?post_type={$prefixedKey}"
         );

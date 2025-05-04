@@ -12,8 +12,8 @@ jQuery(document).ready(function () {
     }
 
     function setPriceContainerLoading(isLoading) {
-        const $priceContainer = getPriceContainer();
-        $priceContainer.css({
+        const priceContainer = getPriceContainer();
+        priceContainer.css({
             opacity: isLoading ? "0.5" : "1",
             pointerEvents: isLoading ? "none" : "auto",
         });
@@ -22,14 +22,16 @@ jQuery(document).ready(function () {
     function updatePrice() {
         if (isRequestInProgress) return;
 
-        const $priceContainer = getPriceContainer();
-        const $qtyInput = jQuery(Selectors.qtyInput);
+        
+        const priceContainer = getPriceContainer();
+        console.log(priceContainer);
+        const qtyInput = jQuery(Selectors.qtyInput);
 
-        const quantity = $qtyInput.length ? parseInt($qtyInput.val(), 10) : 1;
+        const quantity = qtyInput.length ? parseInt(qtyInput.val(), 10) : 1;
 
-        if (!$priceContainer.length || quantity < 1) return;
+        if (!priceContainer.length || quantity < 1) return;
 
-        const productId = $priceContainer.data("product_id");
+        const productId = priceContainer.data("product_id");
 
         isRequestInProgress = true;
         setPriceContainerLoading(true);
@@ -38,10 +40,6 @@ jQuery(document).ready(function () {
             .ajax({
                 url: justb2b.ajax_url,
                 method: "POST",
-                // credentials: 'include',
-                // headers: {
-                    // 'Content-Type': 'application/x-www-form-urlencoded',
-                // },
                 data: {
                     action: "justb2b_calculate_price",
                     nonce: justb2b.nonce,
@@ -51,13 +49,13 @@ jQuery(document).ready(function () {
             })
             .done(function (response) {
                 if (response.success) {
-                    $priceContainer.html(response.data.price);
+                    priceContainer.html(response.data.price);
                 } else {
-                    $priceContainer.text("Error calculating price");
+                    priceContainer.text("Error calculating price");
                 }
             })
             .fail(function (xhr) {
-                $priceContainer.text("Error calculating price");
+                priceContainer.text("Error calculating price");
                 console.error("AJAX Error:", xhr.responseText);
             })
             .always(function () {
@@ -77,12 +75,12 @@ jQuery(document).ready(function () {
     const debouncedUpdatePrice = debounce(updatePrice, 700);
 
     function initializeEventListeners() {
-        const $variationForm = jQuery(Selectors.variationForm);
+        const variationForm = jQuery(Selectors.variationForm);
 
         jQuery(document.body).on("input change", Selectors.qtyInput, debouncedUpdatePrice);
 
-        if ($variationForm.length) {
-            $variationForm.on("show_variation", updatePrice);
+        if (variationForm.length) {
+            variationForm.on("show_variation", debouncedUpdatePrice);
         } else {
             updatePrice();
         }

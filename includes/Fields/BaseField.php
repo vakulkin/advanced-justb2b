@@ -32,6 +32,10 @@ abstract class BaseField {
         return $this;
     }
 
+    public function getAttribute(string $name): mixed {
+        return $this->attributes[$name] ?? null;
+    }    
+
     public function setDefaultValue($value) {
         $this->defaultValue = $value;
     }
