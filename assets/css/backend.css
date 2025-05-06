@@ -1,0 +1,35 @@
+.justb2b-associations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .2rem;
+}
+
+.justb2b-association-field {
+    padding: .2rem;
+    font-size: .7rem;
+    line-height: 1;
+    border-radius: 25px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.justb2b-product-field-value {
+    border: 1px solid #6AD9EF;
+    color: #02b2d5;
+}
+
+.justb2b-product_cat-field-value {
+    border: 1px solid #C17AFF;
+    color: #C17AFF;
+}
+
+.justb2b-justb2b_role-field-value {
+    border: 1px solid #00C39A;
+    color: #00C39A;
+}
+
+.justb2b-user-field-value {
+    border: 1px solid #80ED99;
+    color: #00c22d;
+}

@@ -2,6 +2,10 @@
 
 namespace JustB2b\Models;
 
+use JustB2b\Fields\AssociationProductsField;
+use JustB2b\Fields\AssociationRolesField;
+use JustB2b\Fields\AssociationTermsField;
+use JustB2b\Fields\AssociationUsersField;
 use JustB2b\Utils\Prefixer;
 use JustB2b\Controllers\UsersController;
 use JustB2b\Utils\Pricing\PriceCalculator;
@@ -235,8 +239,8 @@ class RuleModel extends BasePostModel
 
     private function passesMainUsersRolesCheck(int $userId): bool
     {
-        $users = self::getAssociatedUsers($this->id, Prefixer::getPrefixed('users'));
-        $roles = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('roles'));
+        $users = AssociationUsersField::getValues($this->id, Prefixer::getPrefixed('users'));
+        $roles = AssociationRolesField::getValues($this->id, Prefixer::getPrefixed('roles'));
 
         $hasUsers = !empty($users);
         $hasRoles = !empty($roles);
@@ -260,8 +264,8 @@ class RuleModel extends BasePostModel
 
     private function passesMainProductsTermsCheck(int $productId): bool
     {
-        $products = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('products'));
-        $terms = self::getAssociatedTerms($this->id, Prefixer::getPrefixed('woo_terms'));
+        $products = AssociationProductsField::getValues($this->id, Prefixer::getPrefixed('products'));
+        $terms = AssociationTermsField::getValues($this->id, Prefixer::getPrefixed('woo_terms'));
 
         $hasProducts = !empty($products);
         $hasTerms = !empty($terms);
@@ -283,31 +287,31 @@ class RuleModel extends BasePostModel
 
     private function passesQualifyingRolesCheck(int $userId): bool
     {
-        $qualifyingRoles = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('qualifying_roles'));
+        $qualifyingRoles = AssociationRolesField::getValues($this->id, Prefixer::getPrefixed('qualifying_roles'));
         return $this->checkRoles($qualifyingRoles, $userId);
     }
 
     private function passesQualifyingTermsCheck(int $productId): bool
     {
-        $qualifyingTerms = self::getAssociatedTerms($this->id, Prefixer::getPrefixed('qualifying_woo_terms'));
+        $qualifyingTerms = AssociationTermsField::getValues($this->id, Prefixer::getPrefixed('qualifying_woo_terms'));
         return $this->checkTerms($qualifyingTerms, $productId);
     }
 
     private function passesExcludingUsersRolesCheck(int $userId): bool
     {
-        $excludingUsers = self::getAssociatedUsers($this->id, Prefixer::getPrefixed('excluding_users'));
+        $excludingUsers = AssociationUsersField::getValues($this->id, Prefixer::getPrefixed('excluding_users'));
         if ($this->checkUsers($excludingUsers, $userId)) {
             return true;
         }
 
-        $excludingRoles = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('excluding_roles'));
+        $excludingRoles = AssociationRolesField::getValues($this->id, Prefixer::getPrefixed('excluding_roles'));
         return $this->checkRoles($excludingRoles, $userId, true);
     }
 
     private function passesExcludingProductsTermsCheck(int $productId): bool
     {
-        $excludingProducts = self::getAssociatedPosts($this->id, Prefixer::getPrefixed('excluding_products'));
-        $excludingTerms = self::getAssociatedTerms($this->id, Prefixer::getPrefixed('excluding_woo_terms'));
+        $excludingProducts = AssociationProductsField::getValues($this->id, Prefixer::getPrefixed('excluding_products'));
+        $excludingTerms = AssociationTermsField::getValues($this->id, Prefixer::getPrefixed('excluding_woo_terms'));
 
         return $this->checkProduct($excludingProducts, $productId, true)
             || $this->checkTerms($excludingTerms, $productId, true);
@@ -379,7 +383,7 @@ class RuleModel extends BasePostModel
         $result = false;
         foreach ($roles as $role) {
             $roleId = $role['id'];
-            $users = self::getAssociatedUsers($roleId, Prefixer::getPrefixed('users'));
+            $users = AssociationUsersField::getValues($roleId, Prefixer::getPrefixed('users'));
             if (isset($users[$userId])) {
                 $result = true;
                 break;

@@ -44,7 +44,6 @@ class ProductModel extends BasePostModel
     public function getWCProduct(): WC_Product
     {
         $this->initWCProduct();
-        error_log($this->WCProduct->get_id());
         return $this->WCProduct;
     }
 

@@ -2,13 +2,15 @@
 
 namespace JustB2b\Controllers;
 
-defined('ABSPATH') || exit;
-
+use JustB2b\Fields\SelectField;
 use Carbon_Fields\Container;
 use JustB2b\Models\UserModel;
 use JustB2b\Fields\FieldBuilder;
-use JustB2b\Fields\Definitions\UserFieldsDefinition;
 use JustB2b\Traits\LazyLoaderTrait;
+
+
+defined('ABSPATH') || exit;
+
 
 class UsersController extends BaseController
 {
@@ -23,7 +25,7 @@ class UsersController extends BaseController
 
     public function registerFields()
     {
-        $definitions = UserFieldsDefinition::getMainFileds();
+        $definitions = self::getMainFileds();
         $fields = FieldBuilder::buildFields($definitions);
 
         Container::make('user_meta', 'JustB2B')
@@ -40,5 +42,16 @@ class UsersController extends BaseController
     {   
         $this->initCurrentUser();
         return $this->currentUser;
+    }
+
+    public static function getMainFileds(): array
+    {
+        return [
+            (new SelectField('kind', 'Rodzaj'))
+                ->setOptions([
+                    'b2c' => 'b2c',
+                    'b2b' => 'b2b',
+                ])
+        ];
     }
 }

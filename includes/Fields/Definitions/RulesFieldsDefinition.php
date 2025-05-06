@@ -2,14 +2,15 @@
 
 namespace JustB2b\Fields\Definitions;
 
+use JustB2b\Fields\AssociationProductsField;
+use JustB2b\Fields\AssociationRolesField;
+use JustB2b\Fields\AssociationTermsField;
 use JustB2b\Fields\RichText;
+use JustB2b\Fields\TextField;
+use JustB2b\Fields\SelectField;
+use JustB2b\Fields\AssociationUsersField;
 
 defined('ABSPATH') || exit;
-
-use JustB2b\Utils\Prefixer;
-use JustB2b\Fields\SelectField;
-use JustB2b\Fields\TextField;
-use JustB2b\Fields\AssociationField;
 
 class RulesFieldsDefinition
 {
@@ -118,109 +119,28 @@ class RulesFieldsDefinition
     public static function getMainConditions(): array
     {
         return [
-            (new AssociationField('roles', 'Roles'))
-                ->setTypes([
-                    [
-                        'type' => 'post',
-                        'post_type' => Prefixer::getPrefixed('role'),
-                    ]
-                ]),
-            (new AssociationField('users', 'Users'))
-                ->setTypes([
-                    [
-                        'type' => 'user',
-                    ]
-                ]),
-            (new AssociationField('products', 'Products'))
-                ->setTypes([
-                    [
-                        'type' => 'post',
-                        'post_type' => 'product',
-                    ],
-                    // [
-                    //     'type' => 'post',
-                    //     'post_type' => 'product_variation',
-                    // ]
-                ]),
-
-            (new AssociationField('woo_terms', 'Woo Terms'))
-                ->setTypes([
-                    [
-                        'type' => 'term',
-                        'taxonomy' => 'product_cat',
-                    ],
-                    [
-                        'type' => 'term',
-                        'taxonomy' => 'product_tag',
-                    ]
-                ]),
+            (new AssociationRolesField('roles', 'Roles')),
+            (new AssociationUsersField('users', 'Users')),
+            (new AssociationProductsField('products', 'Products')),
+            (new AssociationTermsField('woo_terms', 'Woo Terms')),
         ];
     }
 
     public static function getQualifyingConditions(): array
     {
         return [
-            (new AssociationField('qualifying_roles', 'Roles'))
-                ->setTypes([
-                    [
-                        'type' => 'post',
-                        'post_type' => Prefixer::getPrefixed('role'),
-                    ]
-                ]),
-
-            (new AssociationField('qualifying_woo_terms', 'Woo Terms'))
-                ->setTypes([
-                    [
-                        'type' => 'term',
-                        'taxonomy' => 'product_cat',
-                    ],
-                    [
-                        'type' => 'term',
-                        'taxonomy' => 'product_tag',
-                    ]
-                ]),
+            (new AssociationRolesField('qualifying_roles', 'Roles')),
+            (new AssociationTermsField('qualifying_woo_terms', 'Woo Terms')),
         ];
     }
 
     public static function getExcludingConditions(): array
     {
         return [
-            (new AssociationField('excluding_roles', 'Roles'))
-                ->setTypes([
-                    [
-                        'type' => 'post',
-                        'post_type' => Prefixer::getPrefixed('role'),
-                    ]
-                ]),
-            (new AssociationField('excluding_users', 'Users'))
-                ->setTypes([
-                    [
-                        'type' => 'user',
-                    ]
-                ]),
-            (new AssociationField('excluding_products', 'Products'))
-                ->setTypes([
-                    [
-                        'type' => 'post',
-                        'post_type' => 'product',
-                    ],
-                    // [
-                    //     'type' => 'post',
-                    //     'post_type' => 'product_variation',
-                    // ]
-                ]),
-
-            (new AssociationField('excluding_woo_terms', 'Woo Terms'))
-                ->setTypes([
-                    [
-                        'type' => 'term',
-                        'taxonomy' => 'product_cat',
-                    ],
-                    [
-                        'type' => 'term',
-                        'taxonomy' => 'product_tag',
-                    ]
-                ]),
+            (new AssociationRolesField('excluding_roles', 'Roles')),
+            (new AssociationUsersField('excluding_users', 'Users')),
+            (new AssociationProductsField('excluding_products', 'Products')),
+            (new AssociationTermsField('excluding_woo_terms', 'Woo Terms')),
         ];
     }
 }

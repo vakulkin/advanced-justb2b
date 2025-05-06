@@ -7,8 +7,11 @@ defined('ABSPATH') || exit;
 use Carbon_Fields\Carbon_Fields;
 use Carbon_Fields\Container\Container;
 
+use JustB2b\Fields\RichText;
+use JustB2b\Fields\SeparatorField;
+use JustB2b\Fields\TextField;
+use JustB2b\Fields\SelectField;
 use JustB2b\Fields\FieldBuilder;
-use JustB2b\Fields\Definitions\GlobalFieldsDefinition;
 use JustB2b\Traits\LazyLoaderTrait;
 
 class GlobalController extends BaseController
@@ -24,6 +27,7 @@ class GlobalController extends BaseController
         add_action('after_setup_theme', [$this, 'crbLoad']);
         add_action('admin_menu', [$this, 'registerSubmenus'], 100);
         add_action('wp_enqueue_scripts', [$this, 'enqueueScripts']);
+        add_action('admin_enqueue_scripts', [$this, 'adminEnqueueScripts']);
     }
 
     public function crbLoad()
@@ -32,13 +36,13 @@ class GlobalController extends BaseController
     }
 
     protected function initGlobalSettings(): void
-{
-    $this->lazyLoad($this->globalSettings, function () {
-        return Container::make('theme_options', 'JustB2B')
-            ->set_page_file('justb2b-settings')
-            ->set_icon('dashicons-admin-generic');
-    });
-}
+    {
+        $this->lazyLoad($this->globalSettings, function () {
+            return Container::make('theme_options', 'JustB2B')
+                ->set_page_file('justb2b-settings')
+                ->set_icon('dashicons-admin-generic');
+        });
+    }
 
 
     public function getGlobalSettings(): Container
@@ -49,13 +53,13 @@ class GlobalController extends BaseController
 
     public function registerFields()
     {
-        $definitions = GlobalFieldsDefinition::getMainFileds();
+        $definitions = self::getMainFileds();
         $fields = FieldBuilder::buildFields($definitions);
 
-        $baseDefinitions = GlobalFieldsDefinition::getBaseFields();
+        $baseDefinitions = self::getBaseFields();
         $baseFields = FieldBuilder::buildFields($baseDefinitions);
 
-        $b2cDefinitions = GlobalFieldsDefinition::getB2cFileds();
+        $b2cDefinitions = self::getB2cFileds();
         $b2cFields = FieldBuilder::buildFields($b2cDefinitions);
 
         $this->getGlobalSettings()
@@ -86,7 +90,7 @@ class GlobalController extends BaseController
             'justb2b-product',
             JUSTB2B_PLUGIN_URL . 'assets/js/price.js',
             ['jquery'],
-            '1.0.0',
+            JUSTB2B_PLUGIN_VERSION,
             true
         );
 
@@ -94,5 +98,103 @@ class GlobalController extends BaseController
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('justb2b_price_nonce')
         ]);
+    }
+
+    public function adminEnqueueScripts()
+    {
+        wp_enqueue_style(
+            'justb2b-backend',
+            JUSTB2B_PLUGIN_URL . 'assets/css/backend.css',
+            [],
+            JUSTB2B_PLUGIN_VERSION,
+        );
+    }
+
+    public static function getBaseFields(): array
+    {
+        $fieldsData = [
+            ['key' => 'rrp_price', 'label' => 'RRP Prce'],
+            ['key' => 'base_price_1', 'label' => 'Base price 1'],
+            ['key' => 'base_price_2', 'label' => 'Base price 2'],
+            ['key' => 'base_price_3', 'label' => 'Base price 3'],
+            ['key' => 'base_price_4', 'label' => 'Base price 4'],
+            ['key' => 'base_price_5', 'label' => 'Base price 5'],
+        ];
+        $filedsDefinition = [];
+        foreach ($fieldsData as $field) {
+            $key = $field['key'];
+            $label = $field['label'];
+
+            $filedsDefinition[] = (new SelectField($key, $label))
+                ->setOptions([
+                    'net' => 'net',
+                    'gross' => 'gross',
+                ])
+                ->setWidth(50);
+        }
+        return $filedsDefinition;
+    }
+
+    public static function getMainFileds(): array
+    {
+        $fieldsData = [
+            ['key' => 'base_net', 'label' => 'Base Net'],
+            ['key' => 'base_gross', 'label' => 'Base Gross'],
+            ['key' => 'final_net', 'label' => 'Final Net'],
+            ['key' => 'final_gross', 'label' => 'Final Gross'],
+            ['key' => 'rrp_net', 'label' => 'RRP Net'],
+            ['key' => 'rrp_gross', 'label' => 'RRP Gross'],
+            ['key' => 'qty_table', 'label' => 'Qty Table'],
+        ];
+
+        $showOptions = [
+            'show' => 'show',
+            'hide' => 'hide',
+            'only_product' => 'only_product',
+            'only_loop' => 'only_loop',
+        ];
+
+        $filedsDefinition = [];
+        foreach ($fieldsData as $field) {
+            $key = $field['key'];
+
+            $sepKey = "sep_{$key}";
+            $filedsDefinition[] = (new SeparatorField($sepKey, $field['label']));
+
+            foreach (['single', 'loop'] as $place) {
+                foreach (['prefix', 'postfix'] as $position) {
+                    $prefix = "{$position}_{$key}_{$place}";
+                    $filedsDefinition[] = (new TextField($prefix, "Prefix {$place}"))->setWidth(width: 25);
+                }
+            }
+
+            foreach (['b2c', 'b2b'] as $type) {
+                $typeKey = "{$type}_{$key}";
+                $filedsDefinition[] = (new SelectField($typeKey, "Show for {$type} users"))
+                    ->setOptions($showOptions)
+                    ->setWidth(50);
+            }
+        }
+
+        return $filedsDefinition;
+    }
+
+    public static function getB2cFileds(): array
+    {
+        $fieldsDefinition = [];
+        $types = ['b2c', 'b2b'];
+
+        foreach ($types as $type) {
+            $fieldsDefinition[] = (new SelectField("show_{$type}_html_1", "show_{$type}_html_1"))
+                ->setOptions([
+                    'show' => 'show',
+                    'hide' => 'hide',
+                ])
+                ->setWidth(100);
+            $fieldsDefinition[] = (new RichText("{$type}_html_1", "{$type}_html_1"))
+                ->setWidth(100);
+        }
+
+        return $fieldsDefinition;
     }
 }

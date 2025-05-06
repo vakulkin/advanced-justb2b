@@ -8,7 +8,7 @@ use WC_Product;
 use Carbon_Fields\Container;
 use JustB2b\Models\ProductModel;
 use JustB2b\Fields\FieldBuilder;
-use JustB2b\Fields\Definitions\ProductsFieldsDefinition;
+use JustB2b\Fields\NonNegativeFloatField;
 
 defined('ABSPATH') || exit;
 
@@ -68,7 +68,7 @@ class ProductsController extends BaseController
 
     public function registerFields()
     {
-        $definitions = ProductsFieldsDefinition::getMainFileds();
+        $definitions = self::getMainFileds();
         $fields = FieldBuilder::buildFields($definitions);
 
         Container::make('post_meta', 'JustB2B')
@@ -204,5 +204,17 @@ class ProductsController extends BaseController
         $rule = $productModel->getFirstFullFitRule();
 
         return (!$rule && $purchasable) || ($rule && $rule->isPurchasable());
+    }
+
+    public static function getMainFileds(): array
+    {
+        return [
+            new NonNegativeFloatField('rrp_price', 'rrp_price'),
+            new NonNegativeFloatField('base_price_1', 'base_price_1'),
+            new NonNegativeFloatField('base_price_2', 'base_price_2'),
+            new NonNegativeFloatField('base_price_3', 'base_price_3'),
+            new NonNegativeFloatField('base_price_4', 'base_price_4'),
+            new NonNegativeFloatField('base_price_5', 'base_price_5'),
+        ];
     }
 }

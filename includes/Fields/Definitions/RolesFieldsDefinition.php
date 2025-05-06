@@ -2,10 +2,9 @@
 
 namespace JustB2b\Fields\Definitions;
 
+use JustB2b\Fields\AssociationUsersField;
 
 defined('ABSPATH') || exit;
-
-use JustB2b\Fields\AssociationField;
 
 class RolesFieldsDefinition
 {
@@ -17,12 +16,7 @@ class RolesFieldsDefinition
     public static function getUsersFields(): array
     {
         return [
-            (new AssociationField('users', 'Users'))
-                ->setTypes([
-                    [
-                        'type' => 'user',
-                    ]
-                ]),
+            (new AssociationUsersField('users', 'Users')),
         ];
     }
 }
