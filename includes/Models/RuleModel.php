@@ -37,6 +37,9 @@ class RuleModel extends BasePostModel
     protected ?bool $isFullyHidden = null;
     protected ?bool $isZeroRequestPrice = null;
 
+    protected ?bool $isPricesInLoopHidden = null;
+    protected ?bool $isPricesInProductHidden = null;
+
     public function __construct(
         int $id,
         ProductModel $product
@@ -45,10 +48,12 @@ class RuleModel extends BasePostModel
         $this->initProduct($product);
     }
 
-    public static function getSingleName(): string {
+    public static function getSingleName(): string
+    {
         return __('Rule', 'justb2b');
     }
-    public static function getPluralName(): string {
+    public static function getPluralName(): string
+    {
         return __('Rules', 'justb2b');
     }
 
@@ -74,7 +79,7 @@ class RuleModel extends BasePostModel
     protected function initKind(): void
     {
         $this->lazyLoad($this->kind, function () {
-            return carbon_get_post_meta($this->id, Prefixer::getPrefixed('kind')) ?: '';
+            return carbon_get_post_meta($this->id, Prefixer::getPrefixed('kind')) ?: 'price_source';
         });
     }
 
@@ -438,13 +443,37 @@ class RuleModel extends BasePostModel
 
     public function isZeroRequestPrice(): bool
     {
-        $this->lazyLoad($this->isZeroRequestPrice, [$this, 'initisZeroRequestPrice']);
+        $this->lazyLoad($this->isZeroRequestPrice, [$this, 'initIsZeroRequestPrice']);
         return $this->isZeroRequestPrice;
     }
 
-    protected function initisZeroRequestPrice(): bool
+    protected function initIsZeroRequestPrice(): bool
     {
         return $this->getKind() === 'zero_order_for_price';
+    }
+
+    public function isPricesInLoopHidden(): bool
+    {
+        $this->lazyLoad($this->isPricesInLoopHidden, [$this, 'initIsPricesInLoopHidden']);
+        return $this->isPricesInLoopHidden;
+    }
+
+    protected function initIsPricesInLoopHidden(): bool
+    {
+        $allPricesVisibility = carbon_get_post_meta($this->id, Prefixer::getPrefixed('all_prices_visibility')) ?: 'show';
+        return $allPricesVisibility === 'hide' || $allPricesVisibility === 'only_product';
+    }
+
+    public function isPricesInProductHidden(): bool
+    {
+        $this->lazyLoad($this->isPricesInProductHidden, [$this, 'initIsPricesInProductHidden']);
+        return $this->isPricesInProductHidden;
+    }
+
+    protected function initIsPricesInProductHidden(): bool
+    {
+        $allPricesVisibility = carbon_get_post_meta($this->id, Prefixer::getPrefixed('all_prices_visibility')) ?: 'show';
+        return $allPricesVisibility === 'hide' || $allPricesVisibility === 'only_loop';
     }
 
 }

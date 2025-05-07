@@ -126,18 +126,6 @@ class RulesController extends BaseCustomPostController
                 }
             }
         });
-
-        // add_filter('default_hidden_columns', function ($hidden, $screen) use ($fields, $postType) {
-        //     if ($screen->id === "edit-{$postType}") {
-        //         foreach ($fields as $field) {
-        //             $key = $field->getKey();
-        //             if (!in_array($key, $hidden, true)) {
-        //                 $hidden[] = $key;
-        //             }
-        //         }
-        //     }
-        //     return $hidden;
-        // }, 10, 2);
     }
 
     protected static function getPrimaryPriceSources(): array
@@ -212,7 +200,6 @@ class RulesController extends BaseCustomPostController
                     'gross_plus_number' => 'gross_plus_number',
                     'gross_equals_number' => 'gross_equals_number',
                     'non_purchasable' => 'non_purchasable',
-                    'non_purchasable_hide_price' => 'non_purchasable_hide_price',
                     'zero_order_for_price' => 'zero_order_for_price',
                 ])
                 ->setWidth(50),
@@ -230,6 +217,15 @@ class RulesController extends BaseCustomPostController
             (new TextField('max_qty', 'Max ilość'))
                 ->setAttribute('type', 'number')
                 ->setAttribute('step', 'any')
+                ->setWidth(50),
+
+            (new SelectField('all_prices_visibility', 'Prices visibility'))
+                ->setOptions([
+                    'show' => 'show',
+                    'hide' => 'hide',
+                    'only_product' => 'only_product',
+                    'only_loop' => 'only_loop',
+                ])
                 ->setWidth(50),
 
             (new SelectField('show_in_qty_table', 'Pokazać w tabeli'))

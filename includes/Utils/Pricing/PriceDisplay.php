@@ -188,14 +188,19 @@ class PriceDisplay
         if ($this->product->isSimpleProduct()) {
             $rule = $this->product->getFirstFullFitRule();
             if ($rule) {
+
                 $html = '';
-                $html .= $this->getPriceItem('base_net', $this->getBaseNetPrice());
-                $html .= $this->getPriceItem('base_gross', $this->getBaseGrossPrice());
-                $html .= $this->getPriceItem('final_net', $this->getFinalNetPrice());
-                $html .= $this->getPriceItem('final_gross', $this->getFinalGrossPrice());
-                $html .= $this->getPriceItem('rrp_net', $this->getRRPNetPrice());
-                $html .= $this->getPriceItem('rrp_gross', $this->getRRPGrossPrice());
-                $html .= $this->getCustomHtml1();
+                if ($this->isInLoop && !$rule->isPricesInLoopHidden() || !$this->isInLoop && !$rule->isPricesInProductHidden()) {
+                    $html .= $this->getPriceItem('base_net', $this->getBaseNetPrice());
+                    $html .= $this->getPriceItem('base_gross', $this->getBaseGrossPrice());
+                    $html .= $this->getPriceItem('final_net', $this->getFinalNetPrice());
+                    $html .= $this->getPriceItem('final_gross', $this->getFinalGrossPrice());
+                    $html .= $this->getPriceItem('rrp_net', $this->getRRPNetPrice());
+                    $html .= $this->getPriceItem('rrp_gross', $this->getRRPGrossPrice());
+                }
+                if (!$this->isInLoop) {
+                    $html .= $this->getCustomHtml1();
+                }
 
                 if ($rule && current_user_can('administrator')) {
                     $html .= "rule title " . $rule->getTitle();
