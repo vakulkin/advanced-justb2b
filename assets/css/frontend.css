@@ -1,4 +1,9 @@
 .justb2b-price {
     display: flex;
     gap: 0.5rem;
+    align-items: baseline;
+}
+
+.justb2b-rule-title {
+    font-size: 0.5rem;
 }

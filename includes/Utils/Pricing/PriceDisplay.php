@@ -177,9 +177,13 @@ class PriceDisplay
 
     public function getPriceTail($key, $isPrefix)
     {
+        $currentUser = UsersController::getInstance();
+        $currentUser = $currentUser->getCurrentUser();
+        $userKind = $currentUser->isB2b() ? 'b2b' : 'b2c';
         $position = $isPrefix ? 'prefix' : 'postfix';
         $place = $this->isInLoop ? 'loop' : 'single';
-        $value = get_option(Prefixer::getPrefixedMeta("{$position}_{$key}_{$place}"));
+        $finalKey = "{$place}_{$userKind}_{$key}_{$position}";
+        $value = get_option(Prefixer::getPrefixedMeta($finalKey));
         return empty($value) ? '' : "<div class=\"justb2b-{$position}\">$value</div>";
     }
 
@@ -203,7 +207,7 @@ class PriceDisplay
                 }
 
                 if ($rule && current_user_can('administrator')) {
-                    $html .= "rule title " . $rule->getTitle();
+                    $html .= "<div class=\"justb2b-rule-title\">" . $rule->getTitle() . "</div>";
                 }
                 return $this->handlePricesHtmlContainer($html);
             }

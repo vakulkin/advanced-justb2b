@@ -2,6 +2,7 @@
 
 namespace JustB2b\Controllers;
 
+use WP_Post;
 use WP_Query;
 use WC_Product;
 
@@ -20,39 +21,25 @@ class ProductsController extends BaseController
     {
         parent::__construct();
         add_filter('woocommerce_get_price_html', [$this, 'filterGetPriceHtml'], 25, 2);
-        add_filter( 'woocommerce_show_variation_price', '__return_true', 25 );
+        // add_filter('woocommerce_show_variation_price', '__return_true', 25);
         add_action('wp_ajax_justb2b_calculate_price', [$this, 'calculatePriceAjaxHandler']);
         add_action('wp_ajax_nopriv_justb2b_calculate_price', [$this, 'calculatePriceAjaxHandler']);
-        add_filter('carbon_fields_association_field_options_justb2b_products_post_product', [$this, 'carbonFieldsFilterVariationsParentProducts']);
-        add_filter('carbon_fields_association_field_options_justb2b_excluding_products_post_product', [$this, 'carbonFieldsFilterVariationsParentProducts']);
-        add_action('woocommerce_product_query', [$this, 'hideProductsFromLoop']);
+        // add_filter('carbon_fields_association_field_options_justb2b_products_post_product', [$this, 'carbonFieldsFilterVariationsParentProducts']);
+        // add_filter('carbon_fields_association_field_options_justb2b_excluding_products_post_product', [$this, 'carbonFieldsFilterVariationsParentProducts']);
+        // add_action('woocommerce_product_query', [$this, 'hideProductsFromLoop']);
         add_action('template_redirect', [$this, 'redirectIfFullyHiddenProduct']);
         add_filter('woocommerce_product_get_price', [$this, 'filterZeroPriceRequest'], 20, 2);
-        add_filter('woocommerce_product_get_regular_price', [$this, 'filterZeroPriceRequest'], 20, 2);
+        // add_filter('woocommerce_product_get_regular_price', [$this, 'filterZeroPriceRequest'], 20, 2);
         add_filter('woocommerce_is_purchasable', [$this, 'filterIsPurchasable'], 20, 2);
 
     }
 
-    public function show_equal_variation_price($price, $product)
+    public function force_variation_price_display($variation_data, $product, $variation)
     {
-        $available_variations = $product->get_available_variations();
-        if (!empty($available_variations)) {
-            $variation_id = $available_variations[0]['variation_id'];
-            $variation = wc_get_product($variation_id);
-            if ($variation) {
-                return $variation->get_price_html();
-            }
-        }
-        return $price;
-    }
-
-    public function force_variation_price_display( $variation_data, $product, $variation ) {
         // Force price_html even if prices are all the same
         $variation_data['price_html'] = $variation->get_price_html();
         return $variation_data;
     }
-    
-
 
     public function carbonFieldsFilterVariationsParentProducts($query_arguments)
     {
@@ -80,21 +67,24 @@ class ProductsController extends BaseController
 
     public function filterGetPriceHtml($price_html, $product)
     {
-        if ((is_admin() || defined('DOING_AJAX'))) {
+        if (is_admin()) {
             return $price_html;
         }
-    
-        $productModel = new ProductModel($product->get_id(), 1);
-        
+
+        $productModel = new self::$modelClass($product->get_id(), 1);
+
         global $post, $woocommerce_loop;
+
         $isMainProduct = is_product()
             && is_singular('product')
             && isset($post)
             && $product->get_id() === $post->ID;
-        
+
+
         $isInNamedLoop = isset($woocommerce_loop['name']) && !empty($woocommerce_loop['name']);
-        
-        $isInLoop = $isInNamedLoop || !$isMainProduct;        
+        $isShortcode = isset($woocommerce_loop['is_shortcode']) && $woocommerce_loop['is_shortcode'];
+
+        $isInLoop = $isInNamedLoop || $isShortcode || !$isMainProduct;
 
         $priceDisplay = $productModel->getPriceDisplay($price_html, $isInLoop);
 
@@ -112,7 +102,7 @@ class ProductsController extends BaseController
             wp_send_json_error(['message' => 'Invalid data']);
         }
 
-        $productModel = new ProductModel(
+        $productModel = new self::$modelClass(
             $productId,
             $quantity
         );
@@ -141,7 +131,7 @@ class ProductsController extends BaseController
         ]);
 
         foreach ($loop_query->posts as $product_id) {
-            $productModel = new ProductModel($product_id, 1);
+            $productModel = new self::$modelClass($product_id, 1);
             $rule = $productModel->getFirstFullFitRule();
             if ($rule && $rule->isInLoopHidden()) {
                 $ids_to_exclude[] = $product_id;
@@ -156,16 +146,16 @@ class ProductsController extends BaseController
 
     public function redirectIfFullyHiddenProduct(): void
     {
+        global $post;
+        if (!$post instanceof WP_Post) {
+            return;
+        }
+
         if (!is_singular('product')) {
             return;
         }
 
-        global $post;
-        if (!$post instanceof \WP_Post) {
-            return;
-        }
-
-        $productModel = new ProductModel($post->ID, 1);
+        $productModel = new self::$modelClass($post->ID, 1);
         $rule = $productModel->getFirstFullFitRule();
 
         if ($rule && $rule->isFullyHidden()) {
@@ -180,11 +170,11 @@ class ProductsController extends BaseController
 
     public function filterZeroPriceRequest($price, $product)
     {
-        if (is_admin() || defined('DOING_AJAX') || is_cart() || is_checkout()) {
+        if (is_admin()) {
             return $price;
         }
 
-        $productModel = new ProductModel($product->get_id(), 1);
+        $productModel = new self::$modelClass($product->get_id(), 1);
         $rule = $productModel->getFirstFullFitRule();
 
         if ($rule && $rule->isZeroRequestPrice()) {
@@ -196,11 +186,7 @@ class ProductsController extends BaseController
 
     public function filterIsPurchasable(bool $purchasable, WC_Product $product): bool
     {
-        if (is_admin()) {
-            return $purchasable;
-        }
-
-        $productModel = new ProductModel($product->get_id(), 1);
+        $productModel = new self::$modelClass($product->get_id(), 1);
         $rule = $productModel->getFirstFullFitRule();
 
         return (!$rule && $purchasable) || ($rule && $rule->isPurchasable());

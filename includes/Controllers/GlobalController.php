@@ -113,7 +113,7 @@ class GlobalController extends BaseController
     public static function getBaseFields(): array
     {
         $fieldsData = [
-            ['key' => 'rrp_price', 'label' => 'RRP Prce'],
+            ['key' => 'rrp_price', 'label' => 'RRP'],
             ['key' => 'base_price_1', 'label' => 'Base price 1'],
             ['key' => 'base_price_2', 'label' => 'Base price 2'],
             ['key' => 'base_price_3', 'label' => 'Base price 3'],
@@ -162,15 +162,17 @@ class GlobalController extends BaseController
             $filedsDefinition[] = (new SeparatorField($sepKey, $field['label']));
 
             foreach (['single', 'loop'] as $place) {
-                foreach (['prefix', 'postfix'] as $position) {
-                    $prefix = "{$position}_{$key}_{$place}";
-                    $filedsDefinition[] = (new TextField($prefix, "Prefix {$place}"))->setWidth(width: 25);
+                foreach (['b2c', 'b2b'] as $kind) {
+                    foreach (['prefix', 'postfix'] as $position) {
+                        $finalKey = "{$place}_{$kind}_{$key}_{$position}";
+                        $filedsDefinition[] = (new TextField($finalKey, ucfirst("{$place} {$kind} {$key} {$position}")))->setWidth(width: 25);
+                    }
                 }
             }
 
-            foreach (['b2c', 'b2b'] as $type) {
-                $typeKey = "{$type}_{$key}";
-                $filedsDefinition[] = (new SelectField($typeKey, "Show for {$type} users"))
+            foreach (['b2c', 'b2b'] as $kind) {
+                $typeKey = "{$kind}_{$key}";
+                $filedsDefinition[] = (new SelectField($typeKey, "Show for {$kind} users"))
                     ->setOptions($showOptions)
                     ->setWidth(50);
             }
