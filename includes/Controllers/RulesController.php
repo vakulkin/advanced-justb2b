@@ -3,62 +3,50 @@
 namespace JustB2b\Controllers;
 
 use Carbon_Fields\Container;
-use JustB2b\Fields\AssociationField;
 use JustB2b\Models\RuleModel;
 use JustB2b\Fields\FieldBuilder;
 use JustB2b\Fields\AssociationProductsField;
 use JustB2b\Fields\AssociationRolesField;
 use JustB2b\Fields\AssociationTermsField;
+use JustB2b\Fields\AssociationUsersField;
 use JustB2b\Fields\RichText;
 use JustB2b\Fields\TextField;
 use JustB2b\Fields\SelectField;
-use JustB2b\Fields\AssociationUsersField;
-
 
 defined('ABSPATH') || exit;
-
 
 class RulesController extends BaseCustomPostController
 {
     protected static string $modelClass = RuleModel::class;
 
-    public function __construct()
+    protected function __construct()
     {
         parent::__construct();
         $this->maybeRegisterAdminColumns();
     }
 
-    public function registerFields()
+    public function registerCarbonFields()
     {
-        $definitions = self::getMainFields();
-        $fields = FieldBuilder::buildFields($definitions);
+        $containers = [
+            ['label' => 'JustB2B', 'fields' => self::getMainFields(), 'context' => 'side', 'priority' => 'default'],
+            ['label' => 'Main Conditions', 'fields' => self::getMainConditions()],
+            ['label' => 'Qualifying Conditions', 'fields' => self::getQualifyingConditions()],
+            ['label' => 'Excluding Conditions', 'fields' => self::getExcludingConditions()],
+        ];
 
-        Container::make('post_meta', 'JustB2B')
-            ->where('post_type', '=', self::$modelClass::getPrefixedKey())
-            ->set_context('side')
-            ->set_priority('default')
-            ->add_fields($fields);
+        foreach ($containers as $container) {
+            $fields = FieldBuilder::buildFields($container['fields']);
+            $c = Container::make('post_meta', $container['label'])
+                ->where('post_type', '=', self::$modelClass::getPrefixedKey())
+                ->add_fields($fields);
 
-        $definitions = self::getMainConditions();
-        $fields = FieldBuilder::buildFields($definitions);
-
-        Container::make('post_meta', 'Main Conditions')
-            ->where('post_type', '=', self::$modelClass::getPrefixedKey())
-            ->add_fields($fields);
-
-        $definitions = self::getQualifyingConditions();
-        $fields = FieldBuilder::buildFields(definitions: $definitions);
-
-        Container::make('post_meta', 'Qualifying Conditions')
-            ->where('post_type', '=', self::$modelClass::getPrefixedKey())
-            ->add_fields($fields);
-
-        $definitions = self::getExcludingConditions();
-        $fields = FieldBuilder::buildFields($definitions);
-
-        Container::make('post_meta', 'Excluding Conditions')
-            ->where('post_type', '=', self::$modelClass::getPrefixedKey())
-            ->add_fields($fields);
+            if (isset($container['context'])) {
+                $c->set_context($container['context']);
+            }
+            if (isset($container['priority'])) {
+                $c->set_priority($container['priority']);
+            }
+        }
     }
 
     protected function maybeRegisterAdminColumns(): void
@@ -94,17 +82,15 @@ class RulesController extends BaseCustomPostController
             }
         }, 10, 2);
 
-        // Register sortable columns
         add_filter("manage_edit-{$postType}_sortable_columns", function ($columns) use ($fields) {
             foreach ($fields as $field) {
-                if ('number' === $field->getAttribute('type')) {
+                if ($field->getAttribute('type') === 'number') {
                     $columns[$field->getKey()] = $field->getPrefixedKey();
                 }
             }
             return $columns;
         });
 
-        // Handle sorting logic
         add_action('pre_get_posts', function (\WP_Query $query) use ($fields, $postType) {
             if (!is_admin() || !$query->is_main_query()) {
                 return;
@@ -116,10 +102,7 @@ class RulesController extends BaseCustomPostController
 
             $orderby = $query->get('orderby');
             foreach ($fields as $field) {
-                if (
-                    $field->getKey() === $orderby &&
-                    'number' === $field->getAttribute('type')
-                ) {
+                if ($field->getKey() === $orderby && $field->getAttribute('type') === 'number') {
                     $query->set('meta_key', $field->getPrefixedKey());
                     $query->set('orderby', 'meta_value_num');
                     break;
@@ -145,9 +128,7 @@ class RulesController extends BaseCustomPostController
 
     protected static function getSecondaryPriceSources(): array
     {
-        return [
-            'disabled' => 'disabled',
-        ] + self::getPrimaryPriceSources();
+        return ['disabled' => 'disabled'] + self::getPrimaryPriceSources();
     }
 
     public static function getMainFields(): array
@@ -159,11 +140,7 @@ class RulesController extends BaseCustomPostController
                 ->setWidth(50),
 
             (new SelectField('user_type', 'User type'))
-                ->setOptions([
-                    'b2x' => 'b2x',
-                    'b2b' => 'b2b',
-                    'b2c' => 'b2c',
-                ])
+                ->setOptions(['b2x' => 'b2x', 'b2b' => 'b2b', 'b2c' => 'b2c'])
                 ->setWidth(50),
 
             (new SelectField('visibility', 'Visibility'))
@@ -229,11 +206,9 @@ class RulesController extends BaseCustomPostController
                 ->setWidth(50),
 
             (new SelectField('show_in_qty_table', 'Pokazać w tabeli'))
-                ->setOptions([
-                    'show' => 'show',
-                    'hide' => 'hide',
-                ])
+                ->setOptions(['show' => 'show', 'hide' => 'hide'])
                 ->setWidth(50),
+
             (new RichText('custom_html_1', 'custom_html_1'))
                 ->setWidth(100),
         ];
@@ -242,29 +217,28 @@ class RulesController extends BaseCustomPostController
     public static function getMainConditions(): array
     {
         return [
-            (new AssociationRolesField('roles', 'Roles')),
-            (new AssociationUsersField('users', 'Users')),
-            (new AssociationProductsField('products', 'Products')),
-            (new AssociationTermsField('woo_terms', 'Woo Terms')),
+            new AssociationRolesField('roles', 'Roles'),
+            new AssociationUsersField('users', 'Users'),
+            new AssociationProductsField('products', 'Products'),
+            new AssociationTermsField('woo_terms', 'Woo Terms'),
         ];
     }
 
     public static function getQualifyingConditions(): array
     {
         return [
-            (new AssociationRolesField('qualifying_roles', 'Qualifying Roles')),
-            (new AssociationTermsField('qualifying_woo_terms', 'Qualifying Woo Terms')),
+            new AssociationRolesField('qualifying_roles', 'Qualifying Roles'),
+            new AssociationTermsField('qualifying_woo_terms', 'Qualifying Woo Terms'),
         ];
     }
 
     public static function getExcludingConditions(): array
     {
         return [
-            (new AssociationRolesField('excluding_roles', 'Excluding Roles')),
-            (new AssociationUsersField('excluding_users', 'Excluding Users')),
-            (new AssociationProductsField('excluding_products', 'Excluding Products')),
-            (new AssociationTermsField('excluding_woo_terms', 'Excluding Woo Terms')),
+            new AssociationRolesField('excluding_roles', 'Excluding Roles'),
+            new AssociationUsersField('excluding_users', 'Excluding Users'),
+            new AssociationProductsField('excluding_products', 'Excluding Products'),
+            new AssociationTermsField('excluding_woo_terms', 'Excluding Woo Terms'),
         ];
     }
-
 }

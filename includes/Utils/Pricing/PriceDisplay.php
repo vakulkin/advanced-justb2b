@@ -295,11 +295,8 @@ class PriceDisplay
     {
         $priceCalculator = $this->product->getPriceCalculator();
         $price = PriceCalculator::calcRule(
-            $rule->getKind(),
-            $rule->getValue(),
-            $priceCalculator->getBaseNetPrice(),
-            $priceCalculator->getBaseGrossPrice(),
-            $priceCalculator->getTaxRates()
+            $rule,
+            $priceCalculator,
         );
 
         return implode('', [

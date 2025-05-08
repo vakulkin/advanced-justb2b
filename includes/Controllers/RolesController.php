@@ -2,27 +2,24 @@
 
 namespace JustB2b\Controllers;
 
-use JustB2b\Fields\AssociationUsersField;
-
-
-defined('ABSPATH') || exit;
-
 use Carbon_Fields\Container;
 use JustB2b\Models\RoleModel;
 use JustB2b\Fields\FieldBuilder;
+use JustB2b\Fields\AssociationUsersField;
 
+defined('ABSPATH') || exit;
 
 class RolesController extends BaseCustomPostController
 {
     protected static string $modelClass = RoleModel::class;
 
-    public function __construct()
+    protected function __construct()
     {
         parent::__construct();
         $this->maybeRegisterAdminColumns();
     }
 
-    public function registerFields()
+    public function registerCarbonFields()
     {
         $definitions = self::getUsersFields();
         $fields = FieldBuilder::buildFields($definitions);
@@ -35,7 +32,7 @@ class RolesController extends BaseCustomPostController
     public static function getUsersFields(): array
     {
         return [
-            (new AssociationUsersField('users', 'Users')),
+            new AssociationUsersField('users', 'Users'),
         ];
     }
 
@@ -45,7 +42,6 @@ class RolesController extends BaseCustomPostController
         if (empty($fields)) {
             return;
         }
-
 
         $postType = static::$modelClass::getPrefixedKey();
 

@@ -3,18 +3,88 @@
 namespace JustB2b\Controllers;
 
 use WC_Cart;
+use JustB2b\Fields\FieldBuilder;
+use JustB2b\Fields\SelectField;
+use JustB2b\Utils\Prefixer;
 use JustB2b\Traits\SingletonTrait;
 use JustB2b\Models\ProductModel;
 
 defined('ABSPATH') || exit;
 
-class CartController
+class CartController extends BaseController
 {
     use SingletonTrait;
 
+    protected string $showNetFor;
+    protected string $showGrossFor;
+
     public function __construct()
     {
+        parent::__construct();
+
+        $this->showNetFor = get_option(Prefixer::getPrefixedMeta('mini_cart_net_price'));
+        $this->showGrossFor = get_option(Prefixer::getPrefixedMeta('mini_cart_gross_price'));
+
+        add_filter('woocommerce_widget_cart_item_quantity', [$this, 'miniCartPriceFilter'], 10, 2);
         add_action('woocommerce_before_calculate_totals', [$this, 'handleCartTotals'], 20);
+    }
+
+    public function registerCarbonFields()
+    {
+        $definitions = self::getCartFields();
+        $fields = FieldBuilder::buildFields($definitions);
+
+        $globalController = GlobalController::getInstance();
+        $generalSettings = $globalController->getGlobalSettings();
+
+        $generalSettings->add_tab('Cart', $fields);
+    }
+
+    public static function getCartFields(): array
+    {
+        return [
+            (new SelectField('mini_cart_net_price', 'Mini cart net price visibility'))
+                ->setOptions([
+                    'b2x' => 'b2x',
+                    'b2b' => 'b2b',
+                    'b2c' => 'b2c',
+                ])
+                ->setWidth(50),
+            (new SelectField('mini_cart_gross_price', 'Mini cart gross price visibility'))
+                ->setOptions([
+                    'b2x' => 'b2x',
+                    'b2b' => 'b2b',
+                    'b2c' => 'b2c',
+                ])
+                ->setWidth(50),
+        ];
+    }
+
+    public function miniCartPriceFilter($output, $cart_item)
+    {
+        $net_price = $cart_item['line_subtotal'] / $cart_item['quantity'];
+        $gross_price = ($cart_item['line_subtotal'] + $cart_item['line_subtotal_tax']) / $cart_item['quantity'];
+
+        $net_price_formatted = wc_price($net_price);
+        $gross_price_formatted = wc_price($gross_price);
+
+        $userController = UsersController::getInstance();
+        $currentUser = $userController->getCurrentUser();
+        $userKind = $currentUser->isB2b() ? 'b2b' : 'b2c';
+
+        $output = '<span class="quantity">' . esc_html($cart_item['quantity']);
+
+        if ($this->showNetFor === $userKind || $this->showNetFor === 'b2x') {
+            $output .= ' &times; ' . $net_price_formatted . ' ' . esc_html__('netto', 'justb2b');
+        }
+
+        if ($this->showGrossFor === $userKind || $this->showGrossFor === 'b2x') {
+            $output .= '<br />' . $gross_price_formatted . ' ' . esc_html__('brutto', 'justb2b');
+        }
+
+        $output .= '</span>';
+
+        return $output;
     }
 
     public function handleCartTotals(WC_Cart $cart): void
@@ -28,7 +98,6 @@ class CartController
             $product_id = $product->get_id();
             $qty = $cart_item['quantity'];
 
-            // Load ProductModel with quantity
             $productModel = new ProductModel($product_id, $qty);
             if (!$productModel->isSimpleProduct()) {
                 continue;
@@ -36,7 +105,6 @@ class CartController
 
             $rule = $productModel->getFirstFullFitRule();
 
-            // If no rule or the product isn't purchasable, skip it
             if (!$rule) {
                 continue;
             }
@@ -45,11 +113,10 @@ class CartController
             $baseGrossPrice = $priceCalculator->getBaseGrossPrice();
             $finalPrice = $priceCalculator->getFinalGrossPrice();
 
-            // Apply the price
             if ($baseGrossPrice > $finalPrice) {
                 $product->set_regular_price($baseGrossPrice);
             }
-            
+
             $product->set_price($finalPrice);
             $product->set_sale_price($finalPrice);
         }

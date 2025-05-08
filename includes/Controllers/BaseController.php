@@ -10,11 +10,11 @@ abstract class BaseController
 {
     use SingletonTrait;
 
-    public function __construct()
+    protected function __construct()
     {
-        add_action('carbon_fields_register_fields', [$this, 'registerFields'], 20);
+        add_action('carbon_fields_register_fields', [$this, 'registerCarbonFields'], 20);
     }
 
-    abstract public function registerFields();
+    abstract public function registerCarbonFields();
 
 }

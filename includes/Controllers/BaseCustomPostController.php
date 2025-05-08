@@ -2,6 +2,8 @@
 
 namespace JustB2b\Controllers;
 
+use RuntimeException;
+
 defined('ABSPATH') || exit;
 
 use JustB2b\Traits\SingletonTrait;
@@ -12,9 +14,14 @@ abstract class BaseCustomPostController extends BaseController
 
     protected static string $modelClass;
 
-    public function __construct()
+    protected function __construct()
     {
         parent::__construct();
+
+        if (!isset(static::$modelClass)) {
+            throw new RuntimeException('Model class not defined in ' . static::class);
+        }
+
         add_action('init', [$this, 'registerPostType']);
         add_action('admin_menu', [$this, 'registerSubmenus'], 100);
     }
@@ -32,16 +39,16 @@ abstract class BaseCustomPostController extends BaseController
             'capability_type' => 'post',
             'supports' => ['title'],
             'labels' => [
-                'name' => $pluralName,
-                'singular_name' => $singleName,
-                'add_new' => __("Add New {$singleName}", 'justb2b'),
-                'add_new_item' => __("Add New {$singleName}", 'justb2b'),
-                'edit_item' => __("Edit {$singleName}", 'justb2b'),
-                'new_item' => __("New {$singleName}", 'justb2b'),
-                'view_item' => __("View {$singleName}", 'justb2b'),
-                'search_items' => __("Search {$pluralName}", 'justb2b'),
-                'not_found' => __("Not Found {$pluralName}", 'justb2b'),
-                'not_found_in_trash' => __("Not Found {$pluralName} in Trash", 'justb2b'),
+                'name' => sprintf(__('%s', 'justb2b'), $pluralName),
+                'singular_name' => sprintf(__('%s', 'justb2b'), $singleName),
+                'add_new' => sprintf(__('Add New %s', 'justb2b'), $singleName),
+                'add_new_item' => sprintf(__('Add New %s', 'justb2b'), $singleName),
+                'edit_item' => sprintf(__('Edit %s', 'justb2b'), $singleName),
+                'new_item' => sprintf(__('New %s', 'justb2b'), $singleName),
+                'view_item' => sprintf(__('View %s', 'justb2b'), $singleName),
+                'search_items' => sprintf(__('Search %s', 'justb2b'), $pluralName),
+                'not_found' => sprintf(__('No %s found', 'justb2b'), strtolower($pluralName)),
+                'not_found_in_trash' => sprintf(__('No %s found in Trash', 'justb2b'), strtolower($pluralName)),
             ],
         ]);
     }

@@ -16,13 +16,13 @@ class PaymentController extends BaseController
     protected ?array $paymentMethods = null;
     protected ?array $paymentFieldsDefinition = null;
 
-    public function __construct()
+    protected function __construct()
     {
         parent::__construct();
         add_filter('woocommerce_available_payment_gateways', [$this, 'filterPaymentMethods']);
     }
 
-    public function registerFields()
+    public function registerCarbonFields()
     {
         $paymentFields = FieldBuilder::buildFields($this->getPaymentFieldsDefinition());
 
@@ -71,26 +71,28 @@ class PaymentController extends BaseController
     {
         $paymentMethods = $this->getPaymentMethods();
 
-        $cartTotal = WC()->cart ? WC()->cart->get_total('edit') : 0;
+        $cartTotal = WC()->cart ? (float) WC()->cart->get_total('edit') : 0;
 
         foreach ($available_gateways as $id => $gateway) {
-            if (isset($paymentMethods[$id])) {
-                $method = $paymentMethods[$id];
+            if (!isset($paymentMethods[$id])) {
+                continue;
+            }
 
-                if (!$method->isActive()) {
-                    unset($available_gateways[$id]);
-                    continue;
-                }
+            $method = $paymentMethods[$id];
 
-                $minTotal = $method->getMinOrderTotal();
-                $maxTotal = $method->getMaxOrderTotal();
+            if (!$method->isActive()) {
+                unset($available_gateways[$id]);
+                continue;
+            }
 
-                if (
-                    ($minTotal !== false && $cartTotal < $minTotal) ||
-                    ($maxTotal !== false && $cartTotal > $maxTotal)
-                ) {
-                    unset($available_gateways[$id]);
-                }
+            $minTotal = $method->getMinOrderTotal();
+            $maxTotal = $method->getMaxOrderTotal();
+
+            if (
+                ($minTotal !== false && $cartTotal < $minTotal) ||
+                ($maxTotal !== false && $cartTotal > $maxTotal)
+            ) {
+                unset($available_gateways[$id]);
             }
         }
 

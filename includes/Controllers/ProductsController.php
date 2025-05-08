@@ -17,7 +17,7 @@ class ProductsController extends BaseController
 {
     protected static string $modelClass = ProductModel::class;
 
-    public function __construct()
+    protected function __construct()
     {
         parent::__construct();
         add_filter('woocommerce_get_price_html', [$this, 'filterGetPriceHtml'], 25, 2);
@@ -53,7 +53,7 @@ class ProductsController extends BaseController
         return $query_arguments;
     }
 
-    public function registerFields()
+    public function registerCarbonFields()
     {
         $definitions = self::getMainFileds();
         $fields = FieldBuilder::buildFields($definitions);
