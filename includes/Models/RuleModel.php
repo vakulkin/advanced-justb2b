@@ -214,29 +214,44 @@ class RuleModel extends BasePostModel
             $product = $this->getProduct();
             $productId = $product->getId();
 
+            error_log("______________________");
+            error_log($productId);
+
             if (!$this->passesMainUsersRolesCheck($currentUserId)) {
                 return false;
             }
+
+            error_log("passesMainUsersRolesCheck");
 
             if (!$this->passesMainProductsTermsCheck($productId)) {
                 return false;
             }
 
+            error_log("passesMainProductsTermsCheck");
+
             if (!$this->passesQualifyingRolesCheck($currentUserId)) {
                 return false;
             }
+
+            error_log("passesQualifyingRolesCheck");
 
             if (!$this->passesQualifyingTermsCheck($productId)) {
                 return false;
             }
 
+            error_log("passesQualifyingTermsCheck");
+
             if (!$this->passesExcludingUsersRolesCheck($currentUserId)) {
                 return false;
             }
 
+            error_log("passesExcludingUsersRolesCheck");
+
             if (!$this->passesExcludingProductsTermsCheck($productId)) {
                 return false;
             }
+
+            error_log("passesExcludingUsersRolesCheck");
 
             return true;
         });
@@ -305,8 +320,8 @@ class RuleModel extends BasePostModel
     private function passesExcludingUsersRolesCheck(int $userId): bool
     {
         $excludingUsers = AssociationUsersField::getValues($this->id, Prefixer::getPrefixed('excluding_users'));
-        if ($this->checkUsers($excludingUsers, $userId)) {
-            return true;
+        if (!$this->checkUsers($excludingUsers, $userId, true)) {
+            return false;
         }
 
         $excludingRoles = AssociationRolesField::getValues($this->id, Prefixer::getPrefixed('excluding_roles'));
@@ -316,10 +331,13 @@ class RuleModel extends BasePostModel
     private function passesExcludingProductsTermsCheck(int $productId): bool
     {
         $excludingProducts = AssociationProductsField::getValues($this->id, Prefixer::getPrefixed('excluding_products'));
-        $excludingTerms = AssociationTermsField::getValues($this->id, Prefixer::getPrefixed('excluding_woo_terms'));
+        if (!$this->checkProduct($excludingProducts, $productId, true)) {
+            return false;
+        }
 
-        return $this->checkProduct($excludingProducts, $productId, true)
-            || $this->checkTerms($excludingTerms, $productId, true);
+        $excludingTerms = AssociationTermsField::getValues($this->id, Prefixer::getPrefixed('excluding_woo_terms'));
+        $this->checkTerms($excludingTerms, $productId, true);
+        return $this->checkTerms($excludingTerms, $productId, true);
     }
 
     protected function checkProduct(false|array $products, int $productId, bool $excludingLogic = false): bool
@@ -367,12 +385,14 @@ class RuleModel extends BasePostModel
             return true;
         }
 
+        $result = false;
         foreach ($users as $user) {
             if ($user['id'] === $userId) {
-                return $excludingLogic ? false : true;
+                $result = true;
+                break;
             }
         }
-        return false;
+        return $excludingLogic ? !$result : $result;
     }
 
     protected function checkRoles(false|array $roles, int $userId, bool $excludingLogic = false): bool

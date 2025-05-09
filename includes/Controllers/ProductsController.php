@@ -2,16 +2,15 @@
 
 namespace JustB2b\Controllers;
 
+defined('ABSPATH') || exit;
+
 use WP_Post;
 use WP_Query;
 use WC_Product;
-
 use Carbon_Fields\Container;
 use JustB2b\Models\ProductModel;
 use JustB2b\Fields\FieldBuilder;
 use JustB2b\Fields\NonNegativeFloatField;
-
-defined('ABSPATH') || exit;
 
 class ProductsController extends BaseController
 {
@@ -20,23 +19,23 @@ class ProductsController extends BaseController
     protected function __construct()
     {
         parent::__construct();
+
         add_filter('woocommerce_get_price_html', [$this, 'filterGetPriceHtml'], 25, 2);
-        // add_filter('woocommerce_show_variation_price', '__return_true', 25);
         add_action('wp_ajax_justb2b_calculate_price', [$this, 'calculatePriceAjaxHandler']);
         add_action('wp_ajax_nopriv_justb2b_calculate_price', [$this, 'calculatePriceAjaxHandler']);
-        // add_filter('carbon_fields_association_field_options_justb2b_products_post_product', [$this, 'carbonFieldsFilterVariationsParentProducts']);
-        // add_filter('carbon_fields_association_field_options_justb2b_excluding_products_post_product', [$this, 'carbonFieldsFilterVariationsParentProducts']);
-        // add_action('woocommerce_product_query', [$this, 'hideProductsFromLoop']);
         add_action('template_redirect', [$this, 'redirectIfFullyHiddenProduct']);
         add_filter('woocommerce_product_get_price', [$this, 'filterZeroPriceRequest'], 20, 2);
-        // add_filter('woocommerce_product_get_regular_price', [$this, 'filterZeroPriceRequest'], 20, 2);
         add_filter('woocommerce_is_purchasable', [$this, 'filterIsPurchasable'], 20, 2);
 
+        // Future enhancements:
+        // add_action('woocommerce_product_query', [$this, 'hideProductsFromLoop']);
+        // add_filter('woocommerce_show_variation_price', '__return_true', 25);
+        // add_filter('carbon_fields_association_field_options_justb2b_products_post_product', [$this, 'carbonFieldsFilterVariationsParentProducts']);
+        // add_filter('carbon_fields_association_field_options_justb2b_excluding_products_post_product', [$this, 'carbonFieldsFilterVariationsParentProducts']);
     }
 
     public function force_variation_price_display($variation_data, $product, $variation)
     {
-        // Force price_html even if prices are all the same
         $variation_data['price_html'] = $variation->get_price_html();
         return $variation_data;
     }
@@ -55,7 +54,7 @@ class ProductsController extends BaseController
 
     public function registerCarbonFields()
     {
-        $definitions = self::getMainFileds();
+        $definitions = self::getMainFields();
         $fields = FieldBuilder::buildFields($definitions);
 
         Container::make('post_meta', 'JustB2B')
@@ -80,10 +79,8 @@ class ProductsController extends BaseController
             && isset($post)
             && $product->get_id() === $post->ID;
 
-
         $isInNamedLoop = isset($woocommerce_loop['name']) && !empty($woocommerce_loop['name']);
         $isShortcode = isset($woocommerce_loop['is_shortcode']) && $woocommerce_loop['is_shortcode'];
-
         $isInLoop = $isInNamedLoop || $isShortcode || !$isMainProduct;
 
         $priceDisplay = $productModel->getPriceDisplay($price_html, $isInLoop);
@@ -102,10 +99,7 @@ class ProductsController extends BaseController
             wp_send_json_error(['message' => 'Invalid data']);
         }
 
-        $productModel = new self::$modelClass(
-            $productId,
-            $quantity
-        );
+        $productModel = new self::$modelClass($productId, $quantity);
 
         if (!$productModel) {
             wp_send_json_error(['message' => 'Invalid product']);
@@ -113,11 +107,11 @@ class ProductsController extends BaseController
 
         $defaultPriceHtml = $productModel->getWCProduct()->get_price_html();
         $priceDisplay = $productModel->getPriceDisplay($defaultPriceHtml, false);
+
         wp_send_json_success([
             'price' => $priceDisplay->renderPricesHtml(),
         ]);
     }
-
 
     public function hideProductsFromLoop(WP_Query $q)
     {
@@ -147,11 +141,8 @@ class ProductsController extends BaseController
     public function redirectIfFullyHiddenProduct(): void
     {
         global $post;
-        if (!$post instanceof WP_Post) {
-            return;
-        }
 
-        if (!is_singular('product')) {
+        if (!$post instanceof WP_Post || !is_singular('product')) {
             return;
         }
 
@@ -192,7 +183,7 @@ class ProductsController extends BaseController
         return (!$rule && $purchasable) || ($rule && $rule->isPurchasable());
     }
 
-    public static function getMainFileds(): array
+    public static function getMainFields(): array
     {
         return [
             new NonNegativeFloatField('rrp_price', 'rrp_price'),

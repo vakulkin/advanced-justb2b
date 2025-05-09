@@ -7,6 +7,7 @@ use JustB2b\Fields\FieldBuilder;
 use JustB2b\Fields\SelectField;
 use JustB2b\Utils\Prefixer;
 use JustB2b\Traits\SingletonTrait;
+use JustB2b\Traits\LazyLoaderTrait;
 use JustB2b\Models\ProductModel;
 
 defined('ABSPATH') || exit;
@@ -14,16 +15,14 @@ defined('ABSPATH') || exit;
 class CartController extends BaseController
 {
     use SingletonTrait;
+    use LazyLoaderTrait;
 
-    protected string $showNetFor;
-    protected string $showGrossFor;
+    protected ?string $showNetFor = null;
+    protected ?string $showGrossFor = null;
 
-    public function __construct()
+    protected function __construct()
     {
         parent::__construct();
-
-        $this->showNetFor = get_option(Prefixer::getPrefixedMeta('mini_cart_net_price'));
-        $this->showGrossFor = get_option(Prefixer::getPrefixedMeta('mini_cart_gross_price'));
 
         add_filter('woocommerce_widget_cart_item_quantity', [$this, 'miniCartPriceFilter'], 10, 2);
         add_action('woocommerce_before_calculate_totals', [$this, 'handleCartTotals'], 20);
@@ -50,6 +49,7 @@ class CartController extends BaseController
                     'b2c' => 'b2c',
                 ])
                 ->setWidth(50),
+
             (new SelectField('mini_cart_gross_price', 'Mini cart gross price visibility'))
                 ->setOptions([
                     'b2x' => 'b2x',
@@ -58,6 +58,33 @@ class CartController extends BaseController
                 ])
                 ->setWidth(50),
         ];
+
+    }
+
+    protected function initShowNetFor(): void
+    {
+        $this->lazyLoad($this->showNetFor, function () {
+            return get_option(Prefixer::getPrefixedMeta('mini_cart_net_price')) ?: 'b2x';
+        });
+    }
+
+    protected function initShowGrossFor(): void
+    {
+        $this->lazyLoad($this->showGrossFor, function () {
+            return get_option(Prefixer::getPrefixedMeta('mini_cart_gross_price')) ?: 'b2x';
+        });
+    }
+
+    public function getShowNetFor(): string
+    {
+        $this->initShowNetFor();
+        return $this->showNetFor;
+    }
+
+    public function getShowGrossFor(): string
+    {
+        $this->initShowGrossFor();
+        return $this->showGrossFor;
     }
 
     public function miniCartPriceFilter($output, $cart_item)
@@ -74,11 +101,11 @@ class CartController extends BaseController
 
         $output = '<span class="quantity">' . esc_html($cart_item['quantity']);
 
-        if ($this->showNetFor === $userKind || $this->showNetFor === 'b2x') {
+        if ($this->getShowNetFor() === $userKind || $this->getShowNetFor() === 'b2x') {
             $output .= ' &times; ' . $net_price_formatted . ' ' . esc_html__('netto', 'justb2b');
         }
 
-        if ($this->showGrossFor === $userKind || $this->showGrossFor === 'b2x') {
+        if ($this->getShowGrossFor() === $userKind || $this->getShowGrossFor() === 'b2x') {
             $output .= '<br />' . $gross_price_formatted . ' ' . esc_html__('brutto', 'justb2b');
         }
 

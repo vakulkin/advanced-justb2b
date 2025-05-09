@@ -4,8 +4,14 @@ namespace JustB2b\Fields;
 
 defined('ABSPATH') || exit;
 
+use Carbon_Fields\Field\Field;
+
 class FieldBuilder
 {
+    /**
+     * @param BaseField[] $definitions
+     * @return Field[]
+     */
     public static function buildFields(array $definitions): array
     {
         $fields = [];
@@ -18,5 +24,4 @@ class FieldBuilder
 
         return $fields;
     }
-    
 }

@@ -19,10 +19,9 @@ abstract class AssociationField extends BaseField
 
     public function toCarbonField(): Field
     {
-        $field = Field::make($this->type, $this->prefixedKey, $this->label);
-
-        $field->set_types($this->postTypes);
-        $field->set_width($this->width);
+        $field = Field::make($this->type, $this->prefixedKey, $this->label)
+            ->set_types($this->postTypes)
+            ->set_width($this->width);
 
         foreach ($this->attributes as $attr => $val) {
             $field->set_attribute($attr, $val);
@@ -40,8 +39,12 @@ abstract class AssociationField extends BaseField
 
     abstract public static function renderValue(int $parentId, string $key): string;
 
-    protected static function renderEntities(array $values, callable $resolver, callable $linkGenerator, callable $labelGetter): string
-    {
+    protected static function renderEntities(
+        array $values,
+        callable $resolver,
+        callable $linkGenerator,
+        callable $labelGetter
+    ): string {
         $result = '<div class="justb2b-associations">';
         $visibleCount = 3;
         $count = 0;
@@ -49,7 +52,7 @@ abstract class AssociationField extends BaseField
 
         foreach ($values as $value) {
             $id = (int) ($value['id'] ?? 0);
-            $subtype = $value['subtype'] ?? $value['taxonomy'] ?? (isset($value['user_email']) ? 'user' : 'item');
+            $subtype = $value['subtype'] ?? $value['taxonomy'] ?? ($value['user_email'] ?? false ? 'user' : 'item');
 
             if ($id && ($entity = $resolver($id)) && !is_wp_error($entity)) {
                 $count++;
@@ -57,12 +60,20 @@ abstract class AssociationField extends BaseField
                 $url = esc_url($linkGenerator($entity));
 
                 if ($count <= $visibleCount) {
-                    $result .= "<a class=\"justb2b-association-field justb2b-{$subtype}-field-value\"
-                            href=\"{$url}\" target=\"_blank\" rel=\"noopener noreferrer\"
-                            title=\"{$label}\">{$label}</a>";
+                    $result .= sprintf(
+                        '<a class="justb2b-association-field justb2b-%s-field-value" href="%s" target="_blank" rel="noopener noreferrer" title="%s">%s</a>',
+                        $subtype,
+                        $url,
+                        $label,
+                        $label
+                    );
                 } elseif ($count === $visibleCount + 1) {
                     $remaining = $total - $visibleCount;
-                    $result .= "<span class=\"justb2b-association-field justb2b-{$subtype}-field-value\">+" . esc_html($remaining) . "</span>";
+                    $result .= sprintf(
+                        '<span class="justb2b-association-field justb2b-%s-field-value">+%s</span>',
+                        $subtype,
+                        esc_html($remaining)
+                    );
                     break;
                 }
             }
@@ -71,5 +82,4 @@ abstract class AssociationField extends BaseField
         $result .= '</div>';
         return $result;
     }
-
 }

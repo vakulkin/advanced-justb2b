@@ -22,7 +22,9 @@ class SelectField extends BaseField
     {
         /** @var Field $field */
         $field = parent::toCarbonField();
-        $field->add_options($this->options);
+        if (!empty($this->options)) {
+            $field->add_options($this->options);
+        }
 
         return $field;
     }

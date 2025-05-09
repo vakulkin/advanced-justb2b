@@ -7,69 +7,81 @@ defined('ABSPATH') || exit;
 use Carbon_Fields\Field\Field;
 use JustB2b\Utils\Prefixer;
 
-abstract class BaseField {
+abstract class BaseField
+{
     protected string $type;
     protected string $key;
     protected string $prefixedKey;
     protected string $label;
     protected int $width = 100;
     protected array $attributes = [];
-    protected string $defaultValue;
+    protected mixed $defaultValue = null;
 
-    public function __construct(string $key, string $label) {
+    public function __construct(string $key, string $label)
+    {
         $this->key = $key;
         $this->prefixedKey = Prefixer::getPrefixed($key);
         $this->label = $label;
     }
 
-    public function setWidth(int $width): static {
+    public function setWidth(int $width): static
+    {
         $this->width = $width;
         return $this;
     }
 
-    public function setAttribute(string $name, mixed $value): static {
+    public function setAttribute(string $name, mixed $value): static
+    {
         $this->attributes[$name] = $value;
         return $this;
     }
 
-    public function getAttribute(string $name): mixed {
+    public function getAttribute(string $name): mixed
+    {
         return $this->attributes[$name] ?? null;
-    }    
-
-    public function setDefaultValue($value) {
-        $this->defaultValue = $value;
     }
 
-    public function getKey(): string {
+    public function setDefaultValue(mixed $value): static
+    {
+        $this->defaultValue = $value;
+        return $this;
+    }
+
+    public function getKey(): string
+    {
         return $this->key;
     }
 
-    public function getPrefixedKey(): string {
+    public function getPrefixedKey(): string
+    {
         return $this->prefixedKey;
     }
 
-    public function getLabel(): string {
+    public function getLabel(): string
+    {
         return $this->label;
     }
 
-    public function getWidth(): int {
+    public function getWidth(): int
+    {
         return $this->width;
     }
 
-    public function getAttributes(): array {
+    public function getAttributes(): array
+    {
         return $this->attributes;
     }
 
     public function toCarbonField(): Field
     {
-        $field = Field::make($this->type, $this->prefixedKey, $this->label);
-        $field->set_width($this->width);
+        $field = Field::make($this->type, $this->prefixedKey, $this->label)
+            ->set_width($this->width);
 
         foreach ($this->attributes as $attr => $val) {
             $field->set_attribute($attr, $val);
         }
 
-        if (!empty($this->defaultValue)) {
+        if (isset($this->defaultValue)) {
             $field->set_default_value($this->defaultValue);
         }
 
