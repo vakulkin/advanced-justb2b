@@ -19,14 +19,9 @@ abstract class AssociationField extends BaseField
 
     public function toCarbonField(): Field
     {
-        $field = Field::make($this->type, $this->prefixedKey, $this->label)
-            ->set_types($this->postTypes)
-            ->set_width($this->width);
-
-        foreach ($this->attributes as $attr => $val) {
-            $field->set_attribute($attr, $val);
-        }
-
+        /** @var Field $field */
+        $field = parent::toCarbonField();
+        $field->set_types($this->postTypes);
         return $field;
     }
 

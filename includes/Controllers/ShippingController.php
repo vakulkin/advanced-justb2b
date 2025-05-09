@@ -24,7 +24,7 @@ class ShippingController extends BaseController
     {
         parent::__construct();
 
-        add_filter('woocommerce_package_rates', [$this, 'filterShippingRates']);
+        add_filter('woocommerce_package_rates', [$this, 'filterShippingMethods']);
         add_action('woocommerce_checkout_update_order_review', [$this, 'resetShippingCache']);
     }
 
@@ -218,13 +218,13 @@ class ShippingController extends BaseController
         return [$package];
     }
 
-    public function filterShippingRates($rates)
+    public function filterShippingMethods($rates)
     {
-        $this->initShippingMethods();
+        $shippingMethods = $this->getShippingMethods();
 
         foreach ($rates as $rate_id => $rate) {
-            if (isset($this->shippingMethods[$rate_id])) {
-                $method = $this->shippingMethods[$rate_id];
+            if (isset($shippingMethods[$rate_id])) {
+                $method = $shippingMethods[$rate_id];
 
                 if (!$method->isActive()) {
                     unset($rates[$rate_id]);
@@ -239,7 +239,6 @@ class ShippingController extends BaseController
                 }
             }
         }
-
         return $rates;
     }
 

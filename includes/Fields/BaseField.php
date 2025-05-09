@@ -16,6 +16,7 @@ abstract class BaseField
     protected int $width = 100;
     protected array $attributes = [];
     protected mixed $defaultValue = null;
+    protected string $helpText;
 
     public function __construct(string $key, string $label)
     {
@@ -72,6 +73,12 @@ abstract class BaseField
         return $this->attributes;
     }
 
+    public function setHelpText(string $text): static
+    {
+        $this->helpText = $text;
+        return $this;
+    }
+
     public function toCarbonField(): Field
     {
         $field = Field::make($this->type, $this->prefixedKey, $this->label)
@@ -83,6 +90,10 @@ abstract class BaseField
 
         if (isset($this->defaultValue)) {
             $field->set_default_value($this->defaultValue);
+        }
+
+        if (isset($this->helpText)) {
+            $field->set_help_text($this->helpText);
         }
 
         return $field;

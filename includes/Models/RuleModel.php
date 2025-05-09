@@ -214,44 +214,36 @@ class RuleModel extends BasePostModel
             $product = $this->getProduct();
             $productId = $product->getId();
 
-            error_log("______________________");
-            error_log($productId);
 
             if (!$this->passesMainUsersRolesCheck($currentUserId)) {
                 return false;
             }
 
-            error_log("passesMainUsersRolesCheck");
 
             if (!$this->passesMainProductsTermsCheck($productId)) {
                 return false;
             }
 
-            error_log("passesMainProductsTermsCheck");
 
             if (!$this->passesQualifyingRolesCheck($currentUserId)) {
                 return false;
             }
 
-            error_log("passesQualifyingRolesCheck");
 
             if (!$this->passesQualifyingTermsCheck($productId)) {
                 return false;
             }
 
-            error_log("passesQualifyingTermsCheck");
 
             if (!$this->passesExcludingUsersRolesCheck($currentUserId)) {
                 return false;
             }
 
-            error_log("passesExcludingUsersRolesCheck");
 
             if (!$this->passesExcludingProductsTermsCheck($productId)) {
                 return false;
             }
 
-            error_log("passesExcludingUsersRolesCheck");
 
             return true;
         });

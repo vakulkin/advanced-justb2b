@@ -34,10 +34,12 @@ class ProductModel extends BasePostModel
         $this->initQty($conditionQty);
     }
 
-    public static function getSingleName(): string {
+    public static function getSingleName(): string
+    {
         return __('Product', 'justb2b');
     }
-    public static function getPluralName(): string {
+    public static function getPluralName(): string
+    {
         return __('Products', 'justb2b');
     }
 
@@ -121,6 +123,8 @@ class ProductModel extends BasePostModel
         $this->lazyLoad($this->associationsRules, function () {
             $query = new WP_Query($this->getRuleQueryArgs());
             $results = [];
+
+            error_log(print_r($query->posts, true));
 
             foreach ($query->posts as $post) {
                 $rule = new RuleModel($post->ID, $this);

@@ -3,6 +3,7 @@
 namespace JustB2b\Controllers;
 
 use Carbon_Fields\Container;
+use JustB2b\Fields\NumberField;
 use JustB2b\Models\RuleModel;
 use JustB2b\Fields\FieldBuilder;
 use JustB2b\Fields\AssociationProductsField;
@@ -28,7 +29,7 @@ class RulesController extends BaseCustomPostController
     public function registerCarbonFields()
     {
         $containers = [
-            ['label' => 'JustB2B', 'fields' => self::getMainFields(), 'context' => 'side', 'priority' => 'default'],
+            ['label' => 'JustB2B', 'fields' => self::getMainFields()],
             ['label' => 'Main Conditions', 'fields' => self::getMainConditions()],
             ['label' => 'Qualifying Conditions', 'fields' => self::getQualifyingConditions()],
             ['label' => 'Excluding Conditions', 'fields' => self::getExcludingConditions()],
@@ -134,33 +135,33 @@ class RulesController extends BaseCustomPostController
     public static function getMainFields(): array
     {
         return [
-            (new TextField('priority', 'Priority'))
-                ->setAttribute('type', 'number')
-                ->setAttribute('step', 'any')
+            (new NumberField('priority', 'Priority'))
+                ->setHelpText('Lower number = higher priority. Use gaps like 10, 20, 30. Defaults to 0.')
                 ->setWidth(50),
 
             (new SelectField('user_type', 'User type'))
                 ->setOptions(['b2x' => 'b2x', 'b2b' => 'b2b', 'b2c' => 'b2c'])
+                ->setHelpText('Target user type. b2x means all users.')
                 ->setWidth(50),
 
             (new SelectField('visibility', 'Visibility'))
-                ->setOptions([
-                    'show' => 'show',
-                    'loop_hidden' => 'loop_hidden',
-                    'fully_hidden' => 'fully_hidden',
-                ])
+                ->setOptions(['show' => 'show', 'fully_hidden' => 'fully_hidden'])
+                ->setHelpText('Controls visibility. Fully hidden = not shown at all.')
                 ->setWidth(50),
 
             (new SelectField('primary_price_source', 'Primary price source'))
                 ->setOptions(self::getPrimaryPriceSources())
+                ->setHelpText('Main price source used for calculation.')
                 ->setWidth(50),
 
             (new SelectField('secondary_price_source', 'Secondary price source'))
                 ->setOptions(self::getSecondaryPriceSources())
+                ->setHelpText('Fallback if primary price is 0.')
                 ->setWidth(50),
 
             (new SelectField('secondary_rrp_source', 'Secondary RPP source'))
                 ->setOptions(self::getSecondaryPriceSources())
+                ->setHelpText('Used if RRP is 0 or not set.')
                 ->setWidth(50),
 
             (new SelectField('kind', 'Rodzaj'))
@@ -179,37 +180,39 @@ class RulesController extends BaseCustomPostController
                     'non_purchasable' => 'non_purchasable',
                     'zero_order_for_price' => 'zero_order_for_price',
                 ])
+                ->setHelpText('How this rule changes the product price.')
                 ->setWidth(50),
 
             (new TextField('value', 'Wartość'))
                 ->setAttribute('type', 'number')
                 ->setAttribute('step', 'any')
+                ->setHelpText('Value used in price calculation.')
                 ->setWidth(50),
 
             (new TextField('min_qty', 'Min ilość'))
                 ->setAttribute('type', 'number')
                 ->setAttribute('step', 'any')
+                ->setHelpText('Min quantity to apply the rule. Defaults to 0.')
                 ->setWidth(50),
 
             (new TextField('max_qty', 'Max ilość'))
                 ->setAttribute('type', 'number')
                 ->setAttribute('step', 'any')
+                ->setHelpText('Max quantity to apply the rule. Empty = no limit.')
                 ->setWidth(50),
 
             (new SelectField('all_prices_visibility', 'Prices visibility'))
-                ->setOptions([
-                    'show' => 'show',
-                    'hide' => 'hide',
-                    'only_product' => 'only_product',
-                    'only_loop' => 'only_loop',
-                ])
+                ->setOptions(['show' => 'show', 'hide' => 'hide', 'only_product' => 'only_product', 'only_loop' => 'only_loop'])
+                ->setHelpText('Show/hide prices based on this rule.')
                 ->setWidth(50),
 
             (new SelectField('show_in_qty_table', 'Pokazać w tabeli'))
                 ->setOptions(['show' => 'show', 'hide' => 'hide'])
+                ->setHelpText('Show this rule in the quantity table.')
                 ->setWidth(50),
 
-            (new RichText('custom_html_1', 'custom_html_1'))
+            (new RichText('custom_html_1', 'Custom HTML 1'))
+                ->setHelpText('Optional HTML shown on the product page.')
                 ->setWidth(100),
         ];
     }
@@ -217,28 +220,28 @@ class RulesController extends BaseCustomPostController
     public static function getMainConditions(): array
     {
         return [
-            new AssociationRolesField('roles', 'Roles'),
-            new AssociationUsersField('users', 'Users'),
-            new AssociationProductsField('products', 'Products'),
-            new AssociationTermsField('woo_terms', 'Woo Terms'),
+            (new AssociationUsersField('users', 'Users'))->setHelpText('Users the rule applies to. Empty = all (if no roles set).'),
+            (new AssociationRolesField('roles', 'Roles'))->setHelpText('User roles the rule applies to. Empty = all (if no users set).'),
+            (new AssociationProductsField('products', 'Products'))->setHelpText('Products the rule applies to. Empty = all (if no terms set).'),
+            (new AssociationTermsField('woo_terms', 'Woo Terms'))->setHelpText('Product categories (terms) for this rule. Empty = all (if no products set).'),
         ];
     }
 
     public static function getQualifyingConditions(): array
     {
         return [
-            new AssociationRolesField('qualifying_roles', 'Qualifying Roles'),
-            new AssociationTermsField('qualifying_woo_terms', 'Qualifying Woo Terms'),
+            (new AssociationRolesField('qualifying_roles', 'Qualifying Roles'))->setHelpText('Filters products from the main conditions that qualify for the rule.'),
+            (new AssociationTermsField('qualifying_woo_terms', 'Qualifying Woo Terms'))->setHelpText('Filters products from the main conditions that qualify for the rule.'),
         ];
     }
 
     public static function getExcludingConditions(): array
     {
         return [
-            new AssociationRolesField('excluding_roles', 'Excluding Roles'),
-            new AssociationUsersField('excluding_users', 'Excluding Users'),
-            new AssociationProductsField('excluding_products', 'Excluding Products'),
-            new AssociationTermsField('excluding_woo_terms', 'Excluding Woo Terms'),
+            (new AssociationUsersField('excluding_users', 'Excluding Users'))->setHelpText('Users excluded from this rule.'),
+            (new AssociationRolesField('excluding_roles', 'Excluding Roles'))->setHelpText('Roles excluded from this rule.'),
+            (new AssociationProductsField('excluding_products', 'Excluding Products'))->setHelpText('Products excluded from this rule.'),
+            (new AssociationTermsField('excluding_woo_terms', 'Excluding Woo Terms'))->setHelpText('Terms excluded from this rule.'),
         ];
     }
 }

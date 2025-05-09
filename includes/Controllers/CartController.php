@@ -48,6 +48,7 @@ class CartController extends BaseController
                     'b2b' => 'b2b',
                     'b2c' => 'b2c',
                 ])
+                ->setHelpText(__('Choose who should see the net price in the mini cart.', 'justb2b'))
                 ->setWidth(50),
 
             (new SelectField('mini_cart_gross_price', 'Mini cart gross price visibility'))
@@ -56,6 +57,7 @@ class CartController extends BaseController
                     'b2b' => 'b2b',
                     'b2c' => 'b2c',
                 ])
+                ->setHelpText(__('Choose who should see the gross price in the mini cart.', 'justb2b'))
                 ->setWidth(50),
         ];
 

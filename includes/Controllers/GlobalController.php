@@ -162,14 +162,14 @@ class GlobalController extends BaseController
                 foreach (['b2c', 'b2b'] as $kind) {
                     foreach (['prefix', 'postfix'] as $position) {
                         $finalKey = "{$place}_{$kind}_{$key}_{$position}";
-                        $fieldsDefinition[] = (new TextField($finalKey, ucfirst("{$place} {$kind} {$key} {$position}")))->setWidth(25);
+                        $fieldsDefinition[] = (new TextField($finalKey, "{$kind} {$place} {$position}"))->setWidth(25);
                     }
                 }
             }
 
             foreach (['b2c', 'b2b'] as $kind) {
                 $typeKey = "{$kind}_{$key}";
-                $fieldsDefinition[] = (new SelectField($typeKey, "Show for {$kind} users"))
+                $fieldsDefinition[] = (new SelectField($typeKey, "{$kind} visibility"))
                     ->setOptions($showOptions)
                     ->setWidth(50);
             }
