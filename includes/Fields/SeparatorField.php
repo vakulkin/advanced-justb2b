@@ -4,9 +4,9 @@ namespace JustB2b\Fields;
 
 defined('ABSPATH') || exit;
 
-use JustB2b\Fields\BaseField;
+use JustB2b\Fields\AbstractField;
 
-class SeparatorField extends BaseField
+class SeparatorField extends AbstractField
 {
     protected string $type = 'separator';
 }

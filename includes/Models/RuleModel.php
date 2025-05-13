@@ -2,23 +2,25 @@
 
 namespace JustB2b\Models;
 
+use JustB2b\Fields\AssociationField;
 use JustB2b\Fields\AssociationProductsField;
 use JustB2b\Fields\AssociationRolesField;
 use JustB2b\Fields\AssociationTermsField;
 use JustB2b\Fields\AssociationUsersField;
-use JustB2b\Utils\Prefixer;
+use JustB2b\Fields\NumberField;
+use JustB2b\Fields\RichText;
+use JustB2b\Fields\SelectField;
+use JustB2b\Fields\TextField;
 use JustB2b\Controllers\UsersController;
-use JustB2b\Utils\Pricing\PriceCalculator;
 use JustB2b\Traits\LazyLoaderTrait;
 
 defined('ABSPATH') || exit;
 
-class RuleModel extends BasePostModel
+class RuleModel extends AbrstractPostModel
 {
     use LazyLoaderTrait;
 
     protected static string $key = 'rule';
-
     protected ProductModel $product;
     protected int $conditionQty;
     protected ?int $priority = null;
@@ -36,7 +38,6 @@ class RuleModel extends BasePostModel
     protected ?bool $isInLoopHidden = null;
     protected ?bool $isFullyHidden = null;
     protected ?bool $isZeroRequestPrice = null;
-
     protected ?bool $isPricesInLoopHidden = null;
     protected ?bool $isPricesInProductHidden = null;
 
@@ -63,10 +64,11 @@ class RuleModel extends BasePostModel
         return $this->priority;
     }
 
+
     protected function initPriority(): void
     {
         $this->lazyLoad($this->priority, function () {
-            return (int) carbon_get_post_meta($this->id, Prefixer::getPrefixed('priority'));
+            return $this->getFieldValue('priority');
         });
     }
 
@@ -79,7 +81,7 @@ class RuleModel extends BasePostModel
     protected function initKind(): void
     {
         $this->lazyLoad($this->kind, function () {
-            return carbon_get_post_meta($this->id, Prefixer::getPrefixed('kind')) ?: 'price_source';
+            return $this->getFieldValue('kind');
         });
     }
 
@@ -92,7 +94,7 @@ class RuleModel extends BasePostModel
     protected function initPrimaryPriceSource(): void
     {
         $this->lazyLoad($this->primaryPriceSource, function () {
-            return carbon_get_post_meta($this->id, Prefixer::getPrefixed('primary_price_source')) ?: '_price';
+            return $this->getFieldValue('primary_price_source');
         });
     }
 
@@ -105,7 +107,7 @@ class RuleModel extends BasePostModel
     protected function initSecondaryPriceSource(): void
     {
         $this->lazyLoad($this->secondaryPriceSource, function () {
-            return carbon_get_post_meta($this->id, Prefixer::getPrefixed('secondary_price_source')) ?: 'disabled';
+            return $this->getFieldValue('secondary_price_source');
         });
     }
 
@@ -118,7 +120,7 @@ class RuleModel extends BasePostModel
     protected function initSecondaryRRPSource(): void
     {
         $this->lazyLoad($this->secondaryRRPSource, function () {
-            return carbon_get_post_meta($this->id, Prefixer::getPrefixed('secondary_rrp_source')) ?: 'disabled';
+            return $this->getFieldValue('secondary_rrp_source');
         });
     }
 
@@ -132,8 +134,7 @@ class RuleModel extends BasePostModel
     protected function initValue(): void
     {
         $this->lazyLoad($this->value, function () {
-            $value = carbon_get_post_meta($this->id, Prefixer::getPrefixed('value'));
-            return PriceCalculator::getFloat($value);
+            return $this->getFieldValue('value');
         });
     }
 
@@ -146,8 +147,7 @@ class RuleModel extends BasePostModel
     protected function initMinQty(): void
     {
         $this->lazyLoad($this->minQty, function () {
-            $minQty = carbon_get_post_meta($this->id, Prefixer::getPrefixed('min_qty'));
-            return abs((int) $minQty);
+            return (int) $this->getFieldValue('min_qty');
         });
     }
 
@@ -160,8 +160,7 @@ class RuleModel extends BasePostModel
     protected function initMaxQty(): void
     {
         $this->lazyLoad($this->maxQty, function () {
-            $maxQty = carbon_get_post_meta($this->id, Prefixer::getPrefixed('max_qty'));
-            return abs((int) $maxQty);
+            return (int) $this->getFieldValue('max_qty');
         });
     }
 
@@ -174,8 +173,8 @@ class RuleModel extends BasePostModel
     protected function initShowInQtyTable(): void
     {
         $this->lazyLoad($this->showInQtyTable, function () {
-            $show = carbon_get_post_meta($this->id, Prefixer::getPrefixed('show_in_qty_table'));
-            return $show !== 'hide';
+            $value = $this->getFieldValue('show_in_qty_table');
+            return $value !== 'hide';
         });
     }
 
@@ -190,11 +189,9 @@ class RuleModel extends BasePostModel
         $product = $this->getProduct();
 
         $this->lazyLoad($this->doesQtyFits, function () use ($product): bool {
-            $minQty = $this->getMinQty();
-            $maxQty = $this->getMaxQty();
-            $qty = $product->getQty();
 
-            return ($minQty === 0 || $minQty <= $qty) && ($maxQty === 0 || $qty <= $maxQty);
+            return ($this->getMinQty() === 0 || $this->getMinQty() <= $product->getQty())
+                && ($this->getMaxQty() === 0 || $product->getQty() <= $this->getMaxQty());
         });
     }
 
@@ -218,7 +215,6 @@ class RuleModel extends BasePostModel
             if (!$this->passesMainUsersRolesCheck($currentUserId)) {
                 return false;
             }
-
 
             if (!$this->passesMainProductsTermsCheck($productId)) {
                 return false;
@@ -251,33 +247,39 @@ class RuleModel extends BasePostModel
 
     private function passesMainUsersRolesCheck(int $userId): bool
     {
-        $users = AssociationUsersField::getValues($this->id, Prefixer::getPrefixed('users'));
-        $roles = AssociationRolesField::getValues($this->id, Prefixer::getPrefixed('roles'));
+        $users = $this->getFieldValue('users');
+        $roles = $this->getFieldValue('roles');
+
+        if (false === $users || false === $roles) {
+            return false;
+        }
 
         $hasUsers = !empty($users);
         $hasRoles = !empty($roles);
 
-        // If neither users nor roles are defined, allow by default
         if (!$hasUsers && !$hasRoles) {
             return true;
         }
 
-        // If any defined condition fails, return false
-        if ($hasUsers && !$this->checkUsers($users, $userId)) {
-            return false;
+        if ($hasUsers && $this->checkUsers($users, $userId)) {
+            return true;
         }
 
-        if ($hasRoles && !$this->checkRoles($roles, $userId)) {
-            return false;
+        if ($hasRoles && $this->checkRoles($roles, $userId)) {
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     private function passesMainProductsTermsCheck(int $productId): bool
     {
-        $products = AssociationProductsField::getValues($this->id, Prefixer::getPrefixed('products'));
-        $terms = AssociationTermsField::getValues($this->id, Prefixer::getPrefixed('woo_terms'));
+        $products = $this->getFieldValue('products');
+        $terms = $this->getFieldValue('woo_terms');
+
+        if (false === $products || false === $terms) {
+            return false;
+        }
 
         $hasProducts = !empty($products);
         $hasTerms = !empty($terms);
@@ -286,76 +288,99 @@ class RuleModel extends BasePostModel
             return true;
         }
 
-        if ($hasProducts && !$this->checkProduct($products, $productId)) {
-            return false;
+        if ($hasProducts && $this->checkProduct($products, $productId)) {
+            return true;
         }
 
-        if ($hasTerms && !$this->checkTerms($terms, $productId)) {
-            return false;
+        if ($hasTerms && $this->checkTerms($terms, $productId)) {
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     private function passesQualifyingRolesCheck(int $userId): bool
     {
-        $qualifyingRoles = AssociationRolesField::getValues($this->id, Prefixer::getPrefixed('qualifying_roles'));
+        $qualifyingRoles = $this->getFieldValue('qualifying_roles');
+
+        if (false === $qualifyingRoles) {
+            return false;
+        }
+
+        $hasQualifyingRoles = !empty($usequalifyingRolesrs);
+        if (!$hasQualifyingRoles) {
+            return true;
+        }
+
         return $this->checkRoles($qualifyingRoles, $userId);
     }
 
     private function passesQualifyingTermsCheck(int $productId): bool
     {
-        $qualifyingTerms = AssociationTermsField::getValues($this->id, Prefixer::getPrefixed('qualifying_woo_terms'));
+        $qualifyingTerms = $this->getFieldValue('qualifying_woo_terms');
+
+        if (false === $qualifyingTerms) {
+            return false;
+        }
+
+        $hasQualifyingTerms = !empty($qualifyingTerms);
+        if (!$hasQualifyingTerms) {
+            return true;
+        }
+
         return $this->checkTerms($qualifyingTerms, $productId);
     }
 
     private function passesExcludingUsersRolesCheck(int $userId): bool
     {
-        $excludingUsers = AssociationUsersField::getValues($this->id, Prefixer::getPrefixed('excluding_users'));
-        if (!$this->checkUsers($excludingUsers, $userId, true)) {
+        $excludingUsers = $this->getFieldValue('excluding_users');
+
+        if (false === $excludingUsers) {
             return false;
         }
 
-        $excludingRoles = AssociationRolesField::getValues($this->id, Prefixer::getPrefixed('excluding_roles'));
-        return $this->checkRoles($excludingRoles, $userId, true);
+        if ($this->checkUsers($excludingUsers, $userId)) {
+            return false;
+        }
+
+        $excludingRoles = $this->getFieldValue('excluding_roles');
+
+        if (false === $excludingRoles) {
+            return false;
+        }
+
+        return !$this->checkRoles($excludingRoles, $userId);
     }
 
     private function passesExcludingProductsTermsCheck(int $productId): bool
     {
-        $excludingProducts = AssociationProductsField::getValues($this->id, Prefixer::getPrefixed('excluding_products'));
-        if (!$this->checkProduct($excludingProducts, $productId, true)) {
+        $excludingProducts = $this->getFieldValue('excluding_products');
+
+        if (false === $excludingProducts) {
             return false;
         }
 
-        $excludingTerms = AssociationTermsField::getValues($this->id, Prefixer::getPrefixed('excluding_woo_terms'));
-        $this->checkTerms($excludingTerms, $productId, true);
-        return $this->checkTerms($excludingTerms, $productId, true);
+        if ($this->checkProduct($excludingProducts, $productId)) {
+            return false;
+        }
+
+        $excludingTerms = $this->getFieldValue('excluding_woo_terms');
+
+        if (false === $excludingTerms) {
+            return false;
+        }
+
+        return !$this->checkTerms($excludingTerms, $productId);
     }
 
-    protected function checkProduct(false|array $products, int $productId, bool $excludingLogic = false): bool
+    protected function checkProduct(false|array $products, int $productId): bool
     {
-        if (false === $products) {
-            return false;
-        }
-
-        if (empty($products)) {
-            return true;
-        }
-
         $result = isset($products[$productId]);
-        return $excludingLogic ? !$result : $result;
+        return $result;
     }
 
-    protected function checkTerms(false|array $terms, int $productId, bool $excludingLogic = false): bool
+    protected function checkTerms(false|array $terms, int $productId): bool
     {
-        if (false === $terms) {
-            return false;
-        }
-
-        if (empty($terms)) {
-            return true;
-        }
-
         $result = false;
         foreach ($terms as $term) {
             if (has_term($term['id'], $term['taxonomy'], $productId)) {
@@ -363,50 +388,31 @@ class RuleModel extends BasePostModel
                 break;
             }
         }
-
-        return $excludingLogic ? !$result : $result;
+        return $result;
     }
 
-    protected function checkUsers(false|array $users, int $userId, bool $excludingLogic = false): bool
+    protected function checkUsers(false|array $users, int $userId): bool
     {
-        if (false === $users) {
-            return false;
-        }
-
-        if (empty($users)) {
-            return true;
-        }
-
         $result = false;
-        foreach ($users as $user) {
-            if ($user['id'] === $userId) {
-                $result = true;
-                break;
-            }
-        }
-        return $excludingLogic ? !$result : $result;
-    }
-
-    protected function checkRoles(false|array $roles, int $userId, bool $excludingLogic = false): bool
-    {
-        if (false === $roles) {
-            return false;
-        }
-
-        if (empty($roles)) {
+        if (isset($users[$userId])) {
             return true;
         }
+        return $result;
+    }
 
+    protected function checkRoles(false|array $roles, int $userId): bool
+    {
         $result = false;
         foreach ($roles as $role) {
-            $roleId = $role['id'];
-            $users = AssociationUsersField::getValues($roleId, Prefixer::getPrefixed('users'));
+            /** @var AssociationField $field */
+            $field = $this->getField('users');
+            $users = $field->getPostFieldValue($role['id']);
             if (isset($users[$userId])) {
                 $result = true;
                 break;
             }
         }
-        return $excludingLogic ? !$result : $result;
+        return $result;
     }
 
     public function getProduct(): ProductModel
@@ -438,7 +444,8 @@ class RuleModel extends BasePostModel
 
     protected function initisInLoopHidden(): bool
     {
-        return in_array(carbon_get_post_meta($this->id, Prefixer::getPrefixed('visibility')), ['loop_hidden', 'fully_hidden'], true);
+        $value = $this->getFieldValue('visibility');
+        return in_array($value, ['loop_hidden', 'fully_hidden'], true);
     }
 
     public function isFullyHidden(): bool
@@ -450,7 +457,8 @@ class RuleModel extends BasePostModel
 
     protected function initIsFullyHidden(): bool
     {
-        return carbon_get_post_meta($this->id, Prefixer::getPrefixed('visibility')) === 'fully_hidden';
+        $value = $this->getFieldValue('visibility');
+        return $value === 'fully_hidden';
     }
 
     public function isZeroRequestPrice(): bool
@@ -472,7 +480,8 @@ class RuleModel extends BasePostModel
 
     protected function initIsPricesInLoopHidden(): bool
     {
-        $allPricesVisibility = carbon_get_post_meta($this->id, Prefixer::getPrefixed('all_prices_visibility')) ?: 'show';
+        $value = $this->getFieldValue('all_prices_visibility');
+        $allPricesVisibility = $value ?: 'show';
         return $allPricesVisibility === 'hide' || $allPricesVisibility === 'only_product';
     }
 
@@ -484,8 +493,126 @@ class RuleModel extends BasePostModel
 
     protected function initIsPricesInProductHidden(): bool
     {
-        $allPricesVisibility = carbon_get_post_meta($this->id, Prefixer::getPrefixed('all_prices_visibility')) ?: 'show';
+        $value = $this->getFieldValue('all_prices_visibility');
+        $allPricesVisibility = $value ?: 'show';
         return $allPricesVisibility === 'hide' || $allPricesVisibility === 'only_loop';
     }
 
+    protected static function getPrimaryPriceSources(): array
+    {
+        return [
+            '_price' => '_price',
+            '_regular_price' => '_regular_price',
+            '_sale_price' => '_sale_price',
+            'rrp_price' => 'rrp_price',
+            'base_price_1' => 'base_price_1',
+            'base_price_2' => 'base_price_2',
+            'base_price_3' => 'base_price_3',
+            'base_price_4' => 'base_price_4',
+            'base_price_5' => 'base_price_5',
+        ];
+    }
+
+    protected static function getSecondaryPriceSources(): array
+    {
+        return ['disabled' => 'disabled'] + self::getPrimaryPriceSources();
+    }
+
+    public static function getFieldsDefinition(): array
+    {
+        return [
+            (new NumberField('priority', 'Priority'))
+                ->setHelpText('Lower number = higher priority. Use gaps like 10, 20, 30. Defaults to 0.')
+                ->setWidth(25),
+
+            (new SelectField('user_type', 'User type'))
+                ->setOptions(['b2x' => 'b2x', 'b2b' => 'b2b', 'b2c' => 'b2c'])
+                ->setHelpText('Target user type. b2x means all users.')
+                ->setWidth(25),
+
+            (new SelectField('visibility', 'Visibility'))
+                ->setOptions(['show' => 'show', 'fully_hidden' => 'fully_hidden'])
+                ->setHelpText('Controls visibility. Fully hidden = not shown at all.')
+                ->setWidth(25),
+
+            (new SelectField('primary_price_source', 'Primary price source'))
+                ->setOptions(self::getPrimaryPriceSources())
+                ->setHelpText('Main price source used for calculation.')
+                ->setWidth(25),
+
+            (new SelectField('secondary_price_source', 'Secondary price source'))
+                ->setOptions(self::getSecondaryPriceSources())
+                ->setHelpText('Fallback if primary price is 0.')
+                ->setWidth(25),
+
+            (new SelectField('secondary_rrp_source', 'Secondary RPP source'))
+                ->setOptions(self::getSecondaryPriceSources())
+                ->setHelpText('Used if RRP is 0 or not set.')
+                ->setWidth(25),
+
+            (new SelectField('kind', 'Rodzaj'))
+                ->setOptions([
+                    'price_source' => 'price_source',
+                    'net_minus_percent' => 'net_minus_percent',
+                    'net_plus_percent' => 'net_plus_percent',
+                    'net_minus_number' => 'net_minus_number',
+                    'net_plus_number' => 'net_plus_number',
+                    'net_equals_number' => 'net_equals_number',
+                    'gross_minus_percent' => 'gross_minus_percent',
+                    'gross_plus_percent' => 'gross_plus_percent',
+                    'gross_minus_number' => 'gross_minus_number',
+                    'gross_plus_number' => 'gross_plus_number',
+                    'gross_equals_number' => 'gross_equals_number',
+                    'non_purchasable' => 'non_purchasable',
+                    'zero_order_for_price' => 'zero_order_for_price',
+                ])
+                ->setHelpText('How this rule changes the product price.')
+                ->setWidth(25),
+
+            (new TextField('value', 'Wartość'))
+                ->setAttribute('type', 'number')
+                ->setAttribute('step', 'any')
+                ->setHelpText('Value used in price calculation.')
+                ->setWidth(25),
+
+            (new TextField('min_qty', 'Min ilość'))
+                ->setAttribute('type', 'number')
+                ->setAttribute('step', 'any')
+                ->setHelpText('Min quantity to apply the rule. Defaults to 0.')
+                ->setWidth(25),
+
+            (new TextField('max_qty', 'Max ilość'))
+                ->setAttribute('type', 'number')
+                ->setAttribute('step', 'any')
+                ->setHelpText('Max quantity to apply the rule. Empty = no limit.')
+                ->setWidth(25),
+
+            (new SelectField('all_prices_visibility', 'Prices visibility'))
+                ->setOptions(['show' => 'show', 'hide' => 'hide', 'only_product' => 'only_product', 'only_loop' => 'only_loop'])
+                ->setHelpText('Show/hide prices based on this rule.')
+                ->setWidth(25),
+
+            (new SelectField('show_in_qty_table', 'Pokazać w tabeli'))
+                ->setOptions(['show' => 'show', 'hide' => 'hide'])
+                ->setHelpText('Show this rule in the quantity table.')
+                ->setWidth(25),
+
+            (new RichText('custom_html_1', 'Custom HTML 1'))
+                ->setHelpText('Optional HTML shown on the product page.')
+                ->setWidth(100),
+
+            (new AssociationUsersField('users', 'Users'))->setHelpText('Users the rule applies to. Empty = all (if no roles set).'),
+            (new AssociationRolesField('roles', 'Roles'))->setHelpText('User roles the rule applies to. Empty = all (if no users set).'),
+            (new AssociationProductsField('products', 'Products'))->setHelpText('Products the rule applies to. Empty = all (if no terms set).'),
+            (new AssociationTermsField('woo_terms', 'Woo Terms'))->setHelpText('Product categories (terms) for this rule. Empty = all (if no products set).'),
+
+            (new AssociationRolesField('qualifying_roles', 'Qualifying Roles'))->setHelpText('Filters products from the main conditions that qualify for the rule.'),
+            (new AssociationTermsField('qualifying_woo_terms', 'Qualifying Woo Terms'))->setHelpText('Filters products from the main conditions that qualify for the rule.'),
+
+            (new AssociationUsersField('excluding_users', 'Excluding Users'))->setHelpText('Users excluded from this rule.'),
+            (new AssociationRolesField('excluding_roles', 'Excluding Roles'))->setHelpText('Roles excluded from this rule.'),
+            (new AssociationProductsField('excluding_products', 'Excluding Products'))->setHelpText('Products excluded from this rule.'),
+            (new AssociationTermsField('excluding_woo_terms', 'Excluding Woo Terms'))->setHelpText('Terms excluded from this rule.'),
+        ];
+    }
 }

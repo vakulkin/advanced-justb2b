@@ -3,22 +3,21 @@
 namespace JustB2b\Controllers;
 
 use WC_Cart;
-use JustB2b\Fields\FieldBuilder;
-use JustB2b\Fields\SelectField;
+use JustB2b\Models\CartModel;
 use JustB2b\Utils\Prefixer;
+use JustB2b\Fields\FieldBuilder;
 use JustB2b\Traits\SingletonTrait;
-use JustB2b\Traits\LazyLoaderTrait;
+use JustB2b\Traits\RuntimeCacheTrait;
 use JustB2b\Models\ProductModel;
 
 defined('ABSPATH') || exit;
 
-class CartController extends BaseController
+class CartController extends AbstractKeyController
 {
     use SingletonTrait;
-    use LazyLoaderTrait;
+    use RuntimeCacheTrait;
 
-    protected ?string $showNetFor = null;
-    protected ?string $showGrossFor = null;
+    protected string $modelClass = CartModel::class;
 
     protected function __construct()
     {
@@ -30,7 +29,7 @@ class CartController extends BaseController
 
     public function registerCarbonFields()
     {
-        $definitions = self::getCartFields();
+        $definitions = $this->modelClass::getFieldsDefinition();
         $fields = FieldBuilder::buildFields($definitions);
 
         $globalController = GlobalController::getInstance();
@@ -39,54 +38,18 @@ class CartController extends BaseController
         $generalSettings->add_tab('Cart', $fields);
     }
 
-    public static function getCartFields(): array
+    public function getShowNetFor(): string
     {
-        return [
-            (new SelectField('mini_cart_net_price', 'Mini cart net price visibility'))
-                ->setOptions([
-                    'b2x' => 'b2x',
-                    'b2b' => 'b2b',
-                    'b2c' => 'b2c',
-                ])
-                ->setHelpText(__('Choose who should see the net price in the mini cart.', 'justb2b'))
-                ->setWidth(50),
-
-            (new SelectField('mini_cart_gross_price', 'Mini cart gross price visibility'))
-                ->setOptions([
-                    'b2x' => 'b2x',
-                    'b2b' => 'b2b',
-                    'b2c' => 'b2c',
-                ])
-                ->setHelpText(__('Choose who should see the gross price in the mini cart.', 'justb2b'))
-                ->setWidth(50),
-        ];
-
-    }
-
-    protected function initShowNetFor(): void
-    {
-        $this->lazyLoad($this->showNetFor, function () {
+        return $this->getFromRuntimeCache('mini_cart_net_price', function () {
             return get_option(Prefixer::getPrefixedMeta('mini_cart_net_price')) ?: 'b2x';
         });
     }
 
-    protected function initShowGrossFor(): void
-    {
-        $this->lazyLoad($this->showGrossFor, function () {
-            return get_option(Prefixer::getPrefixedMeta('mini_cart_gross_price')) ?: 'b2x';
-        });
-    }
-
-    public function getShowNetFor(): string
-    {
-        $this->initShowNetFor();
-        return $this->showNetFor;
-    }
-
     public function getShowGrossFor(): string
     {
-        $this->initShowGrossFor();
-        return $this->showGrossFor;
+        return $this->getFromRuntimeCache('mini_cart_gross_price', function () {
+            return get_option(Prefixer::getPrefixedMeta('mini_cart_gross_price')) ?: 'b2x';
+        });
     }
 
     public function miniCartPriceFilter($output, $cart_item)
@@ -101,14 +64,18 @@ class CartController extends BaseController
         $currentUser = $userController->getCurrentUser();
         $userKind = $currentUser->isB2b() ? 'b2b' : 'b2c';
 
+        $showNet = $this->getShowNetFor() === $userKind || $this->getShowNetFor() === 'b2x';
+        $showGross = $this->getShowGrossFor() === $userKind || $this->getShowGrossFor() === 'b2x';
+
         $output = '<span class="quantity">' . esc_html($cart_item['quantity']);
 
-        if ($this->getShowNetFor() === $userKind || $this->getShowNetFor() === 'b2x') {
+        if ($showNet) {
             $output .= ' &times; ' . $net_price_formatted . ' ' . esc_html__('netto', 'justb2b');
         }
 
-        if ($this->getShowGrossFor() === $userKind || $this->getShowGrossFor() === 'b2x') {
-            $output .= '<br />' . $gross_price_formatted . ' ' . esc_html__('brutto', 'justb2b');
+        if ($showGross) {
+            $output .= $showNet ? '<br />' : ' &times; ';
+            $output .= $gross_price_formatted . ' ' . esc_html__('brutto', 'justb2b');
         }
 
         $output .= '</span>';
@@ -133,7 +100,6 @@ class CartController extends BaseController
             }
 
             $rule = $productModel->getFirstFullFitRule();
-
             if (!$rule) {
                 continue;
             }

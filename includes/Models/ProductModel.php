@@ -2,58 +2,38 @@
 
 namespace JustB2b\Models;
 
+use WP_Query;
+use WC_Product;
 use JustB2b\Controllers\UsersController;
 use JustB2b\Utils\Prefixer;
 use JustB2b\Utils\Pricing\PriceCalculator;
 use JustB2b\Utils\Pricing\PriceDisplay;
-use JustB2b\Traits\LazyLoaderTrait;
-use WP_Query;
-use WC_Product;
+use JustB2b\Fields\NonNegativeFloatField;
+use JustB2b\Traits\RuntimeCacheTrait;
 
 defined('ABSPATH') || exit;
 
-class ProductModel extends BasePostModel
+class ProductModel extends AbstractPostModel
 {
-    use LazyLoaderTrait;
+    use RuntimeCacheTrait;
 
     protected static string $key = 'product';
     protected int $qty;
-    protected ?bool $isSimpleProduct = null;
-    protected ?bool $isVariableProduct = null;
-    protected ?bool $isVariation;
-    protected ?bool $isDifferntTypeProduct = null;
-    protected ?WC_Product $WCProduct = null;
-    protected ?array $associationsRules = null;
-    protected ?RuleModel $firstFullFitRule = null;
-    protected ?PriceCalculator $priceCalculator = null;
-    protected ?PriceDisplay $priceDisplay = null;
 
     public function __construct(int $id, int $conditionQty)
     {
         parent::__construct($id);
-        $this->initQty($conditionQty);
+        $this->qty = $conditionQty;
     }
 
     public static function getSingleName(): string
     {
         return __('Product', 'justb2b');
     }
+
     public static function getPluralName(): string
     {
         return __('Products', 'justb2b');
-    }
-
-    public function getWCProduct(): WC_Product
-    {
-        $this->initWCProduct();
-        return $this->WCProduct;
-    }
-
-    protected function initWCProduct(): void
-    {
-        $this->lazyLoad($this->WCProduct, function () {
-            return wc_get_product($this->id);
-        });
     }
 
     public function getQty(): int
@@ -61,70 +41,51 @@ class ProductModel extends BasePostModel
         return $this->qty;
     }
 
-    protected function initQty(int $conditionQty): void
+    public function getWCProduct(): WC_Product
     {
-        $this->qty = $conditionQty;
+        return $this->getFromRuntimeCache(
+            "wc_product_{$this->id}",
+            fn() => wc_get_product($this->id)
+        );
     }
 
     public function isSimpleProduct(): bool
     {
-        $this->initIsSimpleProduct();
-        return $this->isSimpleProduct;
+        return $this->getFromRuntimeCache(
+            "is_simple_{$this->id}",
+            fn() => $this->getWCProduct()->is_type('simple')
+        );
     }
 
-    protected function initIsSimpleProduct(): void
-    {
-        $this->lazyLoad($this->isSimpleProduct, function () {
-            return $this->getWCProduct()->is_type('simple');
-        });
-    }
     public function isVariableProduct(): bool
     {
-        $this->initIsVariableProduct();
-        return $this->isVariableProduct;
+        return $this->getFromRuntimeCache(
+            "is_variable_{$this->id}",
+            fn() => $this->getWCProduct()->is_type('variable')
+        );
     }
-    protected function initIsVariableProduct(): void
-    {
-        $this->lazyLoad($this->isVariableProduct, function () {
-            return $this->getWCProduct()->is_type('variable');
-        });
-    }
+
     public function isVariation(): bool
     {
-        $this->initIsVariation();
-        return $this->isVariation;
+        return $this->getFromRuntimeCache(
+            "is_variation_{$this->id}",
+            fn() => $this->getWCProduct()->is_type('variation')
+        );
     }
-    protected function initIsVariation(): void
-    {
-        $this->lazyLoad($this->isVariation, function () {
-            return $this->getWCProduct()->is_type('variation');
-        });
-    }
+
     public function isDifferentTypeProduct(): bool
     {
-        $this->initIsDifferentTypeProduct();
-        return $this->isDifferntTypeProduct;
-    }
-    protected function initIsDifferentTypeProduct(): void
-    {
-        $this->lazyLoad($this->isDifferntTypeProduct, function () {
-            return !$this->isSimpleProduct() && !$this->isVariableProduct() && !$this->isVariation();
-        });
+        return $this->getFromRuntimeCache(
+            "is_other_type_{$this->id}",
+            fn() => !$this->isSimpleProduct() && !$this->isVariableProduct() && !$this->isVariation()
+        );
     }
 
     public function getRules(): array
     {
-        $this->initAssociationRules();
-        return $this->associationsRules;
-    }
-
-    protected function initAssociationRules(): void
-    {
-        $this->lazyLoad($this->associationsRules, function () {
+        return $this->getFromRuntimeCache("product_rules_{$this->id}_qty_{$this->qty}", function () {
             $query = new WP_Query($this->getRuleQueryArgs());
             $results = [];
-
-            error_log(print_r($query->posts, true));
 
             foreach ($query->posts as $post) {
                 $rule = new RuleModel($post->ID, $this);
@@ -139,55 +100,40 @@ class ProductModel extends BasePostModel
 
     public function getFirstFullFitRule(): ?RuleModel
     {
-        $this->initFirstFullFitRule();
-        return $this->firstFullFitRule;
-    }
-
-    protected function initFirstFullFitRule(): void
-    {
-        $this->lazyLoad($this->firstFullFitRule, function () {
-            foreach ($this->getRules() as $rule) {
-                if ($rule->doesQtyFits()) {
-                    return $rule;
+        return $this->getFromRuntimeCache(
+            "product_rule_fit_{$this->id}_qty_{$this->qty}",
+            function () {
+                foreach ($this->getRules() as $rule) {
+                    if ($rule->doesQtyFits()) {
+                        return $rule;
+                    }
                 }
+                return null;
             }
-            return null;
-        });
+        );
     }
 
     public function getPriceCalculator(): PriceCalculator
     {
-        $this->initPriceCalculator();
-        return $this->priceCalculator;
-    }
-
-    protected function initPriceCalculator(): void
-    {
-        $this->lazyLoad($this->priceCalculator, function () {
-            return new PriceCalculator($this);
-        });
+        return $this->getFromRuntimeCache(
+            "product_calc_{$this->id}_qty_{$this->qty}",
+            fn() => new PriceCalculator($this)
+        );
     }
 
     public function getPriceDisplay(string $defaultPriceHtml, bool $isInLoop): PriceDisplay
     {
-        $this->initPriceDisplay($defaultPriceHtml, $isInLoop);
-        return $this->priceDisplay;
+        return $this->getFromRuntimeCache(
+            "product_display_{$this->id}_{$isInLoop}",
+            fn() => new PriceDisplay($this, $defaultPriceHtml, $isInLoop)
+        );
     }
-
-    protected function initPriceDisplay(string $defaultPriceHtml, bool $isInLoop): void
-    {
-        $this->lazyLoad($this->priceDisplay, function () use ($defaultPriceHtml, $isInLoop) {
-            return new PriceDisplay($this, $defaultPriceHtml, $isInLoop);
-        });
-    }
-
 
     protected function getRuleQueryArgs(): array
     {
-        $usersController = UsersController::getInstance();
-        $currentUser = $usersController->getCurrentUser();
+        $user = UsersController::getInstance()->getCurrentUser();
 
-        $params = [
+        return [
             'post_type' => Prefixer::getPrefixed('rule'),
             'post_status' => 'publish',
             'posts_per_page' => -1,
@@ -205,6 +151,18 @@ class ProductModel extends BasePostModel
                     'key' => Prefixer::getPrefixedMeta('max_qty'),
                     'type' => 'NUMERIC',
                 ],
+                'user_type_clause' => [
+                    'relation' => 'OR',
+                    [
+                        'key' => Prefixer::getPrefixedMeta('user_type'),
+                        'value' => $user->isB2b() ? ['b2b', 'b2x'] : ['b2c', 'b2x'],
+                        'compare' => 'IN',
+                    ],
+                    [
+                        'key' => Prefixer::getPrefixedMeta('user_type'),
+                        'compare' => 'NOT EXISTS',
+                    ],
+                ]
             ],
             'orderby' => [
                 'priority_clause' => 'ASC',
@@ -213,21 +171,17 @@ class ProductModel extends BasePostModel
                 'ID' => 'ASC',
             ],
         ];
+    }
 
-        $params['meta_query']['user_type_clause'] = [
-            'relation' => 'OR',
-            [
-                'key' => Prefixer::getPrefixedMeta('user_type'),
-                'value' => $currentUser->isB2b() ? ['b2b', 'b2x'] : ['b2c', 'b2x'],
-                'compare' => 'IN',
-            ],
-            [
-                'key' => Prefixer::getPrefixedMeta('user_type'),
-                'compare' => 'NOT EXISTS',
-            ],
+    public static function getFieldsDefinition(): array
+    {
+        return [
+            new NonNegativeFloatField('rrp_price', 'rrp_price'),
+            new NonNegativeFloatField('base_price_1', 'base_price_1'),
+            new NonNegativeFloatField('base_price_2', 'base_price_2'),
+            new NonNegativeFloatField('base_price_3', 'base_price_3'),
+            new NonNegativeFloatField('base_price_4', 'base_price_4'),
+            new NonNegativeFloatField('base_price_5', 'base_price_5'),
         ];
-
-
-        return $params;
     }
 }

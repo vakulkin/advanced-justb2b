@@ -7,41 +7,27 @@ defined('ABSPATH') || exit;
 use Carbon_Fields\Container;
 use JustB2b\Models\UserModel;
 use JustB2b\Fields\FieldBuilder;
-use JustB2b\Fields\SelectField;
-use JustB2b\Traits\LazyLoaderTrait;
+use JustB2b\Traits\RuntimeCacheTrait;
 
-class UsersController extends BaseController
+class UsersController extends AbstractController
 {
-    use LazyLoaderTrait;
+    use RuntimeCacheTrait;
 
-    protected ?UserModel $currentUser = null;
+    protected string $modelClass = UserModel::class;
 
     public function registerCarbonFields()
     {
-        $definitions = self::getMainFields();
+        $definitions = $this->modelClass::getFieldsDefinition();
         $fields = FieldBuilder::buildFields($definitions);
 
         Container::make('user_meta', 'JustB2B')
             ->add_fields($fields);
     }
 
-    protected function initCurrentUser(): void
-    {
-        $this->lazyLoad($this->currentUser, function () {
-            return new UserModel(get_current_user_id());
-        });
-    }
-
     public function getCurrentUser(): UserModel
     {
-        $this->initCurrentUser();
-        return $this->currentUser;
-    }
-
-    public static function getMainFields(): array
-    {
-        return [
-            new SelectField('kind', 'Rodzaj'),
-        ];
+        return $this->getFromRuntimeCache('current_user_model', function () {
+            return new $this->modelClass(get_current_user_id());
+        });
     }
 }

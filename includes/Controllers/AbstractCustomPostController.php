@@ -2,25 +2,17 @@
 
 namespace JustB2b\Controllers;
 
-use RuntimeException;
-
 defined('ABSPATH') || exit;
 
 use JustB2b\Traits\SingletonTrait;
 
-abstract class BaseCustomPostController extends BaseController
+abstract class AbstractCustomPostController extends AbstractController
 {
     use SingletonTrait;
-
-    protected static string $modelClass;
 
     protected function __construct()
     {
         parent::__construct();
-
-        if (!isset(static::$modelClass)) {
-            throw new RuntimeException('Model class not defined in ' . static::class);
-        }
 
         add_action('init', [$this, 'registerPostType']);
         add_action('admin_menu', [$this, 'registerSubmenus'], 100);
@@ -28,10 +20,10 @@ abstract class BaseCustomPostController extends BaseController
 
     public function registerPostType()
     {
-        $singleName = static::$modelClass::getSingleName();
-        $pluralName = static::$modelClass::getPluralName();
+        $singleName = $this->modelClass::getSingleName();
+        $pluralName = $this->modelClass::getPluralName();
 
-        register_post_type(static::$modelClass::getPrefixedKey(), [
+        register_post_type($this->modelClass::getPrefixedKey(), [
             'label' => $singleName,
             'public' => false,
             'show_ui' => true,
@@ -55,11 +47,11 @@ abstract class BaseCustomPostController extends BaseController
 
     public function registerSubmenus()
     {
-        $prefixedKey = static::$modelClass::getPrefixedKey();
+        $prefixedKey = $this->modelClass::getPrefixedKey();
         add_submenu_page(
             'justb2b-settings',
-            static::$modelClass::getPluralName(),
-            static::$modelClass::getPluralName(),
+            $this->modelClass::getPluralName(),
+            $this->modelClass::getPluralName(),
             'edit_posts',
             "edit.php?post_type={$prefixedKey}"
         );

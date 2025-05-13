@@ -2,19 +2,17 @@
 
 namespace JustB2b\Controllers;
 
-use JustB2b\Traits\LazyLoaderTrait;
-use JustB2b\Models\PaymentMethodModel;
-use JustB2b\Fields\FieldBuilder;
-use WC_Payment_Gateways;
-
 defined('ABSPATH') || exit;
 
-class PaymentController extends BaseController
-{
-    use LazyLoaderTrait;
+use JustB2b\Traits\RuntimeCacheTrait;
+use JustB2b\Models\PaymentMethodModel;
+use JustB2b\Fields\FieldBuilder;
 
-    protected ?array $paymentMethods = null;
-    protected ?array $paymentFieldsDefinition = null;
+class PaymentController extends AbstractKeyController
+{
+    use RuntimeCacheTrait;
+
+    protected string $modelClass = PaymentMethodModel::class;
 
     protected function __construct()
     {
@@ -24,7 +22,7 @@ class PaymentController extends BaseController
 
     public function registerCarbonFields()
     {
-        $paymentFields = FieldBuilder::buildFields($this->getPaymentFieldsDefinition());
+        $paymentFields = FieldBuilder::buildFields($this->modelClass::getFieldsDefinition());
 
         $globalController = GlobalController::getInstance();
         $generalSettings = $globalController->getGlobalSettings();
@@ -32,45 +30,16 @@ class PaymentController extends BaseController
         $generalSettings->add_tab('Payments', $paymentFields);
     }
 
-    public function getPaymentMethods(): array
+    public static function filterPaymentMethods($available_gateways)
     {
-        $this->lazyLoad($this->paymentMethods, function () {
-            $methods = [];
+        $controller = self::getInstance();
 
-            $gateways = WC_Payment_Gateways::instance()->payment_gateways();
-
-            foreach ($gateways as $gateway) {
-                $methods[$gateway->id] = new PaymentMethodModel($gateway);
-            }
-
-            return $methods;
+        // Cache payment methods during request
+        $paymentMethods = $controller->getFromRuntimeCache('available_payment_methods', function () use ($controller) {
+            return $controller->modelClass::getPaymentMethods();
         });
 
-        return $this->paymentMethods;
-    }
-
-    public function getPaymentFieldsDefinition(): array
-    {
-        $this->lazyLoad($this->paymentFieldsDefinition, function () {
-            $fields = [];
-
-            foreach ($this->getPaymentMethods() as $method) {
-                $fields = array_merge(
-                    $fields,
-                    $method->getFields()
-                );
-            }
-
-            return $fields;
-        });
-
-        return $this->paymentFieldsDefinition;
-    }
-
-    public function filterPaymentMethods($available_gateways)
-    {
-        $paymentMethods = $this->getPaymentMethods();
-
+        // Get cart total (raw, unformatted) and optionally cache if reused
         $cartTotal = WC()->cart ? (float) WC()->cart->get_total('edit') : 0;
 
         foreach ($available_gateways as $id => $gateway) {

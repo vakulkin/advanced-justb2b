@@ -6,10 +6,16 @@ defined('ABSPATH') || exit;
 
 use Carbon_Fields\Field\Field;
 
-abstract class AssociationField extends BaseField
+abstract class AssociationField extends AbstractField
 {
     protected string $type = 'association';
     protected array $postTypes = [];
+
+    public function __construct(string $key, string $label)
+    {
+        parent::__construct($key, $label);
+        $this->defaultValue = [];
+    }
 
     public function setTypes(array $postTypes): static
     {
@@ -27,14 +33,12 @@ abstract class AssociationField extends BaseField
 
     public function renderInstanceValue(int $parentId): string
     {
-        return static::renderValue($parentId, $this->getPrefixedKey());
+        return $this->renderValue($parentId);
     }
 
-    abstract public static function getValues(int $parentId, string $key): false|array;
+    abstract public function renderValue(int $parentId): string;
 
-    abstract public static function renderValue(int $parentId, string $key): string;
-
-    protected static function renderEntities(
+    protected function renderEntities(
         array $values,
         callable $resolver,
         callable $linkGenerator,

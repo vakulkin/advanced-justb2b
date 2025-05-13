@@ -2,13 +2,16 @@
 
 namespace JustB2b\Controllers;
 
-defined('ABSPATH') || exit;
-
 use JustB2b\Traits\SingletonTrait;
 
-abstract class BaseController
+defined('ABSPATH') || exit;
+
+
+abstract class AbstractController
 {
     use SingletonTrait;
+
+    protected string $modelClass;
 
     protected function __construct()
     {
@@ -16,5 +19,4 @@ abstract class BaseController
     }
 
     abstract public function registerCarbonFields();
-
 }

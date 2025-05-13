@@ -7,5 +7,4 @@ defined('ABSPATH') || exit;
 class MultiselectField extends SelectField
 {
     protected string $type = 'multiselect';
-
 }

@@ -2,12 +2,14 @@
 
 namespace JustB2b\Models;
 
+use JustB2b\Fields\AbstractField;
+use JustB2b\Fields\SelectField;
 use JustB2b\Traits\LazyLoaderTrait;
 use JustB2b\Utils\Prefixer;
 
 defined('ABSPATH') || exit;
 
-class UserModel extends BaseModel
+class UserModel extends AbstractIdModel
 {
     use LazyLoaderTrait;
 
@@ -30,5 +32,19 @@ class UserModel extends BaseModel
 
             return $isB2b === 'b2b';
         });
+    }
+
+    public static function getFieldsDefinition(): array
+    {
+        return [
+            new SelectField('kind', 'Rodzaj'),
+        ];
+    }
+
+    public function getFieldValue(string $key): mixed
+    {
+        /** @var AbstractField $field */
+        $field = $this->getField($key);
+        return $field ? $field->getUserFieldValue($this->id) : false;
     }
 }

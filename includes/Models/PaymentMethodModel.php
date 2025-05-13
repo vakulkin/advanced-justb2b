@@ -3,61 +3,91 @@
 namespace JustB2b\Models;
 
 use WC_Payment_Gateway;
-use JustB2b\Traits\LazyLoaderTrait;
+use WC_Payment_Gateways;
 use JustB2b\Fields\SelectField;
 use JustB2b\Fields\SeparatorField;
 use JustB2b\Fields\NonNegativeFloatField;
-use JustB2b\Utils\Prefixer;
 use JustB2b\Controllers\UsersController;
+use JustB2b\Traits\RuntimeCacheTrait;
 
 defined('ABSPATH') || exit;
 
-class PaymentMethodModel
+class PaymentMethodModel extends AbstractKeyModel
 {
-    use LazyLoaderTrait;
-    protected ?WC_Payment_Gateway $WCMethod = null;
-    protected ?string $key = null;
-    protected ?string $label = null;
-    protected ?bool $isActive = null;
-    protected ?array $fields = null;
-    protected null|false|float $minOrderTotal = null;
-    protected null|false|float $maxOrderTotal = null;
+    use RuntimeCacheTrait;
 
-    public function __construct($WCMethod)
+    protected WC_Payment_Gateway $WCMethod;
+
+    public function __construct(WC_Payment_Gateway $WCMethod)
     {
         $this->WCMethod = $WCMethod;
     }
 
-    public function getWCMethod(): WC_Payment_Gateway {
+    public function getWCMethod(): WC_Payment_Gateway
+    {
         return $this->WCMethod;
     }
 
     public function getKey(): string
     {
-        $this->lazyLoad($this->key, function () {
-            return 'temp_payment---' . str_replace(':', '---', $this->getWCMethod()->id);
-        });
+        return $this->getFromRuntimeCache(
+            "payment_key_{$this->WCMethod->id}",
+            fn() =>
+            'temp_payment---' . str_replace(':', '---', $this->WCMethod->id)
+        );
+    }
 
-        return $this->key;
+    public function getSepKey(): string
+    {
+        return $this->getFromRuntimeCache(
+            "payment_sep_key_{$this->WCMethod->id}",
+            fn() =>
+            $this->getKey() . '---sep'
+        );
+    }
+
+    public function getShowKey(): string
+    {
+        return $this->getFromRuntimeCache(
+            "payment_show_key_{$this->WCMethod->id}",
+            fn() =>
+            $this->getKey() . '---show'
+        );
+    }
+
+    public function getMinTotalKey(): string
+    {
+        return $this->getFromRuntimeCache(
+            "payment_min_total_key_{$this->WCMethod->id}",
+            fn() =>
+            $this->getKey() . '---min_total'
+        );
+    }
+
+    public function getMaxTotalKey(): string
+    {
+        return $this->getFromRuntimeCache(
+            "payment_max_total_key_{$this->WCMethod->id}",
+            fn() =>
+            $this->getKey() . '---max_total'
+        );
     }
 
     public function getLabel(): string
     {
-        $this->lazyLoad($this->label, function () {
-            $status = $this->getWCMethod()->enabled === 'yes' ? 'enabled' : 'disabled';
-            return sprintf('%s (%s)', $this->getWCMethod()->get_title(), $status);
-        });
-
-        return $this->label;
+        return $this->getFromRuntimeCache("payment_label_{$this->WCMethod->id}", fn() => sprintf(
+            '%s (%s)',
+            $this->WCMethod->get_title(),
+            $this->WCMethod->enabled === 'yes' ? 'enabled' : 'disabled'
+        ));
     }
 
     public function isActive(): bool
     {
-        $this->lazyLoad($this->isActive, function () {
+        return $this->getFromRuntimeCache("payment_is_active_{$this->WCMethod->id}", function () {
             $userController = UsersController::getInstance();
             $currentUser = $userController->getCurrentUser();
-
-            $show = get_option(Prefixer::getPrefixedMeta($this->getKey() . '---show'));
+            $show = $this->getFieldValue($this->getShowKey());
 
             if ($show === 'b2b' && !$currentUser->isB2b()) {
                 return false;
@@ -69,49 +99,62 @@ class PaymentMethodModel
 
             return true;
         });
-
-        return $this->isActive;
     }
 
-    public function getMinOrderTotal(): false|float
+    public function getMinOrderTotal(): float|false
     {
-        $this->lazyLoad($this->minOrderTotal, function () {
-            $option = get_option(Prefixer::getPrefixedMeta($this->getKey() . '---min_total'));
+        return $this->getFromRuntimeCache("payment_min_total_{$this->WCMethod->id}", function () {
+            $option = $this->getFieldValue($this->getMinTotalKey());
             return is_numeric($option) ? (float) $option : false;
         });
-
-        return $this->minOrderTotal;
     }
 
-    public function getMaxOrderTotal(): false|float
+    public function getMaxOrderTotal(): float|false
     {
-        $this->lazyLoad($this->maxOrderTotal, function () {
-            $option = get_option(Prefixer::getPrefixedMeta($this->getKey() . '---max_total'));
+        return $this->getFromRuntimeCache("payment_max_total_{$this->WCMethod->id}", function () {
+            $option = $this->getFieldValue($this->getMaxTotalKey());
             return is_numeric($option) ? (float) $option : false;
         });
-
-        return $this->maxOrderTotal;
     }
 
-    public function getFields(): array
+    public function getMethodFields(): array
     {
-        $this->lazyLoad($this->fields, function () {
+        return $this->getFromRuntimeCache("payment_method_fields_{$this->WCMethod->id}", function () {
             return [
-                new SeparatorField($this->getKey() . '---sep', $this->getLabel()),
-                (new SelectField($this->getKey() . '---show', "Show for users"))
+                new SeparatorField($this->getSepKey(), $this->getLabel()),
+                (new SelectField($this->getShowKey(), "Show for users"))
                     ->setOptions([
                         'b2x' => 'b2x',
                         'b2c' => 'b2c',
                         'b2b' => 'b2b',
                     ])
                     ->setWidth(33),
-                (new NonNegativeFloatField($this->getKey() . '---min_total', 'Min Order Total'))
+                (new NonNegativeFloatField($this->getMinTotalKey(), 'Min Order Total'))
+                    ->setDefaultValue(false)
                     ->setWidth(33),
-                (new NonNegativeFloatField($this->getKey() . '---max_total', 'Max Order Total'))
+                (new NonNegativeFloatField($this->getMaxTotalKey(), 'Max Order Total'))
+                    ->setDefaultValue(false)
                     ->setWidth(33),
             ];
         });
+    }
 
-        return $this->fields;
+    public static function getPaymentMethods(): array
+    {
+        $methods = [];
+        $gateways = WC_Payment_Gateways::instance()->payment_gateways();
+        foreach ($gateways as $gateway) {
+            $methods[$gateway->id] = new self($gateway);
+        }
+        return $methods;
+    }
+
+    public static function getFieldsDefinition(): array
+    {
+        $fields = [];
+        foreach (self::getPaymentMethods() as $method) {
+            $fields = array_merge($fields, $method->getMethodFields());
+        }
+        return $fields;
     }
 }

@@ -17,9 +17,9 @@ class AssociationUsersField extends AssociationField
         ]);
     }
 
-    public static function getValues(int $parentId, string $key): false|array
+    public function getPostFieldValue(int $parentId): false|array
     {
-        $users = carbon_get_post_meta($parentId, $key);
+        $users = parent::getPostFieldValue($parentId);
         $result = [];
         foreach ($users as $userData) {
             foreach ($users as $userData) {
@@ -35,20 +35,15 @@ class AssociationUsersField extends AssociationField
                 return false;
             }
         }
-
         return $result;
     }
 
-    public static function renderValue(int $parentId, string $key): string
+    public function renderValue(int $parentId): string
     {
-        $values = self::getValues($parentId, $key);
+        $users = $this->getPostFieldValue($parentId);
 
-        if (!$values) {
-            return '<div class="justb2b-associations justb2b-empty">—</div>';
-        }
-
-        return self::renderEntities(
-            $values,
+        return static::renderEntities(
+            $users,
             fn($id) => get_userdata($id),
             fn($user) => get_author_posts_url($user->ID),
             fn($user) => $user->display_name

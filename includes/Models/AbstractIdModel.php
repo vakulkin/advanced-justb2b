@@ -2,10 +2,14 @@
 
 namespace JustB2b\Models;
 
+use JustB2b\Traits\LazyLoaderTrait;
+
 defined('ABSPATH') || exit;
 
-abstract class BaseModel
+abstract class AbstractIdModel extends AbstractModel
 {
+    use LazyLoaderTrait;
+
     protected int $id;
 
     public function __construct(int $id)
@@ -22,4 +26,5 @@ abstract class BaseModel
     {
         $this->id = $id;
     }
+
 }

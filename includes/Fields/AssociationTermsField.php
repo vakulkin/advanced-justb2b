@@ -2,6 +2,8 @@
 
 namespace JustB2b\Fields;
 
+use JustB2b\Controllers\AbstractController;
+
 defined('ABSPATH') || exit;
 
 class AssociationTermsField extends AssociationField
@@ -22,14 +24,13 @@ class AssociationTermsField extends AssociationField
         ]);
     }
 
-    public static function getValues(int $parentId, string $key): false|array
+    public function getPostFieldValue(int $parentId): false|array
     {
-        $terms = carbon_get_post_meta($parentId, $key);
+        $terms = parent::getPostFieldValue($parentId);
         $result = [];
         if (is_array($terms)) {
             foreach ($terms as $termData) {
                 $termId = (int) ($termData['id'] ?? 0);
-
                 if ($termId && ($term = get_term($termId)) && !is_wp_error($term)) {
                     $result[$term->term_id] = [
                         'id' => $term->term_id,
@@ -40,19 +41,14 @@ class AssociationTermsField extends AssociationField
                 return false;
             }
         }
-
         return $result;
     }
 
-    public static function renderValue(int $parentId, string $key): string
+    public function renderValue(int $parentId): string
     {
-        $values = self::getValues($parentId, $key);
+        $values = $this->getPostFieldValue($parentId);
 
-        if (!$values) {
-            return '<div class="justb2b-associations justb2b-empty">—</div>';
-        }
-
-        return self::renderEntities(
+        return $this->renderEntities(
             $values,
             fn($id) => get_term($id),
             fn($term) => get_term_link($term),

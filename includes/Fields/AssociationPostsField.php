@@ -9,33 +9,28 @@ abstract class AssociationPostsField extends AssociationField
     /**
      * @return array<int, array>|false
      */
-    public static function getValues(int $parentId, string $key): false|array
+    public function getPostFieldValue(int $parentId): false|array
     {
-        $posts = carbon_get_post_meta($parentId, $key);
+        $posts = parent::getPostFieldValue($parentId);
         $published = [];
         if (is_array($posts)) {
             foreach ($posts as $post) {
-                $postId = (int) ($post['id'] ?? 0);
-                if ($postId && get_post_status($postId) === 'publish') {
-                    $published[$postId] = $post;
+                $post['id'] = (int) $post['id'] ?? 0;
+                if ($post['id'] && get_post_status($post['id']) === 'publish') {
+                    $published[$post['id']] = $post;
                     continue;
                 }
                 return false;
             }
         }
-
         return $published;
     }
 
-    public static function renderValue(int $parentId, string $key): string
+    public function renderValue(int $parentId): string
     {
-        $values = self::getValues($parentId, $key);
+        $values = $this->getPostFieldValue($parentId);
 
-        if (!$values) {
-            return '<div class="justb2b-associations justb2b-empty">—</div>';
-        }
-
-        return self::renderEntities(
+        return $this->renderEntities(
             $values,
             fn($id) => get_post($id),
             fn($post) => get_permalink($post),

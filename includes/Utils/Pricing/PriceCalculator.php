@@ -2,6 +2,8 @@
 
 namespace JustB2b\Utils\Pricing;
 
+use JustB2b\Controllers\AbstractController;
+
 defined('ABSPATH') || exit;
 
 use WC_Tax;
@@ -67,11 +69,11 @@ class PriceCalculator
 
     protected function initRRPNetPrice(): float
     {
-        $RRP = $this->calcNetFromJustB2bMeta('rrp_price');
+        $RRPNet = $this->calcNetFromJustB2bMeta('rrp_price');
         $rule = $this->product->getFirstFullFitRule();
         if ($rule) {
             $secondaryRRPSource = $rule->getSecondaryRRPSource();
-            return $this->getSecondaryPrice($RRP, $secondaryRRPSource);
+            return $this->getSecondaryPrice($RRPNet, $secondaryRRPSource);
         }
         return 0;
     }
@@ -169,8 +171,11 @@ class PriceCalculator
 
     protected function calcNetFromJustB2bMeta(string $key): float
     {
-        $price = carbon_get_post_meta($this->product->getId(), Prefixer::getPrefixed($key));
-        $price = self::getFloat($price);
+        $price = $this->product->getFieldValue($key);
+        error_log($this->product->getId());
+        error_log('ppppp');
+        error_log($key);
+        error_log($price);
         $isNet = get_option(Prefixer::getPrefixedMeta($key)) !== 'gross';
         return $isNet ? $price : self::calcNetFromGrossPrice($price, $this->getTaxRates());
     }

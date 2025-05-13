@@ -337,7 +337,7 @@ class PriceDisplay
     {
         $rule = $this->product->getFirstFullFitRule();
         if ($rule) {
-            $ruleHtml1 = carbon_get_post_meta($rule->getId(), Prefixer::getPrefixed('custom_html_1'));
+            $ruleHtml1 = $rule->getFieldValue('custom_html_1');
             return $this->getFormattedHtml($ruleHtml1, 'justb2b-rule-html-1');
         }
         return '';

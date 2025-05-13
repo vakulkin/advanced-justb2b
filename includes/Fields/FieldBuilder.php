@@ -9,7 +9,7 @@ use Carbon_Fields\Field\Field;
 class FieldBuilder
 {
     /**
-     * @param BaseField[] $definitions
+     * @param AbstractField[] $definitions
      * @return Field[]
      */
     public static function buildFields(array $definitions): array
@@ -17,7 +17,7 @@ class FieldBuilder
         $fields = [];
 
         foreach ($definitions as $definition) {
-            if ($definition instanceof BaseField) {
+            if ($definition instanceof AbstractField) {
                 $fields[] = $definition->toCarbonField();
             }
         }

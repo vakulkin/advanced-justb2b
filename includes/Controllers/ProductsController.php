@@ -10,11 +10,10 @@ use WC_Product;
 use Carbon_Fields\Container;
 use JustB2b\Models\ProductModel;
 use JustB2b\Fields\FieldBuilder;
-use JustB2b\Fields\NonNegativeFloatField;
 
-class ProductsController extends BaseController
+class ProductsController extends AbstractController
 {
-    protected static string $modelClass = ProductModel::class;
+    protected string $modelClass = ProductModel::class;
 
     protected function __construct()
     {
@@ -30,8 +29,15 @@ class ProductsController extends BaseController
         // Future enhancements:
         // add_action('woocommerce_product_query', [$this, 'hideProductsFromLoop']);
         // add_filter('woocommerce_show_variation_price', '__return_true', 25);
-        // add_filter('carbon_fields_association_field_options_justb2b_products_post_product', [$this, 'carbonFieldsFilterVariationsParentProducts']);
-        // add_filter('carbon_fields_association_field_options_justb2b_excluding_products_post_product', [$this, 'carbonFieldsFilterVariationsParentProducts']);
+        add_filter('carbon_fields_association_field_options_justb2b_products_post_product', [$this, 'carbonFieldsFilterVariationsParentProducts']);
+        add_filter('carbon_fields_association_field_options_justb2b_excluding_products_post_product', [$this, 'carbonFieldsFilterVariationsParentProducts']);
+
+        add_filter('carbon_fields_association_field_options_justb2b_woo_terms_term_product_cat', [$this, 'carbonFieldsFilterTerms']);
+        add_filter('carbon_fields_association_field_options_justb2b_qualifying_woo_terms_term_product_cat', [$this, 'carbonFieldsFilterTerms']);
+        add_filter('carbon_fields_association_field_options_justb2b_excluding_woo_terms_term_product_cat', [$this, 'carbonFieldsFilterTerms']);
+        add_filter('carbon_fields_association_field_options_justb2b_woo_terms_term_product_tag', [$this, 'carbonFieldsFilterTerms']);
+        add_filter('carbon_fields_association_field_options_justb2b_qualifying_woo_terms_term_product_tag', [$this, 'carbonFieldsFilterTerms']);
+        add_filter('carbon_fields_association_field_options_justb2b_excluding_woo_terms_term_product_tag', [$this, 'carbonFieldsFilterTerms']);
     }
 
     public function force_variation_price_display($variation_data, $product, $variation)
@@ -54,7 +60,7 @@ class ProductsController extends BaseController
 
     public function registerCarbonFields()
     {
-        $definitions = self::getMainFields();
+        $definitions = $this->modelClass::getFieldsDefinition();
         $fields = FieldBuilder::buildFields($definitions);
 
         Container::make('post_meta', 'JustB2B')
@@ -70,7 +76,7 @@ class ProductsController extends BaseController
             return $price_html;
         }
 
-        $productModel = new self::$modelClass($product->get_id(), 1);
+        $productModel = new $this->modelClass($product->get_id(), 1);
 
         global $post, $woocommerce_loop;
 
@@ -99,7 +105,7 @@ class ProductsController extends BaseController
             wp_send_json_error(['message' => 'Invalid data']);
         }
 
-        $productModel = new self::$modelClass($productId, $quantity);
+        $productModel = new $this->modelClass($productId, $quantity);
 
         if (!$productModel) {
             wp_send_json_error(['message' => 'Invalid product']);
@@ -125,7 +131,7 @@ class ProductsController extends BaseController
         ]);
 
         foreach ($loop_query->posts as $product_id) {
-            $productModel = new self::$modelClass($product_id, 1);
+            $productModel = new $this->modelClass($product_id, 1);
             $rule = $productModel->getFirstFullFitRule();
             if ($rule && $rule->isInLoopHidden()) {
                 $ids_to_exclude[] = $product_id;
@@ -146,7 +152,7 @@ class ProductsController extends BaseController
             return;
         }
 
-        $productModel = new self::$modelClass($post->ID, 1);
+        $productModel = new $this->modelClass($post->ID, 1);
         $rule = $productModel->getFirstFullFitRule();
 
         if ($rule && $rule->isFullyHidden()) {
@@ -165,7 +171,7 @@ class ProductsController extends BaseController
             return $price;
         }
 
-        $productModel = new self::$modelClass($product->get_id(), 1);
+        $productModel = new $this->modelClass($product->get_id(), 1);
         $rule = $productModel->getFirstFullFitRule();
 
         if ($rule && $rule->isZeroRequestPrice()) {
@@ -177,21 +183,19 @@ class ProductsController extends BaseController
 
     public function filterIsPurchasable(bool $purchasable, WC_Product $product): bool
     {
-        $productModel = new self::$modelClass($product->get_id(), 1);
+        $productModel = new $this->modelClass($product->get_id(), 1);
         $rule = $productModel->getFirstFullFitRule();
-
         return (!$rule && $purchasable) || ($rule && $rule->isPurchasable());
     }
 
-    public static function getMainFields(): array
+    public function carbonFieldsFilterTerms($query_arguments)
     {
-        return [
-            new NonNegativeFloatField('rrp_price', 'rrp_price'),
-            new NonNegativeFloatField('base_price_1', 'base_price_1'),
-            new NonNegativeFloatField('base_price_2', 'base_price_2'),
-            new NonNegativeFloatField('base_price_3', 'base_price_3'),
-            new NonNegativeFloatField('base_price_4', 'base_price_4'),
-            new NonNegativeFloatField('base_price_5', 'base_price_5'),
-        ];
+        if (!isset($query_arguments['orderby'])) {
+            $query_arguments['orderby'] = 'name';
+        }
+        if (!isset($query_arguments['order'])) {
+            $query_arguments['order'] = 'ASC';
+        }
+        return $query_arguments;
     }
 }
