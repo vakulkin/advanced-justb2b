@@ -1,9 +1,10 @@
 <?php
 
-namespace JustB2b\Controllers;
+namespace JustB2b\Controllers\Id;
 
 defined('ABSPATH') || exit;
 
+use JustB2b\Controllers\AbstractController;
 use JustB2b\Traits\SingletonTrait;
 
 abstract class AbstractCustomPostController extends AbstractController
@@ -48,6 +49,7 @@ abstract class AbstractCustomPostController extends AbstractController
     public function registerSubmenus()
     {
         $prefixedKey = $this->modelClass::getPrefixedKey();
+
         add_submenu_page(
             'justb2b-settings',
             $this->modelClass::getPluralName(),

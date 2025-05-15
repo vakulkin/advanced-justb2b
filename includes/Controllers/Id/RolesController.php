@@ -1,9 +1,9 @@
 <?php
 
-namespace JustB2b\Controllers;
+namespace JustB2b\Controllers\Id;
 
 use Carbon_Fields\Container;
-use JustB2b\Models\RoleModel;
+use JustB2b\Models\Id\RoleModel;
 use JustB2b\Fields\FieldBuilder;
 
 defined('ABSPATH') || exit;

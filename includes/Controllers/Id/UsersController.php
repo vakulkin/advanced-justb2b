@@ -1,11 +1,12 @@
 <?php
 
-namespace JustB2b\Controllers;
+namespace JustB2b\Controllers\Id;
 
 defined('ABSPATH') || exit;
 
 use Carbon_Fields\Container;
-use JustB2b\Models\UserModel;
+Use JustB2b\Controllers\AbstractController;
+use JustB2b\Models\Id\UserModel;
 use JustB2b\Fields\FieldBuilder;
 use JustB2b\Traits\RuntimeCacheTrait;
 
@@ -26,8 +27,8 @@ class UsersController extends AbstractController
 
     public function getCurrentUser(): UserModel
     {
-        return $this->getFromRuntimeCache('current_user_model', function () {
+        return self::getFromRuntimeCache(function () {
             return new $this->modelClass(get_current_user_id());
-        });
+        }, ['user_id' => get_current_user_id()]);
     }
 }

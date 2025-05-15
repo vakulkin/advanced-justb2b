@@ -1,37 +1,34 @@
 <?php
 
-namespace JustB2b\Models;
+namespace JustB2b\Models\Id;
 
 use JustB2b\Fields\AbstractField;
 use JustB2b\Fields\SelectField;
-use JustB2b\Traits\LazyLoaderTrait;
+use JustB2b\Traits\RuntimeCacheTrait;
 use JustB2b\Utils\Prefixer;
 
 defined('ABSPATH') || exit;
 
 class UserModel extends AbstractIdModel
 {
-    use LazyLoaderTrait;
+    use RuntimeCacheTrait;
 
-    protected ?bool $isB2b = null;
+    protected function cacheContext(array $extra = []): array
+    {
+        return array_merge(['user_id' => $this->id], $extra);
+    }
 
     public function isB2b(): bool
     {
-        $this->initIsB2b();
-        return $this->isB2b;
-    }
-
-    protected function initIsB2b(): void
-    {
-        $this->lazyLoad($this->isB2b, function () {
+        return self::getFromRuntimeCache(function () {
             $isB2b = get_user_meta(
                 $this->id,
                 Prefixer::getPrefixedMeta('kind'),
                 true
             );
-
             return $isB2b === 'b2b';
-        });
+        }, $this->cacheContext());
+
     }
 
     public static function getFieldsDefinition(): array

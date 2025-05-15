@@ -2,12 +2,10 @@
 
 namespace JustB2b\Integrations;
 
-use JustB2b\Models\ShippingMethodModel;
-
 defined('ABSPATH') || exit;
 
 use JustB2b\Traits\SingletonTrait;
-use JustB2b\Controllers\ShippingController;
+use JustB2b\Controllers\Key\ShippingController;
 
 class WoodMartIntegration
 {
@@ -24,8 +22,8 @@ class WoodMartIntegration
             return $value;
         }
 
-        $method = ShippingMethodModel::getMethodWithMinimalFreeFrom();
-
+        $shippingController = ShippingController::getInstance();
+        $method = $shippingController->getMethodWithMinimalFreeFrom();
         return $method !== false ? $method->getFreeFrom() : $value;
     }
 }

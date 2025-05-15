@@ -1,7 +1,8 @@
 <?php
 
-namespace JustB2b\Models;
+namespace JustB2b\Models\Id;
 
+use JustB2b\Controllers\Id\UsersController;
 use JustB2b\Fields\AssociationField;
 use JustB2b\Fields\AssociationProductsField;
 use JustB2b\Fields\AssociationRolesField;
@@ -11,35 +12,16 @@ use JustB2b\Fields\NumberField;
 use JustB2b\Fields\RichText;
 use JustB2b\Fields\SelectField;
 use JustB2b\Fields\TextField;
-use JustB2b\Controllers\UsersController;
-use JustB2b\Traits\LazyLoaderTrait;
+use JustB2b\Traits\RuntimeCacheTrait;
 
 defined('ABSPATH') || exit;
 
-class RuleModel extends AbrstractPostModel
+class RuleModel extends AbstractPostModel
 {
-    use LazyLoaderTrait;
+    use RuntimeCacheTrait;
 
     protected static string $key = 'rule';
     protected ProductModel $product;
-    protected int $conditionQty;
-    protected ?int $priority = null;
-    protected ?string $kind = null;
-    protected ?string $primaryPriceSource = null;
-    protected ?string $secondaryPriceSource = null;
-    protected ?string $secondaryRRPSource = null;
-    protected ?float $value = null;
-    protected ?int $minQty = null;
-    protected ?int $maxQty = null;
-    protected ?bool $showInQtyTable = null;
-    protected ?bool $doesQtyFits = null;
-    protected ?bool $isAssociationFit = null;
-    protected ?bool $isPurchasable = null;
-    protected ?bool $isInLoopHidden = null;
-    protected ?bool $isFullyHidden = null;
-    protected ?bool $isZeroRequestPrice = null;
-    protected ?bool $isPricesInLoopHidden = null;
-    protected ?bool $isPricesInProductHidden = null;
 
     public function __construct(
         int $id,
@@ -58,192 +40,158 @@ class RuleModel extends AbrstractPostModel
         return __('Rules', 'justb2b');
     }
 
-    public function getPriority(): int
+    protected function cacheContext(array $extra = []): array
     {
-        $this->initPriority();
-        return $this->priority;
+        return array_merge([
+            parent::cacheContext($extra),
+            'product_id' => $this->product->getId()
+        ]);
     }
 
-
-    protected function initPriority(): void
+    public function getPriority(): int
     {
-        $this->lazyLoad($this->priority, function () {
-            return $this->getFieldValue('priority');
-        });
+        return (int) self::getFromRuntimeCache(
+            fn () => $this->getFieldValue('priority'),
+            $this->cacheContext()
+        );
     }
 
     public function getKind(): string
     {
-        $this->initKind();
-        return $this->kind;
-    }
-
-    protected function initKind(): void
-    {
-        $this->lazyLoad($this->kind, function () {
-            return $this->getFieldValue('kind');
-        });
+        return (string) self::getFromRuntimeCache(
+            fn () => $this->getFieldValue('kind'),
+            $this->cacheContext()
+        );
     }
 
     public function getPrimaryPriceSource(): string
     {
-        $this->initPrimaryPriceSource();
-        return $this->primaryPriceSource;
-    }
-
-    protected function initPrimaryPriceSource(): void
-    {
-        $this->lazyLoad($this->primaryPriceSource, function () {
-            return $this->getFieldValue('primary_price_source');
-        });
+        return (string) self::getFromRuntimeCache(
+            fn () => $this->getFieldValue('primary_price_source'),
+            $this->cacheContext()
+        );
     }
 
     public function getSecondaryPriceSource(): string
     {
-        $this->initSecondaryPriceSource();
-        return $this->secondaryPriceSource;
-    }
-
-    protected function initSecondaryPriceSource(): void
-    {
-        $this->lazyLoad($this->secondaryPriceSource, function () {
-            return $this->getFieldValue('secondary_price_source');
-        });
+        return (string) self::getFromRuntimeCache(
+            fn () => $this->getFieldValue('secondary_price_source'),
+            $this->cacheContext()
+        );
     }
 
     public function getSecondaryRRPSource(): string
     {
-        $this->initSecondaryRRPSource();
-        return $this->secondaryRRPSource;
+        return (string) self::getFromRuntimeCache(
+            fn () => $this->getFieldValue('secondary_rrp_source'),
+            $this->cacheContext()
+        );
     }
-
-    protected function initSecondaryRRPSource(): void
-    {
-        $this->lazyLoad($this->secondaryRRPSource, function () {
-            return $this->getFieldValue('secondary_rrp_source');
-        });
-    }
-
 
     public function getValue(): float
     {
-        $this->initValue();
-        return $this->value;
-    }
-
-    protected function initValue(): void
-    {
-        $this->lazyLoad($this->value, function () {
-            return $this->getFieldValue('value');
-        });
+        return (float) self::getFromRuntimeCache(
+            fn () => $this->getFieldValue('value'),
+            $this->cacheContext()
+        );
     }
 
     public function getMinQty(): int
     {
-        $this->initMinQty();
-        return $this->minQty;
-    }
-
-    protected function initMinQty(): void
-    {
-        $this->lazyLoad($this->minQty, function () {
-            return (int) $this->getFieldValue('min_qty');
-        });
+        return (int) self::getFromRuntimeCache(
+            fn () => $this->getFieldValue('min_qty'),
+            $this->cacheContext()
+        );
     }
 
     public function getMaxQty(): int
     {
-        $this->initMaxQty();
-        return $this->maxQty;
-    }
-
-    protected function initMaxQty(): void
-    {
-        $this->lazyLoad($this->maxQty, function () {
-            return (int) $this->getFieldValue('max_qty');
-        });
+        return (int) self::getFromRuntimeCache(
+            fn () => $this->getFieldValue('max_qty'),
+            $this->cacheContext()
+        );
     }
 
     public function showInQtyTable(): bool
     {
-        $this->initShowInQtyTable();
-        return $this->showInQtyTable;
-    }
-
-    protected function initShowInQtyTable(): void
-    {
-        $this->lazyLoad($this->showInQtyTable, function () {
-            $value = $this->getFieldValue('show_in_qty_table');
-            return $value !== 'hide';
-        });
+        return self::getFromRuntimeCache(
+            fn () => $this->getFieldValue('show_in_qty_table') !== 'hide',
+            $this->cacheContext()
+        );
     }
 
     public function doesQtyFits(): bool
     {
-        $this->initDoesQtyFits();
-        return $this->doesQtyFits;
+        return self::getFromRuntimeCache(function () {
+            $qty = $this->getProduct()->getQty();
+            return ($this->getMinQty() === 0 || $this->getMinQty() <= $qty)
+                && ($this->getMaxQty() === 0 || $qty <= $this->getMaxQty());
+        }, $this->cacheContext());
     }
-
-    protected function initDoesQtyFits(): void
-    {
-        $product = $this->getProduct();
-
-        $this->lazyLoad($this->doesQtyFits, function () use ($product): bool {
-
-            return ($this->getMinQty() === 0 || $this->getMinQty() <= $product->getQty())
-                && ($this->getMaxQty() === 0 || $product->getQty() <= $this->getMaxQty());
-        });
-    }
-
 
     public function isAssociationFit(): bool
     {
-        $this->initAssociationFit();
-        return $this->isAssociationFit;
-    }
-
-    protected function initAssociationFit(): void
-    {
-        $this->lazyLoad($this->isAssociationFit, function () {
+        return self::getFromRuntimeCache(function () {
             $userController = UsersController::getInstance();
             $currentUser = $userController->getCurrentUser();
             $currentUserId = $currentUser->getId();
-            $product = $this->getProduct();
-            $productId = $product->getId();
+            $productId = $this->getProduct()->getId();
 
-
-            if (!$this->passesMainUsersRolesCheck($currentUserId)) {
-                return false;
-            }
-
-            if (!$this->passesMainProductsTermsCheck($productId)) {
-                return false;
-            }
-
-
-            if (!$this->passesQualifyingRolesCheck($currentUserId)) {
-                return false;
-            }
-
-
-            if (!$this->passesQualifyingTermsCheck($productId)) {
-                return false;
-            }
-
-
-            if (!$this->passesExcludingUsersRolesCheck($currentUserId)) {
-                return false;
-            }
-
-
-            if (!$this->passesExcludingProductsTermsCheck($productId)) {
-                return false;
-            }
-
-
-            return true;
-        });
+            return $this->passesMainUsersRolesCheck($currentUserId)
+                && $this->passesMainProductsTermsCheck($productId)
+                && $this->passesQualifyingRolesCheck($currentUserId)
+                && $this->passesQualifyingTermsCheck($productId)
+                && $this->passesExcludingUsersRolesCheck($currentUserId)
+                && $this->passesExcludingProductsTermsCheck($productId);
+        }, $this->cacheContext());
     }
+
+    public function isPurchasable(): bool
+    {
+        return $this->getKind() !== 'non_purchasable';
+    }
+
+
+    public function isInLoopHidden(): bool
+    {
+        return self::getFromRuntimeCache(function () {
+            $visibility = $this->getFieldValue('visibility');
+            return in_array($visibility, ['loop_hidden', 'fully_hidden'], true);
+        }, $this->cacheContext());
+    }
+
+    public function isFullyHidden(): bool
+    {
+        return self::getFromRuntimeCache(
+            fn () => $this->getFieldValue('visibility') === 'fully_hidden',
+            $this->cacheContext()
+        );
+    }
+
+    public function isZeroRequestPrice(): bool
+    {
+        return self::getFromRuntimeCache(
+            fn () => $this->getKind() === 'zero_order_for_price',
+            $this->cacheContext()
+        );
+    }
+
+    public function isPricesInLoopHidden(): bool
+    {
+        return self::getFromRuntimeCache(function () {
+            $v = $this->getFieldValue('all_prices_visibility') ?: 'show';
+            return in_array($v, ['hide', 'only_product'], true);
+        }, $this->cacheContext());
+    }
+
+    public function isPricesInProductHidden(): bool
+    {
+        return self::getFromRuntimeCache(function () {
+            $v = $this->getFieldValue('all_prices_visibility') ?: 'show';
+            return in_array($v, ['hide', 'only_loop'], true);
+        }, $this->cacheContext());
+    }
+
 
     private function passesMainUsersRolesCheck(int $userId): bool
     {
@@ -425,78 +373,6 @@ class RuleModel extends AbrstractPostModel
         $this->product = $product;
     }
 
-    public function isPurchasable(): bool
-    {
-        $this->lazyLoad($this->isPurchasable, [$this, 'initIsPurchasable']);
-        return $this->isPurchasable;
-    }
-
-    protected function initIsPurchasable(): bool
-    {
-        return $this->getKind() !== 'non_purchasable';
-    }
-
-    public function isInLoopHidden(): bool
-    {
-        $this->lazyLoad($this->isInLoopHidden, [$this, 'initisInLoopHidden']);
-        return $this->isInLoopHidden;
-    }
-
-    protected function initisInLoopHidden(): bool
-    {
-        $value = $this->getFieldValue('visibility');
-        return in_array($value, ['loop_hidden', 'fully_hidden'], true);
-    }
-
-    public function isFullyHidden(): bool
-    {
-
-        $this->lazyLoad($this->isFullyHidden, [$this, 'initIsFullyHidden']);
-        return $this->isFullyHidden;
-    }
-
-    protected function initIsFullyHidden(): bool
-    {
-        $value = $this->getFieldValue('visibility');
-        return $value === 'fully_hidden';
-    }
-
-    public function isZeroRequestPrice(): bool
-    {
-        $this->lazyLoad($this->isZeroRequestPrice, [$this, 'initIsZeroRequestPrice']);
-        return $this->isZeroRequestPrice;
-    }
-
-    protected function initIsZeroRequestPrice(): bool
-    {
-        return $this->getKind() === 'zero_order_for_price';
-    }
-
-    public function isPricesInLoopHidden(): bool
-    {
-        $this->lazyLoad($this->isPricesInLoopHidden, [$this, 'initIsPricesInLoopHidden']);
-        return $this->isPricesInLoopHidden;
-    }
-
-    protected function initIsPricesInLoopHidden(): bool
-    {
-        $value = $this->getFieldValue('all_prices_visibility');
-        $allPricesVisibility = $value ?: 'show';
-        return $allPricesVisibility === 'hide' || $allPricesVisibility === 'only_product';
-    }
-
-    public function isPricesInProductHidden(): bool
-    {
-        $this->lazyLoad($this->isPricesInProductHidden, [$this, 'initIsPricesInProductHidden']);
-        return $this->isPricesInProductHidden;
-    }
-
-    protected function initIsPricesInProductHidden(): bool
-    {
-        $value = $this->getFieldValue('all_prices_visibility');
-        $allPricesVisibility = $value ?: 'show';
-        return $allPricesVisibility === 'hide' || $allPricesVisibility === 'only_loop';
-    }
 
     protected static function getPrimaryPriceSources(): array
     {

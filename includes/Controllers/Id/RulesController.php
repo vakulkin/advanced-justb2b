@@ -1,9 +1,9 @@
 <?php
 
-namespace JustB2b\Controllers;
+namespace JustB2b\Controllers\Id;
 
 use Carbon_Fields\Container;
-use JustB2b\Models\RuleModel;
+use JustB2b\Models\Id\RuleModel;
 use JustB2b\Fields\FieldBuilder;
 
 defined('ABSPATH') || exit;
@@ -15,7 +15,7 @@ class RulesController extends AbstractCustomPostController
     protected function __construct()
     {
         parent::__construct();
-        $this->maybeRegisterAdminColumns();
+        $this->registerAdminColumns();
     }
 
     public function registerCarbonFields()
@@ -26,14 +26,9 @@ class RulesController extends AbstractCustomPostController
             ->add_fields($fields);
     }
 
-    protected function maybeRegisterAdminColumns(): void
+    protected function registerAdminColumns(): void
     {
         $fields = $this->modelClass::getFieldsDefinition();
-
-        if (empty($fields)) {
-            return;
-        }
-
         $postType = $this->modelClass::getPrefixedKey();
 
         add_filter("manage_edit-{$postType}_columns", function ($columns) use ($fields) {

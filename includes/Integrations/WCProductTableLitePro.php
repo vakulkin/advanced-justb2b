@@ -5,7 +5,7 @@ namespace JustB2b\Integrations;
 defined('ABSPATH') || exit;
 
 use JustB2b\Traits\SingletonTrait;
-use JustB2b\Controllers\UsersController;
+use JustB2b\Controllers\Id\UsersController;
 
 class WCProductTableLitePro
 {

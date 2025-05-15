@@ -6,7 +6,6 @@ use JustB2b\Traits\SingletonTrait;
 
 defined('ABSPATH') || exit;
 
-
 abstract class AbstractController
 {
     use SingletonTrait;

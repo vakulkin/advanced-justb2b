@@ -1,6 +1,6 @@
 <?php
 
-namespace JustB2b\Models;
+namespace JustB2b\Models\Id;
 
 use JustB2b\Fields\AssociationUsersField;
 

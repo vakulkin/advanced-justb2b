@@ -1,15 +1,16 @@
 <?php
 
-namespace JustB2b\Controllers;
-
-defined('ABSPATH') || exit;
+namespace JustB2b\Controllers\Id;
 
 use WP_Post;
 use WP_Query;
 use WC_Product;
 use Carbon_Fields\Container;
-use JustB2b\Models\ProductModel;
+use JustB2b\Controllers\AbstractController;
+use JustB2b\Models\Id\ProductModel;
 use JustB2b\Fields\FieldBuilder;
+
+defined('ABSPATH') || exit;
 
 class ProductsController extends AbstractController
 {

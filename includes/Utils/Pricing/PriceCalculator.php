@@ -2,114 +2,135 @@
 
 namespace JustB2b\Utils\Pricing;
 
-use JustB2b\Controllers\AbstractController;
-
-defined('ABSPATH') || exit;
-
 use WC_Tax;
 use WC_Customer;
 use Automattic\WooCommerce\Proxies\LegacyProxy;
+use JustB2b\Models\Id\ProductModel;
+use JustB2b\Traits\RuntimeCacheTrait;
 use JustB2b\Utils\Prefixer;
-use JustB2b\Models\ProductModel;
-use JustB2b\Traits\LazyLoaderTrait;
+
+defined('ABSPATH') || exit;
 
 class PriceCalculator
 {
-    use LazyLoaderTrait;
+    use RuntimeCacheTrait;
 
     protected ProductModel $product;
-    protected ?array $taxRates = null;
-    protected ?float $baseNetPrice = null;
-    protected ?float $baseGrossPrice = null;
-    protected ?float $finalNetPrice = null;
-    protected ?float $finalGrossPrice = null;
-    protected ?float $RRPNetPrice = null;
-    protected ?float $RRPGrossPrice = null;
 
     public function __construct(ProductModel $product)
-    {
-        $this->initProduct($product);
-    }
-
-    protected function initProduct(ProductModel $product): void
     {
         $this->product = $product;
     }
 
+    protected function cacheContext(array $extra = []): array
+    {
+        return array_merge([
+            'product_id' => $this->product->getId(),
+            'qty' => $this->product->getQty()
+        ], $extra);
+    }
+
     public function getTaxRates(): array
     {
-        $this->lazyLoad($this->taxRates, [$this, 'initTaxRates']);
-        return $this->taxRates;
+        return self::getFromRuntimeCache(function () {
+            $WCProduct = $this->product->getWCProduct();
+            if (!$WCProduct->is_taxable()) {
+                return [];
+            }
+
+            $customerId = get_current_user_id();
+
+            if (apply_filters('woocommerce_adjust_non_base_location_prices', true)) {
+                return WC_Tax::get_base_tax_rates($WCProduct->get_tax_class('unfiltered'));
+            }
+
+            $customer = $customerId
+                ? wc_get_container()->get(LegacyProxy::class)->getInstance_of(WC_Customer::class, $customerId)
+                : null;
+
+            return WC_Tax::get_rates($WCProduct->get_tax_class(), $customer);
+        }, $this->cacheContext());
     }
 
-    protected function initTaxRates(): array
-    {
-        if (!$this->product->getWCProduct()->is_taxable()) {
-            return [];
-        }
-
-        $customerId = get_current_user_id();
-
-        if (apply_filters('woocommerce_adjust_non_base_location_prices', true)) {
-            return WC_Tax::get_base_tax_rates($this->product->getWCProduct()->get_tax_class('unfiltered'));
-        }
-
-        $customer = $customerId
-            ? wc_get_container()->get(LegacyProxy::class)->getInstance_of(WC_Customer::class, $customerId)
-            : null;
-
-        return WC_Tax::get_rates($this->product->getWCProduct()->get_tax_class(), $customer);
-    }
 
     public function getRRPNetPrice(): float
     {
-        $this->lazyLoad($this->RRPNetPrice, [$this, 'initRRPNetPrice']);
-        return $this->RRPNetPrice;
+        return self::getFromRuntimeCache(function () {
+            $rule = $this->product->getFirstFullFitRule();
+            if ($rule) {
+                $RRPNet = $this->calcNetFromJustB2bMeta('rrp_price');
+                $secondaryRRPSource = $rule->getSecondaryRRPSource();
+                return $this->getSecondaryPrice($RRPNet, $secondaryRRPSource);
+            }
+            return 0;
+        }, $this->cacheContext());
     }
 
-    protected function initRRPNetPrice(): float
-    {
-        $RRPNet = $this->calcNetFromJustB2bMeta('rrp_price');
-        $rule = $this->product->getFirstFullFitRule();
-        if ($rule) {
-            $secondaryRRPSource = $rule->getSecondaryRRPSource();
-            return $this->getSecondaryPrice($RRPNet, $secondaryRRPSource);
-        }
-        return 0;
-    }
 
     public function getRRPGrossPrice(): float
     {
-        $this->lazyLoad($this->RRPGrossPrice, [$this, 'initRRPGrossPrice']);
-        return $this->RRPGrossPrice;
+        return self::getFromRuntimeCache(
+            fn () => self::calcGrossFromNetPrice(
+                $this->getRRPNetPrice(),
+                $this->getTaxRates()
+            ),
+            $this->cacheContext()
+        );
     }
 
-    protected function initRRPGrossPrice(): float
-    {
-        return self::calcGrossFromNetPrice($this->getRRPNetPrice(), $this->getTaxRates());
-    }
 
     public function getBaseNetPrice(): float
     {
-        $this->lazyLoad($this->baseNetPrice, [$this, 'initBaseNetPrice']);
-        return $this->baseNetPrice;
+        return self::getFromRuntimeCache(function () {
+            $rule = $this->product->getFirstFullFitRule();
+            if ($rule && !$rule->isZeroRequestPrice()) {
+                $primary = $this->getNetByKey($rule->getPrimaryPriceSource());
+                return $this->getSecondaryPrice(
+                    $primary,
+                    $rule->getSecondaryPriceSource()
+                );
+            }
+            return 0;
+        }, $this->cacheContext());
     }
 
-    protected function initBaseNetPrice(): float
+
+    public function getBaseGrossPrice(): float
     {
-        $rule = $this->product->getFirstFullFitRule();
-        if ($rule && !$rule->isZeroRequestPrice()) {
-            $baseNetPrice = $this->getNetByKey($rule->getPrimaryPriceSource());
-            $secondaryPriceSource = $rule->getSecondaryPriceSource();
-            return $this->getSecondaryPrice($baseNetPrice, $secondaryPriceSource);
-        }
-        return 0;
+        return self::getFromRuntimeCache(
+            fn () => self::calcGrossFromNetPrice(
+                $this->getBaseNetPrice(),
+                $this->getTaxRates()
+            ),
+            $this->cacheContext()
+        );
     }
 
-    protected function getSecondaryPrice(float $primaryPrice, string $secodaryPriceSource): float
+
+    public function getFinalNetPrice(): float
     {
-        if ('disabled' !== $secodaryPriceSource && $primaryPrice <= 0) {
-            return $this->getNetByKey($secodaryPriceSource);
+        return self::getFromRuntimeCache(function () {
+            $rule = $this->product->getFirstFullFitRule();
+            return $rule ? self::calcRule($rule, $this) : 0;
+        }, $this->cacheContext());
+    }
+
+
+    public function getFinalGrossPrice(): float
+    {
+        return self::getFromRuntimeCache(
+            fn () => self::calcGrossFromNetPrice(
+                $this->getFinalNetPrice(),
+                $this->getTaxRates()
+            ),
+            $this->cacheContext()
+        );
+    }
+
+    protected function getSecondaryPrice(float $primaryPrice, string $secondaryKey): float
+    {
+        if ('disabled' !== $secondaryKey && $primaryPrice <= 0) {
+            return $this->getNetByKey($secondaryKey);
         }
         return $primaryPrice;
     }
@@ -119,65 +140,25 @@ class PriceCalculator
         if (str_starts_with($source, 'base_price') || $source === 'rrp_price') {
             return $this->calcNetFromJustB2bMeta($source);
         }
-
         return $this->calcNetFromWCMeta($source);
-    }
-
-    public function getBaseGrossPrice(): float
-    {
-        $this->lazyLoad($this->baseGrossPrice, [$this, 'initBaseGrossPrice']);
-        return $this->baseGrossPrice;
-    }
-
-    protected function initBaseGrossPrice(): float
-    {
-        $net = $this->getBaseNetPrice();
-        return self::calcGrossFromNetPrice($net, $this->getTaxRates());
-    }
-
-    public function getFinalNetPrice(): float
-    {
-        $this->lazyLoad($this->finalNetPrice, [$this, 'initFinalNetPrice']);
-        return $this->finalNetPrice;
-    }
-
-    protected function initFinalNetPrice(): float
-    {
-        $firstFitRule = $this->product->getFirstFullFitRule();
-        if (!$firstFitRule) {
-            return 0;
-        }
-        return self::calcRule($firstFitRule, $this);
-    }
-
-    public function getFinalGrossPrice(): float
-    {
-        $this->lazyLoad($this->finalGrossPrice, [$this, 'initFinalGrossPrice']);
-        return $this->finalGrossPrice;
-    }
-
-    protected function initFinalGrossPrice(): float
-    {
-        $net = $this->getFinalNetPrice();
-        return self::calcGrossFromNetPrice($net, $this->getTaxRates());
     }
 
     protected function calcNetFromWCMeta(string $key): float
     {
         $price = get_post_meta($this->product->getId(), $key, true);
         $price = self::getFloat($price);
-        return wc_prices_include_tax() ? self::calcNetFromGrossPrice($price, $this->getTaxRates()) : $price;
+        return wc_prices_include_tax()
+            ? self::calcNetFromGrossPrice($price, $this->getTaxRates())
+            : $price;
     }
 
     protected function calcNetFromJustB2bMeta(string $key): float
     {
         $price = $this->product->getFieldValue($key);
-        error_log($this->product->getId());
-        error_log('ppppp');
-        error_log($key);
-        error_log($price);
         $isNet = get_option(Prefixer::getPrefixedMeta($key)) !== 'gross';
-        return $isNet ? $price : self::calcNetFromGrossPrice($price, $this->getTaxRates());
+        return $isNet
+            ? $price
+            : self::calcNetFromGrossPrice($price, $this->getTaxRates());
     }
 
     public static function getFloat($value): float

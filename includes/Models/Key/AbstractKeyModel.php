@@ -1,7 +1,8 @@
 <?php
 
-namespace JustB2b\Models;
+namespace JustB2b\Models\Key;
 
+use JustB2b\Models\AbstractModel;
 use JustB2b\Fields\AbstractField;
 
 defined('ABSPATH') || exit;

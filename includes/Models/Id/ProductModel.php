@@ -1,15 +1,15 @@
 <?php
 
-namespace JustB2b\Models;
+namespace JustB2b\Models\Id;
 
 use WP_Query;
 use WC_Product;
-use JustB2b\Controllers\UsersController;
+use JustB2b\Controllers\Id\UsersController;
+use JustB2b\Fields\NonNegativeFloatField;
+use JustB2b\Traits\RuntimeCacheTrait;
 use JustB2b\Utils\Prefixer;
 use JustB2b\Utils\Pricing\PriceCalculator;
 use JustB2b\Utils\Pricing\PriceDisplay;
-use JustB2b\Fields\NonNegativeFloatField;
-use JustB2b\Traits\RuntimeCacheTrait;
 
 defined('ABSPATH') || exit;
 
@@ -36,6 +36,14 @@ class ProductModel extends AbstractPostModel
         return __('Products', 'justb2b');
     }
 
+    protected function cacheContext(array $extra = []): array
+    {
+        return array_merge([
+            parent::cacheContext($extra),
+            'qty' => $this->qty
+        ]);
+    }
+
     public function getQty(): int
     {
         return $this->qty;
@@ -43,47 +51,35 @@ class ProductModel extends AbstractPostModel
 
     public function getWCProduct(): WC_Product
     {
-        return $this->getFromRuntimeCache(
-            "wc_product_{$this->id}",
-            fn() => wc_get_product($this->id)
+        return self::getFromRuntimeCache(
+            fn() => wc_get_product($this->id),
+            $this->cacheContext()
         );
     }
 
     public function isSimpleProduct(): bool
     {
-        return $this->getFromRuntimeCache(
-            "is_simple_{$this->id}",
-            fn() => $this->getWCProduct()->is_type('simple')
-        );
+        return $this->getWCProduct()->is_type('simple');
     }
 
     public function isVariableProduct(): bool
     {
-        return $this->getFromRuntimeCache(
-            "is_variable_{$this->id}",
-            fn() => $this->getWCProduct()->is_type('variable')
-        );
+        return $this->getWCProduct()->is_type('variable');
     }
 
     public function isVariation(): bool
     {
-        return $this->getFromRuntimeCache(
-            "is_variation_{$this->id}",
-            fn() => $this->getWCProduct()->is_type('variation')
-        );
+        return $this->getWCProduct()->is_type('variation');
     }
 
     public function isDifferentTypeProduct(): bool
     {
-        return $this->getFromRuntimeCache(
-            "is_other_type_{$this->id}",
-            fn() => !$this->isSimpleProduct() && !$this->isVariableProduct() && !$this->isVariation()
-        );
+        return !$this->isSimpleProduct() && !$this->isVariableProduct() && !$this->isVariation();
     }
 
     public function getRules(): array
     {
-        return $this->getFromRuntimeCache("product_rules_{$this->id}_qty_{$this->qty}", function () {
+        return self::getFromRuntimeCache(function () {
             $query = new WP_Query($this->getRuleQueryArgs());
             $results = [];
 
@@ -95,37 +91,34 @@ class ProductModel extends AbstractPostModel
             }
 
             return $results;
-        });
+        }, $this->cacheContext());
     }
 
     public function getFirstFullFitRule(): ?RuleModel
     {
-        return $this->getFromRuntimeCache(
-            "product_rule_fit_{$this->id}_qty_{$this->qty}",
-            function () {
-                foreach ($this->getRules() as $rule) {
-                    if ($rule->doesQtyFits()) {
-                        return $rule;
-                    }
+        return self::getFromRuntimeCache(function () {
+            foreach ($this->getRules() as $rule) {
+                if ($rule->doesQtyFits()) {
+                    return $rule;
                 }
-                return null;
             }
-        );
+            return null;
+        }, $this->cacheContext());
     }
 
     public function getPriceCalculator(): PriceCalculator
     {
-        return $this->getFromRuntimeCache(
-            "product_calc_{$this->id}_qty_{$this->qty}",
-            fn() => new PriceCalculator($this)
+        return self::getFromRuntimeCache(
+            fn() => new PriceCalculator($this),
+            $this->cacheContext()
         );
     }
 
     public function getPriceDisplay(string $defaultPriceHtml, bool $isInLoop): PriceDisplay
     {
-        return $this->getFromRuntimeCache(
-            "product_display_{$this->id}_{$isInLoop}",
-            fn() => new PriceDisplay($this, $defaultPriceHtml, $isInLoop)
+        return self::getFromRuntimeCache(
+            fn() => new PriceDisplay($this, $defaultPriceHtml, $isInLoop),
+            $this->cacheContext(['is_loop' => $isInLoop])
         );
     }
 

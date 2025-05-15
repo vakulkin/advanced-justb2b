@@ -2,8 +2,6 @@
 
 namespace JustB2b\Fields;
 
-use JustB2b\Controllers\AbstractController;
-
 defined('ABSPATH') || exit;
 
 class AssociationTermsField extends AssociationField

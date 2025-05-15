@@ -1,0 +1,9 @@
+[v] general methods from methods to controllers
+[v] refactor object cache
+[ ] auto remove temporary meta data for shipping and payments
+[ ] attach models to controlles in better way
+[ ] get_options to fields methods
+[ ] get_user meta to fields methods
+[ ] data validation remove from methods add to fields
+[ ] format php lib
+[ ] if is empty field checks instead 0, '', null 

@@ -2,34 +2,31 @@
 
 namespace JustB2b\Models;
 
+use JustB2b\Traits\RuntimeCacheTrait;
+
 defined('ABSPATH') || exit;
 
 abstract class AbstractModel
 {
-    protected static array $fieldsCache = [];
+    use RuntimeCacheTrait;
 
     abstract public static function getFieldsDefinition(): array;
 
-    public static function getFields(): array
+    public function getField(string $key): ?object
     {
-        $calledClass = static::class;
-
-        if (!isset(static::$fieldsCache[$calledClass])) {
-            static::$fieldsCache[$calledClass] = [];
-            foreach (static::getFieldsDefinition() as $field) {
-                static::$fieldsCache[$calledClass][$field->getKey()] = $field;
+        foreach (static::getFieldsDefinition() as $field) {
+            if ($key == $field->getKey()) {
+                return $field;
             }
         }
 
-        return static::$fieldsCache[$calledClass];
-    }
-
-
-    public function getField(string $key): ?object
-    {
-        $fields = static::getFields();
-        return $fields[$key] ?? null;
+        return null;
     }
 
     abstract public function getFieldValue(string $key): mixed;
+
+    protected function cacheContext(array $extra = []): array
+    {
+        return $extra;
+    }
 }

@@ -1,12 +1,14 @@
 <?php
 
-namespace JustB2b\Controllers;
+namespace JustB2b\Controllers\Key;
 
 defined('ABSPATH') || exit;
 
-use JustB2b\Traits\RuntimeCacheTrait;
-use JustB2b\Models\PaymentMethodModel;
+use WC_Payment_Gateways;
+use JustB2b\Controllers\Key\GlobalController;
+use JustB2b\Models\Key\PaymentMethodModel;
 use JustB2b\Fields\FieldBuilder;
+use JustB2b\Traits\RuntimeCacheTrait;
 
 class PaymentController extends AbstractKeyController
 {
@@ -25,19 +27,14 @@ class PaymentController extends AbstractKeyController
         $paymentFields = FieldBuilder::buildFields($this->modelClass::getFieldsDefinition());
 
         $globalController = GlobalController::getInstance();
-        $generalSettings = $globalController->getGlobalSettings();
+        $generalSettings =  $globalController->getGlobalSettings();
 
         $generalSettings->add_tab('Payments', $paymentFields);
     }
 
-    public static function filterPaymentMethods($available_gateways)
+    public function filterPaymentMethods($available_gateways)
     {
-        $controller = self::getInstance();
-
-        // Cache payment methods during request
-        $paymentMethods = $controller->getFromRuntimeCache('available_payment_methods', function () use ($controller) {
-            return $controller->modelClass::getPaymentMethods();
-        });
+        $paymentMethods = $this->getPaymentMethods();
 
         // Get cart total (raw, unformatted) and optionally cache if reused
         $cartTotal = WC()->cart ? (float) WC()->cart->get_total('edit') : 0;
@@ -67,4 +64,19 @@ class PaymentController extends AbstractKeyController
 
         return $available_gateways;
     }
+
+
+    public function getPaymentMethods(): array
+    {
+        return self::getFromRuntimeCache(function () {
+            $methods = [];
+            $gateways = WC_Payment_Gateways::instance()->payment_gateways();
+            foreach ($gateways as $gateway) {
+                $methods[$gateway->id] = new \JustB2b\Models\Key\PaymentMethodModel($gateway);
+            }
+            return $methods;
+        });
+
+    }
+
 }

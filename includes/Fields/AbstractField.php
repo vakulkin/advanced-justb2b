@@ -126,26 +126,29 @@ abstract class AbstractField
 
     public function getPostFieldOriginValue(int $postId): mixed
     {
-        return $this->getFromRuntimeCache(
-            "post_{$postId}_{$this->prefixedKey}",
-            fn() => carbon_get_post_meta($postId, $this->prefixedKey)
+        return self::getFromRuntimeCache(
+            fn () => carbon_get_post_meta($postId, $this->prefixedKey),
+            ['post_id' => $postId, 'key' => $this->prefixedKey]
         );
+
     }
 
     public function getUserFieldOriginValue(int $userId): mixed
     {
-        return $this->getFromRuntimeCache(
-            "user_{$userId}_{$this->prefixedKey}",
-            fn() => carbon_get_user_meta($userId, $this->prefixedKey)
+        return self::getFromRuntimeCache(
+            fn () => carbon_get_user_meta($userId, $this->prefixedKey),
+            ['user_id' => $userId, 'key' => $this->prefixedKey]
         );
+
     }
 
     public function getOptionOriginValue(): mixed
     {
-        return $this->getFromRuntimeCache(
-            "option_{$this->prefixedKey}",
-            fn() => carbon_get_theme_option($this->prefixedKey)
+        return self::getFromRuntimeCache(
+            fn () => carbon_get_theme_option($this->prefixedKey),
+            ['key' => $this->prefixedKey]
         );
+
     }
 
     protected function resolveFieldValue(mixed $value, mixed $default): mixed

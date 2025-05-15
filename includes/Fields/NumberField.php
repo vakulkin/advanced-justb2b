@@ -23,19 +23,16 @@ class NumberField extends TextField
 
     public function getPostFieldValue(int $postId): mixed
     {
-        $value = $this->getPostFieldOriginValue($postId);
-        return $this->resolveFieldValue($value, $this->defaultValue);
+        return (float) parent::getPostFieldValue($postId);
     }
 
     public function getUserFieldValue(int $userId): mixed
     {
-        $value = $this->getUserFieldOriginValue($userId);
-        return $this->resolveFieldValue($value, $this->defaultValue);
+        return (float) parent::getPostFieldValue($userId);
     }
 
     public function getOptionValue(): mixed
     {
-        $value = $this->getOptionOriginValue();
-        return $this->resolveFieldValue($value, $this->defaultValue);
+        return (float) parent::getOptionValue();
     }
 }

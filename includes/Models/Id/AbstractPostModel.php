@@ -1,10 +1,10 @@
 <?php
 
-namespace JustB2b\Models;
+namespace JustB2b\Models\Id;
 
-use JustB2b\Utils\Prefixer;
 use JustB2b\Fields\AbstractField;
 use JustB2b\Traits\RuntimeCacheTrait;
+use JustB2b\Utils\Prefixer;
 
 defined('ABSPATH') || exit;
 
@@ -22,9 +22,20 @@ abstract class AbstractPostModel extends AbstractIdModel
         parent::__construct($id);
     }
 
+    protected function cacheContext(array $extra = []): array
+    {
+        return array_merge(
+            parent::cacheContext($extra),
+            ['post_id' => $this->id],
+        );
+    }
+
     public function getTitle(): string
     {
-        return $this->getFromRuntimeCache("post_title_{$this->id}", fn() => get_the_title($this->id));
+        return self::getFromRuntimeCache(
+            fn () => get_the_title($this->id),
+            $this->cacheContext()
+        );
     }
 
     public static function getKey(): string

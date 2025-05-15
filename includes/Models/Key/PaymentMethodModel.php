@@ -1,13 +1,12 @@
 <?php
 
-namespace JustB2b\Models;
+namespace JustB2b\Models\Key;
 
 use WC_Payment_Gateway;
-use WC_Payment_Gateways;
+use JustB2b\Controllers\Key\PaymentController;
 use JustB2b\Fields\SelectField;
 use JustB2b\Fields\SeparatorField;
 use JustB2b\Fields\NonNegativeFloatField;
-use JustB2b\Controllers\UsersController;
 use JustB2b\Traits\RuntimeCacheTrait;
 
 defined('ABSPATH') || exit;
@@ -23,6 +22,14 @@ class PaymentMethodModel extends AbstractKeyModel
         $this->WCMethod = $WCMethod;
     }
 
+    protected function cacheContext(array $extra = []): array
+    {
+        return array_merge([
+            parent::cacheContext(),
+            'method_id' => $this->WCMethod->id
+        ]);
+    }
+
     public function getWCMethod(): WC_Payment_Gateway
     {
         return $this->WCMethod;
@@ -30,62 +37,49 @@ class PaymentMethodModel extends AbstractKeyModel
 
     public function getKey(): string
     {
-        return $this->getFromRuntimeCache(
-            "payment_key_{$this->WCMethod->id}",
-            fn() =>
-            'temp_payment---' . str_replace(':', '---', $this->WCMethod->id)
+        return self::getFromRuntimeCache(
+            fn () => 'temp_payment---' . str_replace(':', '---', $this->WCMethod->id),
+            $this->cacheContext()
         );
     }
 
     public function getSepKey(): string
     {
-        return $this->getFromRuntimeCache(
-            "payment_sep_key_{$this->WCMethod->id}",
-            fn() =>
-            $this->getKey() . '---sep'
-        );
+        return $this->getKey() . '---sep';
     }
+
 
     public function getShowKey(): string
     {
-        return $this->getFromRuntimeCache(
-            "payment_show_key_{$this->WCMethod->id}",
-            fn() =>
-            $this->getKey() . '---show'
-        );
+        return $this->getKey() . '---show';
     }
 
     public function getMinTotalKey(): string
     {
-        return $this->getFromRuntimeCache(
-            "payment_min_total_key_{$this->WCMethod->id}",
-            fn() =>
-            $this->getKey() . '---min_total'
-        );
+        return $this->getKey() . '---min_total';
     }
 
     public function getMaxTotalKey(): string
     {
-        return $this->getFromRuntimeCache(
-            "payment_max_total_key_{$this->WCMethod->id}",
-            fn() =>
-            $this->getKey() . '---max_total'
-        );
+        return $this->getKey() . '---max_total';
     }
 
     public function getLabel(): string
     {
-        return $this->getFromRuntimeCache("payment_label_{$this->WCMethod->id}", fn() => sprintf(
-            '%s (%s)',
-            $this->WCMethod->get_title(),
-            $this->WCMethod->enabled === 'yes' ? 'enabled' : 'disabled'
-        ));
+        return self::getFromRuntimeCache(
+            fn () => sprintf(
+                '%s (%s)',
+                $this->WCMethod->get_title(),
+                $this->WCMethod->enabled === 'yes' ? 'enabled' : 'disabled'
+            ),
+            $this->cacheContext()
+        );
     }
 
     public function isActive(): bool
     {
-        return $this->getFromRuntimeCache("payment_is_active_{$this->WCMethod->id}", function () {
-            $userController = UsersController::getInstance();
+        return self::getFromRuntimeCache(function () {
+            $userController = \JustB2b\Controllers\Id\UsersController::getInstance();
             $currentUser = $userController->getCurrentUser();
             $show = $this->getFieldValue($this->getShowKey());
 
@@ -98,28 +92,29 @@ class PaymentMethodModel extends AbstractKeyModel
             }
 
             return true;
-        });
+        }, $this->cacheContext(['user_id' => get_current_user_id()]));
     }
 
     public function getMinOrderTotal(): float|false
     {
-        return $this->getFromRuntimeCache("payment_min_total_{$this->WCMethod->id}", function () {
+        return self::getFromRuntimeCache(function () {
             $option = $this->getFieldValue($this->getMinTotalKey());
             return is_numeric($option) ? (float) $option : false;
-        });
+        }, $this->cacheContext());
     }
 
     public function getMaxOrderTotal(): float|false
     {
-        return $this->getFromRuntimeCache("payment_max_total_{$this->WCMethod->id}", function () {
+        return self::getFromRuntimeCache(function () {
             $option = $this->getFieldValue($this->getMaxTotalKey());
             return is_numeric($option) ? (float) $option : false;
-        });
+        }, $this->cacheContext());
     }
 
-    public function getMethodFields(): array
+
+    public function getFields(): array
     {
-        return $this->getFromRuntimeCache("payment_method_fields_{$this->WCMethod->id}", function () {
+        return self::getFromRuntimeCache(function () {
             return [
                 new SeparatorField($this->getSepKey(), $this->getLabel()),
                 (new SelectField($this->getShowKey(), "Show for users"))
@@ -136,24 +131,15 @@ class PaymentMethodModel extends AbstractKeyModel
                     ->setDefaultValue(false)
                     ->setWidth(33),
             ];
-        });
-    }
-
-    public static function getPaymentMethods(): array
-    {
-        $methods = [];
-        $gateways = WC_Payment_Gateways::instance()->payment_gateways();
-        foreach ($gateways as $gateway) {
-            $methods[$gateway->id] = new self($gateway);
-        }
-        return $methods;
+        }, $this->cacheContext());
     }
 
     public static function getFieldsDefinition(): array
     {
         $fields = [];
-        foreach (self::getPaymentMethods() as $method) {
-            $fields = array_merge($fields, $method->getMethodFields());
+        $paymentController = PaymentController::getInstance();
+        foreach ($paymentController->getPaymentMethods() as $method) {
+            $fields = array_merge($fields, $method->getFields());
         }
         return $fields;
     }

@@ -2,145 +2,86 @@
 
 namespace JustB2b\Utils\Pricing;
 
-use JustB2b\Controllers\UsersController;
-use JustB2b\Models\ProductModel;
+use JustB2b\Controllers\Id\UsersController;
+use JustB2b\Models\Id\ProductModel;
+use JustB2b\Traits\RuntimeCacheTrait;
 use JustB2b\Utils\Prefixer;
-use JustB2b\Traits\LazyLoaderTrait;
+
 
 defined('ABSPATH') || exit;
 
 class PriceDisplay
 {
-    use LazyLoaderTrait;
+    use RuntimeCacheTrait;
 
     protected ProductModel $product;
-    protected ?string $defaultPriceHtml = null;
-    protected ?bool $isInLoop = null;
-    protected ?string $baseNetPrice = null;
-    protected ?string $baseGrossPrice = null;
-    protected ?string $finalNetPrice = null;
-    protected ?string $finalGrossPrice = null;
-    protected ?string $rrpNetPrice = null;
-    protected ?string $rrpGrossPrice = null;
+    protected string $defaultPriceHtml;
+    protected bool $isInLoop;
 
-    public function __construct(
-        ProductModel $product,
-        string $defaultPriceHtml,
-        bool $isInLoop
-    ) {
+    public function __construct(ProductModel $product, string $defaultPriceHtml, bool $isInLoop)
+    {
         $this->product = $product;
         $this->defaultPriceHtml = $defaultPriceHtml;
         $this->isInLoop = $isInLoop;
     }
-
+    protected function cacheContext(array $extra = []): array
+    {
+        return array_merge([
+            'product_id' => $this->product->getId(),
+            'qty' => $this->product->getQty(),
+            'is_loop' => $this->isInLoop,
+        ], $extra);
+    }
     public function getBaseNetPrice(): string
     {
-        $this->lazyLoad($this->baseNetPrice, [$this, 'initBaseNetPrice']);
-        return $this->baseNetPrice;
-    }
-
-    protected function initBaseNetPrice(): string
-    {
-        $productCalculator = $this->product->getPriceCalculator();
-        $baseNetPrice = $productCalculator->getBaseNetPrice();
-        $finalNetPrice = $productCalculator->getFinalNetPrice();
-
-        if (empty($baseNetPrice) || $finalNetPrice >= $baseNetPrice) {
-            return '';
-        }
-
-        return wc_price($baseNetPrice);
+        return self::getFromRuntimeCache(function () {
+            $calc = $this->product->getPriceCalculator();
+            $base = $calc->getBaseNetPrice();
+            $final = $calc->getFinalNetPrice();
+            return empty($base) || $final >= $base ? '' : wc_price($base);
+        }, $this->cacheContext());
     }
 
     public function getBaseGrossPrice(): string
     {
-        $this->lazyLoad($this->baseGrossPrice, [$this, 'initBaseGrossPrice']);
-        return $this->baseGrossPrice;
-    }
-
-    protected function initBaseGrossPrice(): string
-    {
-        $productCalculator = $this->product->getPriceCalculator();
-        $baseGrossPrice = $productCalculator->getBaseGrossPrice();
-        $finalGrossPrice = $productCalculator->getFinalGrossPrice();
-
-        if (empty($baseGrossPrice) || $finalGrossPrice >= $baseGrossPrice) {
-            return '';
-        }
-
-        return wc_price($baseGrossPrice);
+        return self::getFromRuntimeCache(function () {
+            $calc = $this->product->getPriceCalculator();
+            $base = $calc->getBaseGrossPrice();
+            $final = $calc->getFinalGrossPrice();
+            return empty($base) || $final >= $base ? '' : wc_price($base);
+        }, $this->cacheContext());
     }
 
     public function getFinalNetPrice(): string
     {
-        $this->lazyLoad($this->finalNetPrice, [$this, 'initFinalNetPrice']);
-        return $this->finalNetPrice;
-    }
-
-    protected function initFinalNetPrice(): string
-    {
-        $productCalculator = $this->product->getPriceCalculator();
-        $finalNetPrice = $productCalculator->getFinalNetPrice();
-
-        if (empty($finalNetPrice)) {
-            return '';
-        }
-
-        return wc_price($finalNetPrice);
+        return self::getFromRuntimeCache(function () {
+            $price = $this->product->getPriceCalculator()->getFinalNetPrice();
+            return empty($price) ? '' : wc_price($price);
+        }, $this->cacheContext());
     }
 
     public function getFinalGrossPrice(): string
     {
-        $this->lazyLoad($this->finalGrossPrice, [$this, 'initFinalGrossPrice']);
-        return $this->finalGrossPrice;
-    }
-
-    protected function initFinalGrossPrice(): string
-    {
-        $productCalculator = $this->product->getPriceCalculator();
-        $finalGrossPrice = $productCalculator->getFinalGrossPrice();
-
-        if (empty($finalGrossPrice)) {
-            return '';
-        }
-
-        return wc_price($finalGrossPrice);
+        return self::getFromRuntimeCache(function () {
+            $price = $this->product->getPriceCalculator()->getFinalGrossPrice();
+            return empty($price) ? '' : wc_price($price);
+        }, $this->cacheContext());
     }
 
     public function getRRPNetPrice(): string
     {
-        $this->lazyLoad($this->rrpNetPrice, [$this, 'initRRPNetPrice']);
-        return $this->rrpNetPrice;
-    }
-
-    protected function initRRPNetPrice(): string
-    {
-        $productCalculator = $this->product->getPriceCalculator();
-        $rrpNetPrice = $productCalculator->getRRPNetPrice();
-
-        if (empty($rrpNetPrice)) {
-            return '';
-        }
-
-        return wc_price($rrpNetPrice);
+        return self::getFromRuntimeCache(function () {
+            $price = $this->product->getPriceCalculator()->getRRPNetPrice();
+            return empty($price) ? '' : wc_price($price);
+        }, $this->cacheContext());
     }
 
     public function getRRPGrossPrice(): string
     {
-        $this->lazyLoad($this->rrpGrossPrice, [$this, 'initRRPGrossPrice']);
-        return $this->rrpGrossPrice;
-    }
-
-    protected function initRRPGrossPrice(): string
-    {
-        $productCalculator = $this->product->getPriceCalculator();
-        $rrpGrossPrice = $productCalculator->getRRPGrossPrice();
-
-        if (empty($rrpGrossPrice)) {
-            return '';
-        }
-
-        return wc_price($rrpGrossPrice);
+        return self::getFromRuntimeCache(function () {
+            $price = $this->product->getPriceCalculator()->getRRPGrossPrice();
+            return empty($price) ? '' : wc_price($price);
+        }, $this->cacheContext());
     }
 
     protected function showPriceByKey(string $key): bool
@@ -167,18 +108,17 @@ class PriceDisplay
             $postfix = $this->getPriceTail($key, false);
             $class = 'justb2b-price justb2b-price-' . str_replace('_', '-', $key);
             $html .= "<div class=\"{$class}\">
-                {$prefix}
-                <div class=\"justb2b-price-value\">{$price}</div>
-                {$postfix}
-            </div>";
+            {$prefix}
+            <div class=\"justb2b-price-value\">{$price}</div>
+            {$postfix}
+        </div>";
         }
         return $html;
     }
 
     public function getPriceTail($key, $isPrefix)
     {
-        $currentUser = UsersController::getInstance();
-        $currentUser = $currentUser->getCurrentUser();
+        $currentUser = UsersController::getInstance()->getCurrentUser();
         $userKind = $currentUser->isB2b() ? 'b2b' : 'b2c';
         $position = $isPrefix ? 'prefix' : 'postfix';
         $place = $this->isInLoop ? 'loop' : 'single';
@@ -192,9 +132,11 @@ class PriceDisplay
         if ($this->product->isSimpleProduct()) {
             $rule = $this->product->getFirstFullFitRule();
             if ($rule) {
-
                 $html = '';
-                if ($this->isInLoop && !$rule->isPricesInLoopHidden() || !$this->isInLoop && !$rule->isPricesInProductHidden()) {
+                if (
+                    $this->isInLoop && !$rule->isPricesInLoopHidden() ||
+                    !$this->isInLoop && !$rule->isPricesInProductHidden()
+                ) {
                     $html .= $this->getPriceItem('base_net', $this->getBaseNetPrice());
                     $html .= $this->getPriceItem('base_gross', $this->getBaseGrossPrice());
                     $html .= $this->getPriceItem('final_net', $this->getFinalNetPrice());
@@ -217,7 +159,6 @@ class PriceDisplay
 
     public function handlePricesHtmlContainer(string $pricesHtml): string
     {
-
         if (
             $this->isInLoop
             || !$this->product->isSimpleProduct()
@@ -231,14 +172,13 @@ class PriceDisplay
         $b2cHtml = $this->getHtml();
 
         return <<<HTML
-            <div class="justb2b_product" data-product_id="{$productId}">
-                {$pricesHtml}
-            </div>
-            {$qtyTable}
-            {$b2cHtml}
-        HTML;
+        <div class="justb2b_product" data-product_id="{$productId}">
+            {$pricesHtml}
+        </div>
+        {$qtyTable}
+        {$b2cHtml}
+    HTML;
     }
-
 
     public function getQtyTable(): string
     {
@@ -294,10 +234,7 @@ class PriceDisplay
     private function renderQtyTableRow($rule): string
     {
         $priceCalculator = $this->product->getPriceCalculator();
-        $price = PriceCalculator::calcRule(
-            $rule,
-            $priceCalculator,
-        );
+        $price = PriceCalculator::calcRule($rule, $priceCalculator);
 
         return implode('', [
             '<tr>',
@@ -310,7 +247,6 @@ class PriceDisplay
             '</tr>',
         ]);
     }
-
 
     private function getFormattedHtml(?string $html, string $wrapperClass): string
     {
@@ -342,5 +278,4 @@ class PriceDisplay
         }
         return '';
     }
-
 }
