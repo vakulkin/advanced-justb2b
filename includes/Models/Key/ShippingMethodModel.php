@@ -97,7 +97,7 @@ class ShippingMethodModel extends AbstractKeyModel
     {
         return self::getFromRuntimeCache(function () {
             $value = $this->getFieldValue($this->getFreeKey());
-            return is_numeric($value) ? PriceCalculator::getFloat($value) : false;
+            return is_numeric($value) ? $value : false;
         }, $this->cacheContext());
     }
 

@@ -5,7 +5,6 @@ namespace JustB2b\Models\Id;
 use JustB2b\Fields\AbstractField;
 use JustB2b\Fields\SelectField;
 use JustB2b\Traits\RuntimeCacheTrait;
-use JustB2b\Utils\Prefixer;
 
 defined('ABSPATH') || exit;
 
@@ -21,12 +20,8 @@ class UserModel extends AbstractIdModel
     public function isB2b(): bool
     {
         return self::getFromRuntimeCache(function () {
-            $isB2b = get_user_meta(
-                $this->id,
-                Prefixer::getPrefixedMeta('kind'),
-                true
-            );
-            return $isB2b === 'b2b';
+            $kind = $this->getFieldValue('kind');
+            return $kind === 'b2b';
         }, $this->cacheContext());
 
     }
@@ -34,14 +29,25 @@ class UserModel extends AbstractIdModel
     public static function getFieldsDefinition(): array
     {
         return [
-            new SelectField('kind', 'Rodzaj'),
+            (new SelectField('kind', 'Rodzaj'))
+                ->setOptions([
+                    'b2c' => 'b2c',
+                    'b2b' => 'b2b',
+                ]),
         ];
+    }
+
+    public function isEmptyField($key): bool
+    {
+        /** @var AbstractField $field */
+        $field = $this->getField($key);
+        return $field ? $field->isUserFieldEmpty($this->id) : true;
     }
 
     public function getFieldValue(string $key): mixed
     {
         /** @var AbstractField $field */
         $field = $this->getField($key);
-        return $field ? $field->getUserFieldValue($this->id) : false;
+        return $field ? $field->getUserFieldValue($this->id) : null;
     }
 }

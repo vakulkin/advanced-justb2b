@@ -2,6 +2,7 @@
 
 namespace JustB2b\Utils\Pricing;
 
+use JustB2b\Controllers\Key\GlobalController;
 use WC_Tax;
 use WC_Customer;
 use Automattic\WooCommerce\Proxies\LegacyProxy;
@@ -146,7 +147,7 @@ class PriceCalculator
     protected function calcNetFromWCMeta(string $key): float
     {
         $price = get_post_meta($this->product->getId(), $key, true);
-        $price = self::getFloat($price);
+        $price = abs((float) $price);
         return wc_prices_include_tax()
             ? self::calcNetFromGrossPrice($price, $this->getTaxRates())
             : $price;
@@ -155,17 +156,12 @@ class PriceCalculator
     protected function calcNetFromJustB2bMeta(string $key): float
     {
         $price = $this->product->getFieldValue($key);
-        $isNet = get_option(Prefixer::getPrefixedMeta($key)) !== 'gross';
+        $globalController = GlobalController::getInstance();
+        $settingsObject = $globalController->getSettingsModelObject();
+        $isNet = $settingsObject->getFieldValue($key) !== 'gross';
         return $isNet
             ? $price
             : self::calcNetFromGrossPrice($price, $this->getTaxRates());
-    }
-
-    public static function getFloat($value): float
-    {
-        $string = (string) $value;
-        $normalized = str_replace(',', '.', trim($string));
-        return abs((float) $normalized);
     }
 
     public static function calcNetFromGrossPrice(float $gross, $taxRates): float

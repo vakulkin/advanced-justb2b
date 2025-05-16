@@ -19,11 +19,14 @@ abstract class AbstractModel
                 return $field;
             }
         }
-
         return null;
     }
 
+    abstract public function isEmptyField(string $key): bool;
+
     abstract public function getFieldValue(string $key): mixed;
+
+    // abstract public function isEmptyFieldValue();
 
     protected function cacheContext(array $extra = []): array
     {

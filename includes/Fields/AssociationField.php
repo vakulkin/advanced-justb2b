@@ -31,9 +31,9 @@ abstract class AssociationField extends AbstractField
         return $field;
     }
 
-    public function renderInstanceValue(int $parentId): string
+    protected function isEmpty($value): bool
     {
-        return $this->renderValue($parentId);
+        return parent::isEmpty($value) || is_array($value) && count($value) === 0;
     }
 
     abstract public function renderValue(int $parentId): string;

@@ -8,6 +8,7 @@ use JustB2b\Fields\AssociationProductsField;
 use JustB2b\Fields\AssociationRolesField;
 use JustB2b\Fields\AssociationTermsField;
 use JustB2b\Fields\AssociationUsersField;
+use JustB2b\Fields\NonNegativeNumberField;
 use JustB2b\Fields\NumberField;
 use JustB2b\Fields\RichText;
 use JustB2b\Fields\SelectField;
@@ -44,7 +45,8 @@ class RuleModel extends AbstractPostModel
     {
         return array_merge([
             parent::cacheContext($extra),
-            'product_id' => $this->product->getId()
+            'product_id' => $this->product->getId(),
+            'qty' => $this->product->getQty()
         ]);
     }
 
@@ -90,7 +92,7 @@ class RuleModel extends AbstractPostModel
 
     public function getValue(): float
     {
-        return (float) self::getFromRuntimeCache(
+        return self::getFromRuntimeCache(
             fn () => $this->getFieldValue('value'),
             $this->cacheContext()
         );
@@ -98,7 +100,7 @@ class RuleModel extends AbstractPostModel
 
     public function getMinQty(): int
     {
-        return (int) self::getFromRuntimeCache(
+        return self::getFromRuntimeCache(
             fn () => $this->getFieldValue('min_qty'),
             $this->cacheContext()
         );
@@ -106,7 +108,7 @@ class RuleModel extends AbstractPostModel
 
     public function getMaxQty(): int
     {
-        return (int) self::getFromRuntimeCache(
+        return self::getFromRuntimeCache(
             fn () => $this->getFieldValue('max_qty'),
             $this->cacheContext()
         );
@@ -195,6 +197,7 @@ class RuleModel extends AbstractPostModel
 
     private function passesMainUsersRolesCheck(int $userId): bool
     {
+        var_dump($this->getField("users")->isPostFieldEmpty($this->id));
         $users = $this->getFieldValue('users');
         $roles = $this->getFieldValue('roles');
 
@@ -451,13 +454,13 @@ class RuleModel extends AbstractPostModel
                 ->setHelpText('Value used in price calculation.')
                 ->setWidth(25),
 
-            (new TextField('min_qty', 'Min ilość'))
+            (new NonNegativeNumberField('min_qty', 'Min ilość'))
                 ->setAttribute('type', 'number')
                 ->setAttribute('step', 'any')
                 ->setHelpText('Min quantity to apply the rule. Defaults to 0.')
                 ->setWidth(25),
 
-            (new TextField('max_qty', 'Max ilość'))
+            (new NonNegativeNumberField('max_qty', 'Max ilość'))
                 ->setAttribute('type', 'number')
                 ->setAttribute('step', 'any')
                 ->setHelpText('Max quantity to apply the rule. Empty = no limit.')

@@ -21,17 +21,17 @@ class NumberField extends TextField
         $this->defaultValue = 0;
     }
 
-    public function getPostFieldValue(int $postId): mixed
+    public function getPostFieldValue(int $postId): float
     {
         return (float) parent::getPostFieldValue($postId);
     }
 
-    public function getUserFieldValue(int $userId): mixed
+    public function getUserFieldValue(int $userId): float
     {
         return (float) parent::getPostFieldValue($userId);
     }
 
-    public function getOptionValue(): mixed
+    public function getOptionValue(): float
     {
         return (float) parent::getOptionValue();
     }

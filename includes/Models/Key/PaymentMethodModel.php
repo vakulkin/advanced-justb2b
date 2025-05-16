@@ -98,16 +98,16 @@ class PaymentMethodModel extends AbstractKeyModel
     public function getMinOrderTotal(): float|false
     {
         return self::getFromRuntimeCache(function () {
-            $option = $this->getFieldValue($this->getMinTotalKey());
-            return is_numeric($option) ? (float) $option : false;
+            $value = $this->getFieldValue($this->getMinTotalKey());
+            return is_numeric($value) ? $value : false;
         }, $this->cacheContext());
     }
 
     public function getMaxOrderTotal(): float|false
     {
         return self::getFromRuntimeCache(function () {
-            $option = $this->getFieldValue($this->getMaxTotalKey());
-            return is_numeric($option) ? (float) $option : false;
+            $value = $this->getFieldValue($this->getMaxTotalKey());
+            return is_numeric($value) ? $value : false;
         }, $this->cacheContext());
     }
 

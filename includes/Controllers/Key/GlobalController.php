@@ -38,7 +38,7 @@ class GlobalController extends AbstractKeyController
 
     public function getSettingsModelObject()
     {
-        $this->settingsModelObject;
+        return $this->settingsModelObject;
     }
 
     public function crbLoad()

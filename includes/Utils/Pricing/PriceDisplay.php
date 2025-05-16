@@ -3,10 +3,10 @@
 namespace JustB2b\Utils\Pricing;
 
 use JustB2b\Controllers\Id\UsersController;
+use JustB2b\Controllers\Key\GlobalController;
 use JustB2b\Models\Id\ProductModel;
 use JustB2b\Traits\RuntimeCacheTrait;
 use JustB2b\Utils\Prefixer;
-
 
 defined('ABSPATH') || exit;
 
@@ -90,8 +90,9 @@ class PriceDisplay
         $currentUser = $userController->getCurrentUser();
 
         $prefix = $currentUser->isB2b() ? 'b2b' : 'b2c';
-        $optionKey = Prefixer::getPrefixedMeta("{$prefix}_{$key}");
-        $value = get_option($optionKey, 'show');
+        $globalController = GlobalController::getInstance();
+        $settingsObject = $globalController->getSettingsModelObject();
+        $value = $settingsObject->getFieldValue("{$prefix}_{$key}");
 
         if ($value === 'show') {
             return true;
@@ -123,7 +124,9 @@ class PriceDisplay
         $position = $isPrefix ? 'prefix' : 'postfix';
         $place = $this->isInLoop ? 'loop' : 'single';
         $finalKey = "{$place}_{$userKind}_{$key}_{$position}";
-        $value = get_option(Prefixer::getPrefixedMeta($finalKey));
+        $globalController = GlobalController::getInstance();
+        $settingsObject = $globalController->getSettingsModelObject();
+        $value = $settingsObject->getFieldValue($finalKey);
         return empty($value) ? '' : "<div class=\"justb2b-{$position}\">$value</div>";
     }
 
@@ -202,12 +205,12 @@ class PriceDisplay
     private function getVisibleRules(): array
     {
         $rules = $this->product->getRules() ?? [];
-        return array_filter($rules, fn($rule) => $rule->showInQtyTable());
+        return array_filter($rules, fn ($rule) => $rule->showInQtyTable());
     }
 
     private function renderQtyTableHtml(array $rules, string $prefix, string $postfix): string
     {
-        $rows = array_map(fn($rule) => $this->renderQtyTableRow($rule), $rules);
+        $rows = array_map(fn ($rule) => $this->renderQtyTableRow($rule), $rules);
 
         return implode('', [
             '<div class="justb2b-qty-table-container">',
@@ -259,10 +262,12 @@ class PriceDisplay
     public function getHtml(): string
     {
         if (!$this->isInLoop) {
+            $globalController = GlobalController::getInstance();
+            $settingsObject = $globalController->getSettingsModelObject();
             $userType = UsersController::getInstance()->getCurrentUser()->isB2b() ? 'b2b' : 'b2c';
-            $showHtml = get_option(Prefixer::getPrefixedMeta("show_{$userType}_html_1")) !== 'hide';
+            $showHtml = $settingsObject->getFieldValue("show_{$userType}_html_1");
             if ($showHtml) {
-                $html = get_option(Prefixer::getPrefixedMeta("{$userType}_html_1"));
+                $html = $settingsObject->getFieldValue("{$userType}_html_1");
                 return $this->getFormattedHtml($html, "justb2b-{$userType}-html");
             }
         }

@@ -18,7 +18,7 @@ abstract class AbstractField
     protected string $prefixedKey;
     protected int $width = 100;
     protected array $attributes = [];
-    protected mixed $defaultValue = null;
+    protected mixed $defaultValue = '';
     protected string $helpText;
     protected string $sectionName = 'Main';
 
@@ -50,11 +50,6 @@ abstract class AbstractField
     {
         $this->defaultValue = $value;
         return $this;
-    }
-
-    public function getDefaultValue(): mixed
-    {
-        return $this->defaultValue;
     }
 
     public function getKey(): string
@@ -130,7 +125,6 @@ abstract class AbstractField
             fn () => carbon_get_post_meta($postId, $this->prefixedKey),
             ['post_id' => $postId, 'key' => $this->prefixedKey]
         );
-
     }
 
     public function getUserFieldOriginValue(int $userId): mixed
@@ -148,7 +142,25 @@ abstract class AbstractField
             fn () => carbon_get_theme_option($this->prefixedKey),
             ['key' => $this->prefixedKey]
         );
+    }
+    public function isPostFieldEmpty(int $postId): bool
+    {
+        return $this->isEmpty($this->getPostFieldOriginValue($postId));
+    }
 
+    public function isUserFieldEmpty(int $postId): bool
+    {
+        return $this->isEmpty($this->getUserFieldOriginValue($postId));
+    }
+
+    public function isOptionEmpty(): bool
+    {
+        return $this->isEmpty($this->getOptionOriginValue());
+    }
+
+    protected function isEmpty($value): bool
+    {
+        return $value === null;
     }
 
     protected function resolveFieldValue(mixed $value, mixed $default): mixed
