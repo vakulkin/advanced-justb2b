@@ -197,7 +197,7 @@ class RuleModel extends AbstractPostModel
 
     private function passesMainUsersRolesCheck(int $userId): bool
     {
-        var_dump($this->getField("users")->isPostFieldEmpty($this->id));
+        // var_dump($this->getField("users")->isPostFieldEmpty($this->id));
         $users = $this->getFieldValue('users');
         $roles = $this->getFieldValue('roles');
 
