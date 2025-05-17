@@ -14,11 +14,9 @@ class UsersController extends AbstractController
 {
     use RuntimeCacheTrait;
 
-    protected string $modelClass = UserModel::class;
-
     public function registerCarbonFields()
     {
-        $definitions = $this->modelClass::getFieldsDefinition();
+        $definitions = UserModel::getFieldsDefinition();
         $fields = FieldBuilder::buildFields($definitions);
 
         Container::make('user_meta', 'JustB2B')
@@ -28,7 +26,7 @@ class UsersController extends AbstractController
     public function getCurrentUser(): UserModel
     {
         return self::getFromRuntimeCache(function () {
-            return new $this->modelClass(get_current_user_id());
+            return new UserModel(get_current_user_id());
         }, ['user_id' => get_current_user_id()]);
     }
 }

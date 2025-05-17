@@ -3,6 +3,7 @@
 namespace JustB2b\Models\Key;
 
 use WC_Payment_Gateway;
+use JustB2b\Controllers\Id\UsersController;
 use JustB2b\Controllers\Key\PaymentController;
 use JustB2b\Fields\SelectField;
 use JustB2b\Fields\SeparatorField;
@@ -79,7 +80,7 @@ class PaymentMethodModel extends AbstractKeyModel
     public function isActive(): bool
     {
         return self::getFromRuntimeCache(function () {
-            $userController = \JustB2b\Controllers\Id\UsersController::getInstance();
+            $userController = UsersController::getInstance();
             $currentUser = $userController->getCurrentUser();
             $show = $this->getFieldValue($this->getShowKey());
 
@@ -95,22 +96,20 @@ class PaymentMethodModel extends AbstractKeyModel
         }, $this->cacheContext(['user_id' => get_current_user_id()]));
     }
 
-    public function getMinOrderTotal(): float|false
+    public function getMinOrderTotal(): float
     {
-        return self::getFromRuntimeCache(function () {
-            $value = $this->getFieldValue($this->getMinTotalKey());
-            return is_numeric($value) ? $value : false;
-        }, $this->cacheContext());
+        return $this->getFieldValue($this->getMinTotalKey());
     }
 
-    public function getMaxOrderTotal(): float|false
+    public function getMaxOrderTotal(): float
     {
-        return self::getFromRuntimeCache(function () {
-            $value = $this->getFieldValue($this->getMaxTotalKey());
-            return is_numeric($value) ? $value : false;
-        }, $this->cacheContext());
+        return $this->getFieldValue($this->getMaxTotalKey());
     }
 
+    public function isEmptyMaxOrderTotal(): bool
+    {
+        return $this->isEmptyField($this->getMaxTotalKey());
+    }
 
     public function getFields(): array
     {

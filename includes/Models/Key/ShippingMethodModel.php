@@ -6,7 +6,6 @@ use WC_Shipping_Method;
 use WC_Shipping_Zone;
 use JustB2b\Controllers\Key\ShippingController;
 use JustB2b\Controllers\Id\UsersController;
-use JustB2b\Utils\Pricing\PriceCalculator;
 use JustB2b\Fields\NonNegativeFloatField;
 use JustB2b\Fields\SelectField;
 use JustB2b\Fields\SeparatorField;
@@ -95,11 +94,14 @@ class ShippingMethodModel extends AbstractKeyModel
 
     public function getFreeFrom(): float|false
     {
-        return self::getFromRuntimeCache(function () {
-            $value = $this->getFieldValue($this->getFreeKey());
-            return is_numeric($value) ? $value : false;
-        }, $this->cacheContext());
+        return $this->getFieldValue($this->getFreeKey());
     }
+
+    public function isEmptyFreeFrom(): bool
+    {
+        return $this->isEmptyField($this->getFreeKey());
+    }
+
 
     public function getFields(): array
     {

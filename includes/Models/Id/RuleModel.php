@@ -52,82 +52,60 @@ class RuleModel extends AbstractPostModel
 
     public function getPriority(): int
     {
-        return (int) self::getFromRuntimeCache(
-            fn () => $this->getFieldValue('priority'),
-            $this->cacheContext()
-        );
+        return $this->getFieldValue('priority');
     }
 
     public function getKind(): string
     {
-        return (string) self::getFromRuntimeCache(
-            fn () => $this->getFieldValue('kind'),
-            $this->cacheContext()
-        );
+        return $this->getFieldValue('kind');
     }
 
     public function getPrimaryPriceSource(): string
     {
-        return (string) self::getFromRuntimeCache(
-            fn () => $this->getFieldValue('primary_price_source'),
-            $this->cacheContext()
-        );
+        return $this->getFieldValue('primary_price_source');
     }
 
     public function getSecondaryPriceSource(): string
     {
-        return (string) self::getFromRuntimeCache(
-            fn () => $this->getFieldValue('secondary_price_source'),
-            $this->cacheContext()
-        );
+        return $this->getFieldValue('secondary_price_source');
     }
 
     public function getSecondaryRRPSource(): string
     {
-        return (string) self::getFromRuntimeCache(
-            fn () => $this->getFieldValue('secondary_rrp_source'),
-            $this->cacheContext()
-        );
+        return $this->getFieldValue('secondary_rrp_source');
     }
 
     public function getValue(): float
     {
-        return self::getFromRuntimeCache(
-            fn () => $this->getFieldValue('value'),
-            $this->cacheContext()
-        );
+        return $this->getFieldValue('value');
     }
 
     public function getMinQty(): int
     {
-        return self::getFromRuntimeCache(
-            fn () => $this->getFieldValue('min_qty'),
-            $this->cacheContext()
-        );
+        return $this->getFieldValue('min_qty');
     }
 
     public function getMaxQty(): int
     {
-        return self::getFromRuntimeCache(
-            fn () => $this->getFieldValue('max_qty'),
-            $this->cacheContext()
-        );
+        return $this->getFieldValue('max_qty');
+    }
+
+    public function isEmptyMaxQty()
+    {
+        return $this->isEmptyField('max_qty');
     }
 
     public function showInQtyTable(): bool
     {
-        return self::getFromRuntimeCache(
-            fn () => $this->getFieldValue('show_in_qty_table') !== 'hide',
-            $this->cacheContext()
-        );
+        return $this->getFieldValue('show_in_qty_table') !== 'hide';
     }
 
     public function doesQtyFits(): bool
     {
         return self::getFromRuntimeCache(function () {
             $qty = $this->getProduct()->getQty();
-            return ($this->getMinQty() === 0 || $this->getMinQty() <= $qty)
-                && ($this->getMaxQty() === 0 || $qty <= $this->getMaxQty());
+
+            return ($this->getMinQty() <= $qty) && ($this->isEmptyMaxQty() || $qty <= $this->getMaxQty());
         }, $this->cacheContext());
     }
 
@@ -150,7 +128,10 @@ class RuleModel extends AbstractPostModel
 
     public function isPurchasable(): bool
     {
-        return $this->getKind() !== 'non_purchasable';
+        return self::getFromRuntimeCache(
+            fn() => $this->getKind() !== 'non_purchasable',
+            $this->cacheContext()
+        );
     }
 
 
@@ -165,7 +146,7 @@ class RuleModel extends AbstractPostModel
     public function isFullyHidden(): bool
     {
         return self::getFromRuntimeCache(
-            fn () => $this->getFieldValue('visibility') === 'fully_hidden',
+            fn() => $this->getFieldValue('visibility') === 'fully_hidden',
             $this->cacheContext()
         );
     }
@@ -173,7 +154,7 @@ class RuleModel extends AbstractPostModel
     public function isZeroRequestPrice(): bool
     {
         return self::getFromRuntimeCache(
-            fn () => $this->getKind() === 'zero_order_for_price',
+            fn() => $this->getKind() === 'zero_order_for_price',
             $this->cacheContext()
         );
     }
@@ -380,21 +361,22 @@ class RuleModel extends AbstractPostModel
     protected static function getPrimaryPriceSources(): array
     {
         return [
-            '_price' => '_price',
-            '_regular_price' => '_regular_price',
-            '_sale_price' => '_sale_price',
-            'rrp_price' => 'rrp_price',
-            'base_price_1' => 'base_price_1',
-            'base_price_2' => 'base_price_2',
-            'base_price_3' => 'base_price_3',
-            'base_price_4' => 'base_price_4',
-            'base_price_5' => 'base_price_5',
+            '_price' => 'Default Price (_price)',
+            '_regular_price' => 'Regular Price (_regular_price)',
+            '_sale_price' => 'Sale Price (_sale_price)',
+            'rrp_price' => 'RRP (Recommended Retail Price)',
+            'base_price_1' => 'Base Price 1',
+            'base_price_2' => 'Base Price 2',
+            'base_price_3' => 'Base Price 3',
+            'base_price_4' => 'Base Price 4',
+            'base_price_5' => 'Base Price 5',
         ];
     }
 
+
     protected static function getSecondaryPriceSources(): array
     {
-        return ['disabled' => 'disabled'] + self::getPrimaryPriceSources();
+        return ['disabled' => 'Disabled'] + self::getPrimaryPriceSources();
     }
 
     public static function getFieldsDefinition(): array
@@ -405,12 +387,19 @@ class RuleModel extends AbstractPostModel
                 ->setWidth(25),
 
             (new SelectField('user_type', 'User type'))
-                ->setOptions(['b2x' => 'b2x', 'b2b' => 'b2b', 'b2c' => 'b2c'])
+                ->setOptions([
+                    'b2x' => 'All users (B2X)',
+                    'b2b' => 'Business users (B2B)',
+                    'b2c' => 'Individual users (B2C)',
+                ])
                 ->setHelpText('Target user type. b2x means all users.')
                 ->setWidth(25),
 
             (new SelectField('visibility', 'Visibility'))
-                ->setOptions(['show' => 'show', 'fully_hidden' => 'fully_hidden'])
+                ->setOptions([
+                    'show' => 'Show',
+                    'fully_hidden' => 'Fully hidden',
+                ])
                 ->setHelpText('Controls visibility. Fully hidden = not shown at all.')
                 ->setWidth(25),
 
@@ -431,19 +420,19 @@ class RuleModel extends AbstractPostModel
 
             (new SelectField('kind', 'Rodzaj'))
                 ->setOptions([
-                    'price_source' => 'price_source',
-                    'net_minus_percent' => 'net_minus_percent',
-                    'net_plus_percent' => 'net_plus_percent',
-                    'net_minus_number' => 'net_minus_number',
-                    'net_plus_number' => 'net_plus_number',
-                    'net_equals_number' => 'net_equals_number',
-                    'gross_minus_percent' => 'gross_minus_percent',
-                    'gross_plus_percent' => 'gross_plus_percent',
-                    'gross_minus_number' => 'gross_minus_number',
-                    'gross_plus_number' => 'gross_plus_number',
-                    'gross_equals_number' => 'gross_equals_number',
-                    'non_purchasable' => 'non_purchasable',
-                    'zero_order_for_price' => 'zero_order_for_price',
+                    'price_source' => 'Use another price source',
+                    'net_minus_percent' => 'Net - Percent',
+                    'net_plus_percent' => 'Net + Percent',
+                    'net_minus_number' => 'Net - Fixed amount',
+                    'net_plus_number' => 'Net + Fixed amount',
+                    'net_equals_number' => 'Net = Fixed amount',
+                    'gross_minus_percent' => 'Gross - Percent',
+                    'gross_plus_percent' => 'Gross + Percent',
+                    'gross_minus_number' => 'Gross - Fixed amount',
+                    'gross_plus_number' => 'Gross + Fixed amount',
+                    'gross_equals_number' => 'Gross = Fixed amount',
+                    'non_purchasable' => 'Non-purchasable',
+                    'zero_order_for_price' => '0 price = no order',
                 ])
                 ->setHelpText('How this rule changes the product price.')
                 ->setWidth(25),
@@ -467,12 +456,20 @@ class RuleModel extends AbstractPostModel
                 ->setWidth(25),
 
             (new SelectField('all_prices_visibility', 'Prices visibility'))
-                ->setOptions(['show' => 'show', 'hide' => 'hide', 'only_product' => 'only_product', 'only_loop' => 'only_loop'])
+                ->setOptions([
+                    'show' => 'Show on product and loop',
+                    'hide' => 'Hide everywhere',
+                    'only_product' => 'Show only on product page',
+                    'only_loop' => 'Show only in product list',
+                ])
                 ->setHelpText('Show/hide prices based on this rule.')
                 ->setWidth(25),
 
             (new SelectField('show_in_qty_table', 'Pokazać w tabeli'))
-                ->setOptions(['show' => 'show', 'hide' => 'hide'])
+                ->setOptions([
+                    'show' => 'Show',
+                    'hide' => 'Hide',
+                ])
                 ->setHelpText('Show this rule in the quantity table.')
                 ->setWidth(25),
 

@@ -7,6 +7,7 @@ use WC_Shipping_Zone;
 use WC_Shipping_Zones;
 use JustB2b\Controllers\Key\GlobalController;
 use JustB2b\Models\Key\ShippingMethodModel;
+use JustB2b\Fields\AbstractField;
 use JustB2b\Fields\FieldBuilder;
 use JustB2b\Utils\Prefixer;
 use JustB2b\Traits\RuntimeCacheTrait;
@@ -17,8 +18,6 @@ class ShippingController extends AbstractKeyController
 {
     use RuntimeCacheTrait;
 
-    protected string $modelClass = ShippingMethodModel::class;
-
     protected function __construct()
     {
         parent::__construct();
@@ -28,7 +27,7 @@ class ShippingController extends AbstractKeyController
 
     public function registerCarbonFields()
     {
-        $shippingFields = FieldBuilder::buildFields($this->modelClass::getFieldsDefinition());
+        $shippingFields = FieldBuilder::buildFields(ShippingMethodModel::getFieldsDefinition());
 
         $globalController = GlobalController::getInstance();
         $generalSettings = $globalController->getGlobalSettings();
@@ -36,6 +35,7 @@ class ShippingController extends AbstractKeyController
         $generalSettings->add_tab('Shipping', $shippingFields);
     }
 
+    // todo: attach to correspondent hook
     protected function removeUnusedShippingFields(): void
     {
         global $wpdb;
@@ -43,7 +43,8 @@ class ShippingController extends AbstractKeyController
         $tempKey = Prefixer::getPrefixedMeta('temp_shipping---%');
         $prefixedActiveKeys = [];
 
-        foreach ($this->modelClass::getFieldsDefinition() as $field) {
+        /** @var AbstractField $field */
+        foreach (ShippingMethodModel::getFieldsDefinition() as $field) {
             $prefixedActiveKeys[] = $field->getPrefixedKey();
         }
 
@@ -158,11 +159,11 @@ class ShippingController extends AbstractKeyController
                     continue;
                 }
 
-                $freeFrom = $method->getFreeFrom();
-                if ($freeFrom === false) {
+                if ($method->isEmptyFreeFrom()) {
                     continue;
                 }
 
+                $freeFrom = $method->getFreeFrom();
                 if ($smallestFreeFrom === null || $freeFrom < $smallestFreeFrom) {
                     $smallestFreeFrom = $freeFrom;
                     $bestMethod = $method;

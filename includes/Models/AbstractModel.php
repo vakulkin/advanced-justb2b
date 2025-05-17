@@ -2,6 +2,7 @@
 
 namespace JustB2b\Models;
 
+use JustB2b\Fields\AbstractField;
 use JustB2b\Traits\RuntimeCacheTrait;
 
 defined('ABSPATH') || exit;
@@ -14,6 +15,7 @@ abstract class AbstractModel
 
     public function getField(string $key): ?object
     {
+        /** @var AbstractField $field */
         foreach (static::getFieldsDefinition() as $field) {
             if ($key == $field->getKey()) {
                 return $field;

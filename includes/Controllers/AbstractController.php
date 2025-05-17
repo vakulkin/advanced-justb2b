@@ -10,8 +10,6 @@ abstract class AbstractController
 {
     use SingletonTrait;
 
-    protected string $modelClass;
-
     protected function __construct()
     {
         add_action('carbon_fields_register_fields', [$this, 'registerCarbonFields'], 20);

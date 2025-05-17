@@ -6,7 +6,6 @@ use JustB2b\Controllers\Id\UsersController;
 use JustB2b\Controllers\Key\GlobalController;
 use JustB2b\Models\Id\ProductModel;
 use JustB2b\Traits\RuntimeCacheTrait;
-use JustB2b\Utils\Prefixer;
 
 defined('ABSPATH') || exit;
 

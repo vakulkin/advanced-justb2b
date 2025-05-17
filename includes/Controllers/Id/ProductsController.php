@@ -14,8 +14,6 @@ defined('ABSPATH') || exit;
 
 class ProductsController extends AbstractController
 {
-    protected string $modelClass = ProductModel::class;
-
     protected function __construct()
     {
         parent::__construct();
@@ -41,12 +39,6 @@ class ProductsController extends AbstractController
         add_filter('carbon_fields_association_field_options_justb2b_excluding_woo_terms_term_product_tag', [$this, 'carbonFieldsFilterTerms']);
     }
 
-    public function force_variation_price_display($variation_data, $product, $variation)
-    {
-        $variation_data['price_html'] = $variation->get_price_html();
-        return $variation_data;
-    }
-
     public function carbonFieldsFilterVariationsParentProducts($query_arguments)
     {
         $query_arguments['tax_query'][] = [
@@ -61,7 +53,7 @@ class ProductsController extends AbstractController
 
     public function registerCarbonFields()
     {
-        $definitions = $this->modelClass::getFieldsDefinition();
+        $definitions = ProductModel::getFieldsDefinition();
         $fields = FieldBuilder::buildFields($definitions);
 
         Container::make('post_meta', 'JustB2B')
@@ -77,7 +69,7 @@ class ProductsController extends AbstractController
             return $price_html;
         }
 
-        $productModel = new $this->modelClass($product->get_id(), 1);
+        $productModel = new ProductModel($product->get_id(), 1);
 
         global $post, $woocommerce_loop;
 
@@ -106,7 +98,7 @@ class ProductsController extends AbstractController
             wp_send_json_error(['message' => 'Invalid data']);
         }
 
-        $productModel = new $this->modelClass($productId, $quantity);
+        $productModel = new ProductModel($productId, $quantity);
 
         if (!$productModel) {
             wp_send_json_error(['message' => 'Invalid product']);
@@ -132,7 +124,7 @@ class ProductsController extends AbstractController
         ]);
 
         foreach ($loop_query->posts as $product_id) {
-            $productModel = new $this->modelClass($product_id, 1);
+            $productModel = new ProductModel($product_id, 1);
             $rule = $productModel->getFirstFullFitRule();
             if ($rule && $rule->isInLoopHidden()) {
                 $ids_to_exclude[] = $product_id;
@@ -153,7 +145,7 @@ class ProductsController extends AbstractController
             return;
         }
 
-        $productModel = new $this->modelClass($post->ID, 1);
+        $productModel = new ProductModel($post->ID, 1);
         $rule = $productModel->getFirstFullFitRule();
 
         if ($rule && $rule->isFullyHidden()) {
@@ -172,7 +164,7 @@ class ProductsController extends AbstractController
             return $price;
         }
 
-        $productModel = new $this->modelClass($product->get_id(), 1);
+        $productModel = new ProductModel($product->get_id(), 1);
         $rule = $productModel->getFirstFullFitRule();
 
         if ($rule && $rule->isZeroRequestPrice()) {
@@ -184,7 +176,7 @@ class ProductsController extends AbstractController
 
     public function filterIsPurchasable(bool $purchasable, WC_Product $product): bool
     {
-        $productModel = new $this->modelClass($product->get_id(), 1);
+        $productModel = new ProductModel($product->get_id(), 1);
         $rule = $productModel->getFirstFullFitRule();
         return (!$rule && $purchasable) || ($rule && $rule->isPurchasable());
     }

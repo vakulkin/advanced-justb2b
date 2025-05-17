@@ -2,13 +2,12 @@
 
 namespace JustB2b\Utils\Pricing;
 
-use JustB2b\Controllers\Key\GlobalController;
 use WC_Tax;
 use WC_Customer;
 use Automattic\WooCommerce\Proxies\LegacyProxy;
+use JustB2b\Controllers\Key\GlobalController;
 use JustB2b\Models\Id\ProductModel;
 use JustB2b\Traits\RuntimeCacheTrait;
-use JustB2b\Utils\Prefixer;
 
 defined('ABSPATH') || exit;
 

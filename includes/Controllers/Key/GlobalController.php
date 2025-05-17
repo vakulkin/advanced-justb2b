@@ -17,7 +17,6 @@ defined('ABSPATH') || exit;
 class GlobalController extends AbstractKeyController
 {
     protected ?Container $globalSettings = null;
-    protected string $modelClass = SettingsModel::class;
     protected SettingsModel $settingsModelObject;
 
     protected function __construct()
@@ -62,7 +61,7 @@ class GlobalController extends AbstractKeyController
 
     public function registerCarbonFields()
     {
-        $definitions = $this->modelClass::getFieldsDefinition();
+        $definitions = $this->getFieldsDefinition();
         $fields = FieldBuilder::buildFields($definitions);
 
         $this->getGlobalSettings()
@@ -111,7 +110,7 @@ class GlobalController extends AbstractKeyController
         );
     }
 
-    public static function getFieldsDefinition(): array
+    public function getFieldsDefinition(): array
     {
         $fieldsDefinition = [];
 
@@ -127,7 +126,7 @@ class GlobalController extends AbstractKeyController
             $fieldsDefinition[] = new SeparatorField("sep_{$field['key']}", $field['label']);
             $fieldsDefinition = array_merge(
                 $fieldsDefinition,
-                self::generateVisibilityFields($field['key'])
+                $this->generateVisibilityFields($field['key'])
             );
         }
 
@@ -146,7 +145,7 @@ class GlobalController extends AbstractKeyController
     /**
      * Generates all visibility-related fields for a given key.
      */
-    private static function generateVisibilityFields(string $key): array
+    private function generateVisibilityFields(string $key): array
     {
         $fields = [];
 

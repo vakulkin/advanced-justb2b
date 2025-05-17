@@ -14,8 +14,6 @@ class PaymentController extends AbstractKeyController
 {
     use RuntimeCacheTrait;
 
-    protected string $modelClass = PaymentMethodModel::class;
-
     protected function __construct()
     {
         parent::__construct();
@@ -24,7 +22,7 @@ class PaymentController extends AbstractKeyController
 
     public function registerCarbonFields()
     {
-        $paymentFields = FieldBuilder::buildFields($this->modelClass::getFieldsDefinition());
+        $paymentFields = FieldBuilder::buildFields(PaymentMethodModel::getFieldsDefinition());
 
         $globalController = GlobalController::getInstance();
         $generalSettings =  $globalController->getGlobalSettings();
@@ -44,6 +42,7 @@ class PaymentController extends AbstractKeyController
                 continue;
             }
 
+            /** @var PaymentMethodModel $method */
             $method = $paymentMethods[$id];
 
             if (!$method->isActive()) {
@@ -51,12 +50,9 @@ class PaymentController extends AbstractKeyController
                 continue;
             }
 
-            $minTotal = $method->getMinOrderTotal();
-            $maxTotal = $method->getMaxOrderTotal();
-
             if (
-                ($minTotal !== false && $cartTotal < $minTotal) ||
-                ($maxTotal !== false && $cartTotal > $maxTotal)
+                ($cartTotal < $method->getMinOrderTotal()) ||
+                (!$method->isEmptyMaxOrderTotal()  && $cartTotal > $method->getMaxOrderTotal())
             ) {
                 unset($available_gateways[$id]);
             }
@@ -72,7 +68,7 @@ class PaymentController extends AbstractKeyController
             $methods = [];
             $gateways = WC_Payment_Gateways::instance()->payment_gateways();
             foreach ($gateways as $gateway) {
-                $methods[$gateway->id] = new \JustB2b\Models\Key\PaymentMethodModel($gateway);
+                $methods[$gateway->id] = new PaymentMethodModel($gateway);
             }
             return $methods;
         });

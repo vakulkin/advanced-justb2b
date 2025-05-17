@@ -19,7 +19,7 @@ abstract class AbstractField
     protected int $width = 100;
     protected array $attributes = [];
     protected mixed $defaultValue = '';
-    protected string $helpText;
+    protected string $helpText = '';
     protected string $sectionName = 'Main';
 
     public function __construct(string $key, string $label)
@@ -67,16 +67,6 @@ abstract class AbstractField
         return $this->label;
     }
 
-    public function getWidth(): int
-    {
-        return $this->width;
-    }
-
-    public function getAttributes(): array
-    {
-        return $this->attributes;
-    }
-
     public function setHelpText(string $text): static
     {
         $this->helpText = $text;
@@ -85,7 +75,7 @@ abstract class AbstractField
 
     public function getHelpText(): ?string
     {
-        return $this->helpText ?? null;
+        return $this->helpText;
     }
 
     public function getSectionName(): string
@@ -184,6 +174,12 @@ abstract class AbstractField
     {
         $value = $this->getOptionOriginValue();
         return $this->resolveFieldValue($value, $this->defaultValue);
+    }
+
+    public function renderValue(int $parentId): string
+    {
+        $values = $this->getPostFieldValue($parentId);
+        return $values;
     }
 
 

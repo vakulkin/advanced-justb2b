@@ -18,7 +18,6 @@ class CartController extends AbstractKeyController
 {
     use SingletonTrait;
     use RuntimeCacheTrait;
-    protected string $modelClass = CartModel::class;
     protected CartModel $cartModelObject;
     protected function __construct()
     {
@@ -50,18 +49,12 @@ class CartController extends AbstractKeyController
     public function getShowNetFor(): string
     {
 
-        return self::getFromRuntimeCache(
-            fn () =>
-            $this->cartModelObject->getFieldValue('mini_cart_net_price')
-        );
+        return $this->cartModelObject->getFieldValue('mini_cart_net_price');
     }
 
     public function getShowGrossFor(): string
     {
-        return self::getFromRuntimeCache(
-            fn () =>
-            $this->cartModelObject->getFieldValue('mini_cart_gross_price')
-        );
+        return $this->cartModelObject->getFieldValue('mini_cart_gross_price');
     }
 
     public function miniCartPriceFilter($output, $cart_item): string

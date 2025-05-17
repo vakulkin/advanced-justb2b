@@ -16,10 +16,9 @@ class FieldBuilder
     {
         $fields = [];
 
+        /** @var AbstractField $fiedefinitionld */
         foreach ($definitions as $definition) {
-            if ($definition instanceof AbstractField) {
-                $fields[] = $definition->toCarbonField();
-            }
+            $fields[] = $definition->toCarbonField();
         }
 
         return $fields;

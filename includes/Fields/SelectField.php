@@ -5,9 +5,8 @@ namespace JustB2b\Fields;
 defined('ABSPATH') || exit;
 
 use Carbon_Fields\Field\Field;
-use JustB2b\Fields\AbstractField;
 
-class SelectField extends AbstractField
+class SelectField extends TextField
 {
     protected string $type = 'select';
     protected array $options = [];
@@ -20,7 +19,6 @@ class SelectField extends AbstractField
         }
         return $this;
     }
-
 
     public function toCarbonField(): Field
     {

@@ -19,12 +19,17 @@ abstract class AbstractCustomPostController extends AbstractController
         add_action('admin_menu', [$this, 'registerSubmenus'], 100);
     }
 
+    abstract public function getSingleName(): string;
+    abstract public function getPluralName(): string;
+    abstract public function getPrefixedKey(): string;
+
+
     public function registerPostType()
     {
-        $singleName = $this->modelClass::getSingleName();
-        $pluralName = $this->modelClass::getPluralName();
+        $singleName = $this->getSingleName();
+        $pluralName = $this->getPluralName();
 
-        register_post_type($this->modelClass::getPrefixedKey(), [
+        register_post_type($this->getPrefixedKey(), [
             'label' => $singleName,
             'public' => false,
             'show_ui' => true,
@@ -48,12 +53,13 @@ abstract class AbstractCustomPostController extends AbstractController
 
     public function registerSubmenus()
     {
-        $prefixedKey = $this->modelClass::getPrefixedKey();
+
+        $prefixedKey = $this->getPrefixedKey();
 
         add_submenu_page(
             'justb2b-settings',
-            $this->modelClass::getPluralName(),
-            $this->modelClass::getPluralName(),
+            $this->getSingleName(),
+            $this->getPluralName(),
             'edit_posts',
             "edit.php?post_type={$prefixedKey}"
         );
