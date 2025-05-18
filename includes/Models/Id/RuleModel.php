@@ -23,13 +23,17 @@ class RuleModel extends AbstractPostModel
 
     protected static string $key = 'rule';
     protected ProductModel $product;
+    protected int $productId;
+    protected int $qty;
 
     public function __construct(
         int $id,
-        ProductModel $product
+        int $productId,
+        int $qty,
     ) {
         parent::__construct($id);
-        $this->initProduct($product);
+        $this->productId = $productId;
+        $this->qty = $qty;
     }
 
     public static function getSingleName(): string
@@ -45,8 +49,8 @@ class RuleModel extends AbstractPostModel
     {
         return array_merge([
             parent::cacheContext($extra),
-            'product_id' => $this->product->getId(),
-            'qty' => $this->product->getQty()
+            'product_id' => $this->productId,
+            'qty' => $this->qty
         ]);
     }
 
@@ -103,7 +107,7 @@ class RuleModel extends AbstractPostModel
     public function doesQtyFits(): bool
     {
         return self::getFromRuntimeCache(function () {
-            $qty = $this->getProduct()->getQty();
+            $qty = $this->qty;
 
             return ($this->getMinQty() <= $qty) && ($this->isEmptyMaxQty() || $qty <= $this->getMaxQty());
         }, $this->cacheContext());
@@ -115,7 +119,7 @@ class RuleModel extends AbstractPostModel
             $userController = UsersController::getInstance();
             $currentUser = $userController->getCurrentUser();
             $currentUserId = $currentUser->getId();
-            $productId = $this->getProduct()->getId();
+            $productId = $this->productId;
 
             return $this->passesMainUsersRolesCheck($currentUserId)
                 && $this->passesMainProductsTermsCheck($productId)
@@ -346,17 +350,6 @@ class RuleModel extends AbstractPostModel
         }
         return $result;
     }
-
-    public function getProduct(): ProductModel
-    {
-        return $this->product;
-    }
-
-    protected function initProduct(ProductModel $product): void
-    {
-        $this->product = $product;
-    }
-
 
     protected static function getPrimaryPriceSources(): array
     {

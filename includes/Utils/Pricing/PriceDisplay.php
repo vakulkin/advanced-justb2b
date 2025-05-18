@@ -204,12 +204,12 @@ class PriceDisplay
     private function getVisibleRules(): array
     {
         $rules = $this->product->getRules() ?? [];
-        return array_filter($rules, fn ($rule) => $rule->showInQtyTable());
+        return array_filter($rules, fn($rule) => $rule->showInQtyTable());
     }
 
     private function renderQtyTableHtml(array $rules, string $prefix, string $postfix): string
     {
-        $rows = array_map(fn ($rule) => $this->renderQtyTableRow($rule), $rules);
+        $rows = array_map(fn($rule) => $this->renderQtyTableRow($rule), $rules);
 
         return implode('', [
             '<div class="justb2b-qty-table-container">',

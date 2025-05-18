@@ -84,7 +84,7 @@ class ProductModel extends AbstractPostModel
             $results = [];
 
             foreach ($query->posts as $post) {
-                $rule = new RuleModel($post->ID, $this);
+                $rule = new RuleModel($post->ID, $this->getId(), $this->getQty());
                 if ($rule->isAssociationFit()) {
                     $results[] = $rule;
                 }
