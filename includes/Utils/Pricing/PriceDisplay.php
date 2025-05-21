@@ -236,7 +236,7 @@ class PriceDisplay
     private function renderQtyTableRow($rule): string
     {
         $priceCalculator = $this->product->getPriceCalculator();
-        $price = PriceCalculator::calcRule($rule, $priceCalculator);
+        $price = $priceCalculator->calcRule();
 
         return implode('', [
             '<tr>',

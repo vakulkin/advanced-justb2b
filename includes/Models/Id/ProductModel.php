@@ -20,6 +20,8 @@ class ProductModel extends AbstractPostModel
     protected static string $key = 'product';
     protected int $qty;
 
+    private ?RuleModel $cachedFirstFullFitRule = null;
+
     public function __construct(int $id, int $conditionQty)
     {
         parent::__construct($id);
@@ -82,14 +84,12 @@ class ProductModel extends AbstractPostModel
         return self::getFromRuntimeCache(function () {
             $query = new WP_Query($this->getRuleQueryArgs());
             $results = [];
-
             foreach ($query->posts as $post) {
                 $rule = new RuleModel($post->ID, $this->getId(), $this->getQty());
                 if ($rule->isAssociationFit()) {
                     $results[] = $rule;
                 }
             }
-
             return $results;
         }, $this->cacheContext());
     }

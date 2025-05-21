@@ -22,7 +22,6 @@ class RuleModel extends AbstractPostModel
     use RuntimeCacheTrait;
 
     protected static string $key = 'rule';
-    protected ProductModel $product;
     protected int $productId;
     protected int $qty;
 
@@ -119,21 +118,20 @@ class RuleModel extends AbstractPostModel
             $userController = UsersController::getInstance();
             $currentUser = $userController->getCurrentUser();
             $currentUserId = $currentUser->getId();
-            $productId = $this->productId;
 
             return $this->passesMainUsersRolesCheck($currentUserId)
-                && $this->passesMainProductsTermsCheck($productId)
+                && $this->passesMainProductsTermsCheck($this->productId)
                 && $this->passesQualifyingRolesCheck($currentUserId)
-                && $this->passesQualifyingTermsCheck($productId)
+                && $this->passesQualifyingTermsCheck($this->productId)
                 && $this->passesExcludingUsersRolesCheck($currentUserId)
-                && $this->passesExcludingProductsTermsCheck($productId);
+                && $this->passesExcludingProductsTermsCheck($this->productId);
         }, $this->cacheContext());
     }
 
     public function isPurchasable(): bool
     {
         return self::getFromRuntimeCache(
-            fn() => $this->getKind() !== 'non_purchasable',
+            fn () => $this->getKind() !== 'non_purchasable',
             $this->cacheContext()
         );
     }
@@ -150,7 +148,7 @@ class RuleModel extends AbstractPostModel
     public function isFullyHidden(): bool
     {
         return self::getFromRuntimeCache(
-            fn() => $this->getFieldValue('visibility') === 'fully_hidden',
+            fn () => $this->getFieldValue('visibility') === 'fully_hidden',
             $this->cacheContext()
         );
     }
@@ -158,7 +156,7 @@ class RuleModel extends AbstractPostModel
     public function isZeroRequestPrice(): bool
     {
         return self::getFromRuntimeCache(
-            fn() => $this->getKind() === 'zero_order_for_price',
+            fn () => $this->getKind() === 'zero_order_for_price',
             $this->cacheContext()
         );
     }
@@ -182,7 +180,6 @@ class RuleModel extends AbstractPostModel
 
     private function passesMainUsersRolesCheck(int $userId): bool
     {
-        // var_dump($this->getField("users")->isPostFieldEmpty($this->id));
         $users = $this->getFieldValue('users');
         $roles = $this->getFieldValue('roles');
 

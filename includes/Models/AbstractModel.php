@@ -28,8 +28,6 @@ abstract class AbstractModel
 
     abstract public function getFieldValue(string $key): mixed;
 
-    // abstract public function isEmptyFieldValue();
-
     protected function cacheContext(array $extra = []): array
     {
         return $extra;

@@ -70,7 +70,7 @@ class PriceCalculator
     public function getRRPGrossPrice(): float
     {
         return self::getFromRuntimeCache(
-            fn () => self::calcGrossFromNetPrice(
+            fn() => self::calcGrossFromNetPrice(
                 $this->getRRPNetPrice(),
                 $this->getTaxRates()
             ),
@@ -98,7 +98,7 @@ class PriceCalculator
     public function getBaseGrossPrice(): float
     {
         return self::getFromRuntimeCache(
-            fn () => self::calcGrossFromNetPrice(
+            fn() => self::calcGrossFromNetPrice(
                 $this->getBaseNetPrice(),
                 $this->getTaxRates()
             ),
@@ -110,8 +110,7 @@ class PriceCalculator
     public function getFinalNetPrice(): float
     {
         return self::getFromRuntimeCache(function () {
-            $rule = $this->product->getFirstFullFitRule();
-            return $rule ? self::calcRule($rule, $this) : 0;
+            return $this->calcRule();
         }, $this->cacheContext());
     }
 
@@ -119,7 +118,7 @@ class PriceCalculator
     public function getFinalGrossPrice(): float
     {
         return self::getFromRuntimeCache(
-            fn () => self::calcGrossFromNetPrice(
+            fn() => self::calcGrossFromNetPrice(
                 $this->getFinalNetPrice(),
                 $this->getTaxRates()
             ),
@@ -175,33 +174,35 @@ class PriceCalculator
         return $net + array_sum($addTaxes);
     }
 
-    public static function calcRule($rule, $calc): float
+    public function calcRule(): float
     {
-        switch ($rule->getKind()) {
-            case 'price_source':
-                return $calc->getBaseNetPrice();
-            case 'net_minus_percent':
-                return max(0, $calc->getBaseNetPrice() - $calc->getBaseNetPrice() * $rule->getValue() * 0.01);
-            case 'gross_minus_percent':
-                return self::calcNetFromGrossPrice($calc->getBaseGrossPrice() - $calc->getBaseGrossPrice() * $rule->getValue() * 0.01, $calc->getTaxRates());
-            case 'net_plus_percent':
-                return $calc->getBaseNetPrice() + $calc->getBaseNetPrice() * $rule->getValue() * 0.01;
-            case 'gross_plus_percent':
-                return self::calcNetFromGrossPrice($calc->getBaseGrossPrice() + $calc->getBaseGrossPrice() * $rule->getValue() * 0.01, $calc->getTaxRates());
-            case 'net_minus_number':
-                return max(0, $calc->getBaseNetPrice() - $rule->getValue());
-            case 'gross_minus_number':
-                return self::calcNetFromGrossPrice(max(0, $calc->getBaseGrossPrice() - $rule->getValue()), $calc->getTaxRates());
-            case 'net_plus_number':
-                return $calc->getBaseNetPrice() + $rule->getValue();
-            case 'gross_plus_number':
-                return self::calcNetFromGrossPrice($calc->getBaseGrossPrice() + $rule->getValue(), $calc->getTaxRates());
-            case 'net_equals_number':
-                return $rule->getValue();
-            case 'gross_equals_number':
-                return self::calcNetFromGrossPrice($rule->getValue(), $calc->getTaxRates());
-            default:
-                return 0;
+        $rule = $this->product->getFirstFullFitRule();
+        if ($rule) {
+            switch ($rule->getKind()) {
+                case 'price_source':
+                    return $this->getBaseNetPrice();
+                case 'net_minus_percent':
+                    return max(0, $this->getBaseNetPrice() - $this->getBaseNetPrice() * $rule->getValue() * 0.01);
+                case 'gross_minus_percent':
+                    return self::calcNetFromGrossPrice($this->getBaseGrossPrice() - $this->getBaseGrossPrice() * $rule->getValue() * 0.01, $this->getTaxRates());
+                case 'net_plus_percent':
+                    return $this->getBaseNetPrice() + $this->getBaseNetPrice() * $rule->getValue() * 0.01;
+                case 'gross_plus_percent':
+                    return self::calcNetFromGrossPrice($this->getBaseGrossPrice() + $this->getBaseGrossPrice() * $rule->getValue() * 0.01, $this->getTaxRates());
+                case 'net_minus_number':
+                    return max(0, $this->getBaseNetPrice() - $rule->getValue());
+                case 'gross_minus_number':
+                    return self::calcNetFromGrossPrice(max(0, $this->getBaseGrossPrice() - $rule->getValue()), $this->getTaxRates());
+                case 'net_plus_number':
+                    return $this->getBaseNetPrice() + $rule->getValue();
+                case 'gross_plus_number':
+                    return self::calcNetFromGrossPrice($this->getBaseGrossPrice() + $rule->getValue(), $this->getTaxRates());
+                case 'net_equals_number':
+                    return $rule->getValue();
+                case 'gross_equals_number':
+                    return self::calcNetFromGrossPrice($rule->getValue(), $this->getTaxRates());
+            }
         }
+        return 0;
     }
 }
