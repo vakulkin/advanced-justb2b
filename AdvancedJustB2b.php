@@ -2,6 +2,12 @@
 
 namespace JustB2b;
 
+/*
+Plugin Name:  Advanced JustB2B Plugin
+Description: A plugin to manage B2B interactions with custom business rules, user roles, product groups, and pricing strategies.
+Text Domain: justb2b
+*/
+
 use JustB2b\Controllers\Key\CartController;
 use JustB2b\Controllers\Key\GlobalController;
 use JustB2b\Controllers\Key\PaymentController;
