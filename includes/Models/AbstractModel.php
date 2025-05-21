@@ -1,11 +1,19 @@
 <?php
 
-namespace JustB2b\Models;
+namespace JustB2b;
+
+/*
+Plugin Name:  Advanced JustB2B Plugin
+Description: A plugin to manage B2B interactions with custom business rules, user roles, product groups, and pricing strategies.
+Text Domain: justb2b
+*/
 
 use JustB2b\Fields\AbstractField;
 use JustB2b\Traits\RuntimeCacheTrait;
 
 defined('ABSPATH') || exit;
+
+require_once __DIR__ . '/vendor/autoload.php';
 
 abstract class AbstractModel
 {
