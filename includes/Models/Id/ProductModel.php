@@ -54,7 +54,7 @@ class ProductModel extends AbstractPostModel
     public function getWCProduct(): WC_Product
     {
         return self::getFromRuntimeCache(
-            fn() => wc_get_product($this->id),
+            fn () => wc_get_product($this->id),
             $this->cacheContext()
         );
     }
@@ -109,7 +109,7 @@ class ProductModel extends AbstractPostModel
     public function getPriceCalculator(): PriceCalculator
     {
         return self::getFromRuntimeCache(
-            fn() => new PriceCalculator($this),
+            fn () => new PriceCalculator($this),
             $this->cacheContext()
         );
     }
@@ -117,7 +117,7 @@ class ProductModel extends AbstractPostModel
     public function getPriceDisplay(string $defaultPriceHtml, bool $isInLoop): PriceDisplay
     {
         return self::getFromRuntimeCache(
-            fn() => new PriceDisplay($this, $defaultPriceHtml, $isInLoop),
+            fn () => new PriceDisplay($this, $defaultPriceHtml, $isInLoop),
             $this->cacheContext(['is_loop' => $isInLoop])
         );
     }

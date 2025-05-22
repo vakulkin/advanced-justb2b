@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * @feature-section pricing Pricing logic and cart behavior
+ */
+
+/**
+ * @feature pricing dynamic_price_rules Dynamic Price Rules
+ *
+ * Calculates price based on quantity, user role, and term-based conditions.
+ * @desc[pl] Oblicza cenę w zależności od ilości, roli użytkownika i warunków przypisanych do produktu.
+ */
+
 namespace JustB2b\Utils\Pricing;
 
 use WC_Tax;

@@ -1,0 +1,54 @@
+{
+    "name": "JustB2b\\Fields\\RichText",
+    "line": 7,
+    "short_desc": null,
+    "long_desc": null,
+    "hint": null,
+    "tags": [],
+    "namespace": "JustB2b\\Fields",
+    "file": "\/Users\/antonvakulov\/Local Sites\/b2b\/app\/public\/wp-content\/plugins\/advanced-justb2b\/includes\/Fields\/RichText.php",
+    "relative_file": null,
+    "hash": "fff1f0f17e45defb6731f53666ae529475e636db",
+    "parent": "JustB2b\\Fields\\TextField",
+    "modifiers": 0,
+    "is_trait": false,
+    "is_interface": false,
+    "is_read_only": false,
+    "aliases": [],
+    "errors": [],
+    "interfaces": [],
+    "traits": [],
+    "properties": {
+        "type": {
+            "name": "type",
+            "line": 9,
+            "short_desc": null,
+            "long_desc": null,
+            "hint": [
+                [
+                    "string",
+                    false
+                ]
+            ],
+            "hint_desc": null,
+            "tags": [],
+            "modifiers": 2,
+            "default": {
+                "nodeType": "Scalar_String",
+                "attributes": {
+                    "startLine": 9,
+                    "endLine": 9,
+                    "kind": 1,
+                    "rawValue": "'rich_text'"
+                },
+                "value": "rich_text"
+            },
+            "errors": [],
+            "is_read_only": false,
+            "is_write_only": false,
+            "is_intersection_type": false
+        }
+    },
+    "methods": [],
+    "constants": []
+}

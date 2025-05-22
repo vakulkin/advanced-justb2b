@@ -1,0 +1,61 @@
+{
+    "name": "JustB2b\\Controllers\\AbstractController",
+    "line": 9,
+    "short_desc": null,
+    "long_desc": null,
+    "hint": null,
+    "tags": [],
+    "namespace": "JustB2b\\Controllers",
+    "file": "\/Users\/antonvakulov\/Local Sites\/b2b\/app\/public\/wp-content\/plugins\/advanced-justb2b\/includes\/Controllers\/AbstractController.php",
+    "relative_file": null,
+    "hash": "57b611369552f4add802456211aa9f8fe9160c36",
+    "parent": null,
+    "modifiers": 16,
+    "is_trait": false,
+    "is_interface": false,
+    "is_read_only": false,
+    "aliases": {
+        "SingletonTrait": "JustB2b\\Traits\\SingletonTrait"
+    },
+    "errors": [],
+    "interfaces": [],
+    "traits": {
+        "JustB2b\\Traits\\SingletonTrait": "JustB2b\\Traits\\SingletonTrait"
+    },
+    "properties": [],
+    "methods": {
+        "__construct": {
+            "name": "__construct",
+            "line": 13,
+            "short_desc": null,
+            "long_desc": null,
+            "hint": null,
+            "hint_desc": null,
+            "tags": [],
+            "see": [],
+            "modifiers": 2,
+            "is_by_ref": "",
+            "is_intersection_type": false,
+            "exceptions": [],
+            "errors": [],
+            "parameters": []
+        },
+        "registerCarbonFields": {
+            "name": "registerCarbonFields",
+            "line": 18,
+            "short_desc": null,
+            "long_desc": null,
+            "hint": null,
+            "hint_desc": null,
+            "tags": [],
+            "see": [],
+            "modifiers": 17,
+            "is_by_ref": "",
+            "is_intersection_type": false,
+            "exceptions": [],
+            "errors": [],
+            "parameters": []
+        }
+    },
+    "constants": []
+}

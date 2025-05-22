@@ -6,13 +6,5 @@
         "psr-4": {
             "JustB2b\\": "includes/"
         }
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^11.5"
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "JustB2b\\Tests\\": "tests/"
-        }
     }
 }

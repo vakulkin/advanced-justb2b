@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="index, follow, all" />
+    <title>JustB2b\Fields\SeparatorField | JustB2B Plugin API</title>
+
+            <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="../../css/bootstrap-theme.min.css">
+        <link rel="stylesheet" type="text/css" href="../../css/doctum.css">
+        <link rel="stylesheet" type="text/css" href="../../fonts/doctum-font.css">
+        <script src="../../js/jquery-3.5.1.slim.min.js"></script>
+        <script async defer src="../../doctum.js"></script>
+        <script async defer src="../../js/bootstrap.min.js"></script>
+        <script async defer src="../../js/autocomplete.min.js"></script>
+        <meta name="MobileOptimized" content="width">
+        <meta name="HandheldFriendly" content="true">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+
+    </head>
+
+    <body id="class" data-name="class:JustB2b_Fields_SeparatorField" data-root-path="../../" data-search-index-url="../../doctum-search.json">
+            <div id="content">
+        <div id="left-column">
+                <div id="control-panel">
+                <div class="search-bar hidden" id="search-progress-bar-container">
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" id="search-progress-bar"
+                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+            </div>
+        </div>
+        <form id="search-form" action="../../search.html">
+            <span class="icon icon-search"></span>
+            <input name="search"
+                   id="doctum-search-auto-complete"
+                   class="typeahead form-control"
+                   type="search"
+                   placeholder="Search"
+                   spellcheck="false"
+                   autocorrect="off"
+                   autocomplete="off"
+                   autocapitalize="off">
+            <div class="auto-complete-results" id="auto-complete-results"></div>
+        </form>
+    </div>
+
+                <div id="api-tree"></div>
+
+        </div>
+        <div id="right-column">
+                <nav id="site-nav" class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-elements">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="../../index.html">JustB2B Plugin API</a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar-elements">
+                <ul class="nav navbar-nav">
+                    <li><a href="../../classes.html">Classes</a></li>
+                    <li><a href="../../namespaces.html">Namespaces</a></li>
+                    <li><a href="../../interfaces.html">Interfaces</a></li>
+                    <li><a href="../../traits.html">Traits</a></li>
+                    <li><a href="../../doc-index.html">Index</a></li>
+                    <li><a href="../../search.html">Search</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+                        <div class="namespace-breadcrumbs">
+            <ol class="breadcrumb">
+                <li><span class="label label-default">class</span></li>
+                        <li><a href="../../JustB2b.html">JustB2b</a></li><li class="backslash">\</li><li><a href="../../JustB2b/Fields.html">Fields</a></li><li class="backslash">\</li><li>SeparatorField</li>
+            </ol>
+        </div>
+                <div id="page-content">
+    <div class="page-header">
+        <h1>SeparatorField    
+            </h1>
+    </div>
+
+    
+    <p>        class
+    <strong>SeparatorField</strong>        extends <a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a>
+</p>
+
+        
+    
+        
+
+            
+                <h2>Traits</h2>
+
+        
+    <div class="container-fluid underlined">
+                    <div class="row">
+                <div class="col-md-6">
+                    <a href="../../JustB2b/Traits/RuntimeCacheTrait.html"><abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a>    </div>
+                <div class="col-md-6"></div>
+            </div>
+            </div>
+    
+    
+            <h2>Properties</h2>
+
+            <table class="table table-condensed">
+                    <tr>
+                <td class="type" id="property_enableRuntimeCache">
+                    static                                                            bool
+                                                                                
+                                    </td>
+                <td>$enableRuntimeCache</td>
+                <td class="last"><p>Enable or disable runtime caching globally.</p></td>
+                <td><small>from&nbsp;<a href="../../JustB2b/Traits/RuntimeCacheTrait.html#property_enableRuntimeCache">
+<abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_debugRuntimeCache">
+                    static                                                            bool
+                                                                                
+                                    </td>
+                <td>$debugRuntimeCache</td>
+                <td class="last"><p>Enable or disable debug logging for cache operations.</p></td>
+                <td><small>from&nbsp;<a href="../../JustB2b/Traits/RuntimeCacheTrait.html#property_debugRuntimeCache">
+<abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_type">
+                                        protected                                        string
+                                                                                
+                                    </td>
+                <td>$type</td>
+                <td class="last"></td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_key">
+                                        protected                                        string
+                                                                                
+                                    </td>
+                <td>$key</td>
+                <td class="last"></td>
+                <td><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#property_key">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_label">
+                                        protected                                        string
+                                                                                
+                                    </td>
+                <td>$label</td>
+                <td class="last"></td>
+                <td><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#property_label">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_prefixedKey">
+                                        protected                                        string
+                                                                                
+                                    </td>
+                <td>$prefixedKey</td>
+                <td class="last"></td>
+                <td><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#property_prefixedKey">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_width">
+                                        protected                                        int
+                                                                                
+                                    </td>
+                <td>$width</td>
+                <td class="last"></td>
+                <td><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#property_width">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_attributes">
+                                        protected                                        array
+                                                                                
+                                    </td>
+                <td>$attributes</td>
+                <td class="last"></td>
+                <td><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#property_attributes">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_defaultValue">
+                                        protected                                        mixed
+                                                                                
+                                    </td>
+                <td>$defaultValue</td>
+                <td class="last"></td>
+                <td><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#property_defaultValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_helpText">
+                                        protected                                        string
+                                                                                
+                                    </td>
+                <td>$helpText</td>
+                <td class="last"></td>
+                <td><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#property_helpText">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type" id="property_sectionName">
+                                        protected                                        string
+                                                                                
+                                    </td>
+                <td>$sectionName</td>
+                <td class="last"></td>
+                <td><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#property_sectionName">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></td>
+            </tr>
+            </table>
+
+    
+            <h2>Methods</h2>
+
+            <div class="container-fluid underlined">
+                    <div class="row">
+                <div class="col-md-2 type">
+                    static&nbsp;mixed
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getFromRuntimeCache">getFromRuntimeCache</a>(callable $callback, array $context = [], string $group = &#039;justb2b_plugin&#039;, bool $forceRefresh = false)
+        
+                                            <p><p>Retrieve value from runtime cache or generate and cache it if not found.</p></p>                </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Traits/RuntimeCacheTrait.html#method_getFromRuntimeCache">
+<abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    static&nbsp;void
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_clearRuntimeCache">clearRuntimeCache</a>(array $context = [], string $group = &#039;justb2b_plugin&#039;)
+        
+                                            <p><p>Clear a specific runtime cache entry based on context.</p></p>                </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Traits/RuntimeCacheTrait.html#method_clearRuntimeCache">
+<abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    static&nbsp;string
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_generateCacheKey">generateCacheKey</a>(array $context = [])
+        
+                                            <p><p>Generate a unique cache key based on caller and context.</p></p>                </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Traits/RuntimeCacheTrait.html#method_generateCacheKey">
+<abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    static&nbsp;string
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_debugRuntimeCacheKey">debugRuntimeCacheKey</a>(array $context = [])
+        
+                                            <p><p>Expose the generated cache key for debugging.</p></p>                </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Traits/RuntimeCacheTrait.html#method_debugRuntimeCacheKey">
+<abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    static&nbsp;void
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_logCacheEvent">logCacheEvent</a>(string $action, string $key, string $group, string $result = &#039;&#039;)
+        
+                                            <p><p>Log a cache operation if debug is enabled.</p></p>                </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Traits/RuntimeCacheTrait.html#method_logCacheEvent">
+<abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    
+                </div>
+                <div class="col-md-8">
+                    <a href="#method___construct">__construct</a>(string $key, string $label)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method___construct">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a>
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_setWidth">setWidth</a>(int $width)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_setWidth">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a>
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_setAttribute">setAttribute</a>(string $name, mixed $value)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_setAttribute">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getAttribute">getAttribute</a>(string $name)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_getAttribute">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a>
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_setDefaultValue">setDefaultValue</a>(mixed $value)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_setDefaultValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    string
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getKey">getKey</a>()
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_getKey">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    string
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getPrefixedKey">getPrefixedKey</a>()
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_getPrefixedKey">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    string
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getLabel">getLabel</a>()
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_getLabel">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a>
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_setHelpText">setHelpText</a>(string $text)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_setHelpText">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    string|null
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getHelpText">getHelpText</a>()
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_getHelpText">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    string
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getSectionName">getSectionName</a>()
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_getSectionName">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a>
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_setSectionName">setSectionName</a>(string $name)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_setSectionName">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    <abbr title="Carbon_Fields\Field\Field">Field</abbr>
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_toCarbonField">toCarbonField</a>()
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_toCarbonField">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getPostFieldOriginValue">getPostFieldOriginValue</a>(int $postId)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_getPostFieldOriginValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getUserFieldOriginValue">getUserFieldOriginValue</a>(int $userId)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_getUserFieldOriginValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getOptionOriginValue">getOptionOriginValue</a>()
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_getOptionOriginValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    bool
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_isPostFieldEmpty">isPostFieldEmpty</a>(int $postId)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_isPostFieldEmpty">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    bool
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_isUserFieldEmpty">isUserFieldEmpty</a>(int $postId)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_isUserFieldEmpty">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    bool
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_isOptionEmpty">isOptionEmpty</a>()
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_isOptionEmpty">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    bool
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_isEmpty">isEmpty</a>($value)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_isEmpty">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_resolveFieldValue">resolveFieldValue</a>(mixed $value, mixed $default)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_resolveFieldValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getPostFieldValue">getPostFieldValue</a>(int $postId)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_getPostFieldValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getUserFieldValue">getUserFieldValue</a>(int $userId)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_getUserFieldValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    mixed
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_getOptionValue">getOptionValue</a>()
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_getOptionValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+                    <div class="row">
+                <div class="col-md-2 type">
+                    string
+                </div>
+                <div class="col-md-8">
+                    <a href="#method_renderValue">renderValue</a>(int $parentId)
+        
+                                            <p class="no-description">No description</p>
+                                    </div>
+                <div class="col-md-2"><small>from&nbsp;<a href="../../JustB2b/Fields/AbstractField.html#method_renderValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></small></div>
+            </div>
+            </div>
+
+
+        <h2>Details</h2>
+
+            <div id="method-details">
+                    <div class="method-item">
+                    <h3 id="method_getFromRuntimeCache">
+        <div class="location">in <a href="../../JustB2b/Traits/RuntimeCacheTrait.html#method_getFromRuntimeCache">
+<abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a> at line 22</div>
+        <code>        static    protected        mixed
+    <strong>getFromRuntimeCache</strong>(callable $callback, array $context = [], string $group = &#039;justb2b_plugin&#039;, bool $forceRefresh = false)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p><p>Retrieve value from runtime cache or generate and cache it if not found.</p></p>                        
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>callable</td>
+                <td>$callback</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>array</td>
+                <td>$context</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>string</td>
+                <td>$group</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>bool</td>
+                <td>$forceRefresh</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_clearRuntimeCache">
+        <div class="location">in <a href="../../JustB2b/Traits/RuntimeCacheTrait.html#method_clearRuntimeCache">
+<abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a> at line 49</div>
+        <code>        static    protected        void
+    <strong>clearRuntimeCache</strong>(array $context = [], string $group = &#039;justb2b_plugin&#039;)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p><p>Clear a specific runtime cache entry based on context.</p></p>                        
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>array</td>
+                <td>$context</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>string</td>
+                <td>$group</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>void</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_generateCacheKey">
+        <div class="location">in <a href="../../JustB2b/Traits/RuntimeCacheTrait.html#method_generateCacheKey">
+<abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a> at line 59</div>
+        <code>        static    protected        string
+    <strong>generateCacheKey</strong>(array $context = [])
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p><p>Generate a unique cache key based on caller and context.</p></p>                        
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>array</td>
+                <td>$context</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_debugRuntimeCacheKey">
+        <div class="location">in <a href="../../JustB2b/Traits/RuntimeCacheTrait.html#method_debugRuntimeCacheKey">
+<abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a> at line 77</div>
+        <code>        static    protected        string
+    <strong>debugRuntimeCacheKey</strong>(array $context = [])
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p><p>Expose the generated cache key for debugging.</p></p>                        
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>array</td>
+                <td>$context</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_logCacheEvent">
+        <div class="location">in <a href="../../JustB2b/Traits/RuntimeCacheTrait.html#method_logCacheEvent">
+<abbr title="JustB2b\Traits\RuntimeCacheTrait">RuntimeCacheTrait</abbr></a> at line 85</div>
+        <code>        static    protected        void
+    <strong>logCacheEvent</strong>(string $action, string $key, string $group, string $result = &#039;&#039;)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p><p>Log a cache operation if debug is enabled.</p></p>                        
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$action</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>string</td>
+                <td>$key</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>string</td>
+                <td>$group</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>string</td>
+                <td>$result</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>void</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method___construct">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method___construct">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 25</div>
+        <code>                    
+    <strong>__construct</strong>(string $key, string $label)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$key</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>string</td>
+                <td>$label</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_setWidth">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_setWidth">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 32</div>
+        <code>                    <a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a>
+    <strong>setWidth</strong>(int $width)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>int</td>
+                <td>$width</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_setAttribute">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_setAttribute">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 38</div>
+        <code>                    <a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a>
+    <strong>setAttribute</strong>(string $name, mixed $value)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$name</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>mixed</td>
+                <td>$value</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getAttribute">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_getAttribute">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 44</div>
+        <code>                    mixed
+    <strong>getAttribute</strong>(string $name)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$name</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_setDefaultValue">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_setDefaultValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 49</div>
+        <code>                    <a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a>
+    <strong>setDefaultValue</strong>(mixed $value)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>mixed</td>
+                <td>$value</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getKey">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_getKey">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 55</div>
+        <code>                    string
+    <strong>getKey</strong>()
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getPrefixedKey">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_getPrefixedKey">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 60</div>
+        <code>                    string
+    <strong>getPrefixedKey</strong>()
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getLabel">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_getLabel">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 65</div>
+        <code>                    string
+    <strong>getLabel</strong>()
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_setHelpText">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_setHelpText">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 70</div>
+        <code>                    <a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a>
+    <strong>setHelpText</strong>(string $text)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$text</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getHelpText">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_getHelpText">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 76</div>
+        <code>                    string|null
+    <strong>getHelpText</strong>()
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string|null</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getSectionName">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_getSectionName">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 81</div>
+        <code>                    string
+    <strong>getSectionName</strong>()
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_setSectionName">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_setSectionName">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 86</div>
+        <code>                    <a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a>
+    <strong>setSectionName</strong>(string $name)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>string</td>
+                <td>$name</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><a href="../../JustB2b/Fields/AbstractField.html"><abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_toCarbonField">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_toCarbonField">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 92</div>
+        <code>                    <abbr title="Carbon_Fields\Field\Field">Field</abbr>
+    <strong>toCarbonField</strong>()
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td><abbr title="Carbon_Fields\Field\Field">Field</abbr></td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getPostFieldOriginValue">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_getPostFieldOriginValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 112</div>
+        <code>                    mixed
+    <strong>getPostFieldOriginValue</strong>(int $postId)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>int</td>
+                <td>$postId</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getUserFieldOriginValue">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_getUserFieldOriginValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 120</div>
+        <code>                    mixed
+    <strong>getUserFieldOriginValue</strong>(int $userId)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>int</td>
+                <td>$userId</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getOptionOriginValue">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_getOptionOriginValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 129</div>
+        <code>                    mixed
+    <strong>getOptionOriginValue</strong>()
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_isPostFieldEmpty">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_isPostFieldEmpty">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 136</div>
+        <code>                    bool
+    <strong>isPostFieldEmpty</strong>(int $postId)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>int</td>
+                <td>$postId</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>bool</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_isUserFieldEmpty">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_isUserFieldEmpty">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 141</div>
+        <code>                    bool
+    <strong>isUserFieldEmpty</strong>(int $postId)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>int</td>
+                <td>$postId</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>bool</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_isOptionEmpty">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_isOptionEmpty">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 146</div>
+        <code>                    bool
+    <strong>isOptionEmpty</strong>()
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>bool</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_isEmpty">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_isEmpty">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 151</div>
+        <code>            protected        bool
+    <strong>isEmpty</strong>($value)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td></td>
+                <td>$value</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>bool</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_resolveFieldValue">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_resolveFieldValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 156</div>
+        <code>            protected        mixed
+    <strong>resolveFieldValue</strong>(mixed $value, mixed $default)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>mixed</td>
+                <td>$value</td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td>mixed</td>
+                <td>$default</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getPostFieldValue">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_getPostFieldValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 161</div>
+        <code>                    mixed
+    <strong>getPostFieldValue</strong>(int $postId)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>int</td>
+                <td>$postId</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getUserFieldValue">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_getUserFieldValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 167</div>
+        <code>                    mixed
+    <strong>getUserFieldValue</strong>(int $userId)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>int</td>
+                <td>$userId</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_getOptionValue">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_getOptionValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 173</div>
+        <code>                    mixed
+    <strong>getOptionValue</strong>()
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>mixed</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+                    <div class="method-item">
+                    <h3 id="method_renderValue">
+        <div class="location">in <a href="../../JustB2b/Fields/AbstractField.html#method_renderValue">
+<abbr title="JustB2b\Fields\AbstractField">AbstractField</abbr></a> at line 179</div>
+        <code>                    string
+    <strong>renderValue</strong>(int $parentId)
+        </code>
+    </h3>
+    <div class="details">    
+    
+            
+
+        <div class="method-description">
+                            <p class="no-description">No description</p>
+                    
+        </div>
+        <div class="tags">
+                            <h4>Parameters</h4>
+
+                    <table class="table table-condensed">
+                    <tr>
+                <td>int</td>
+                <td>$parentId</td>
+                <td></td>
+            </tr>
+            </table>
+
+            
+                            <h4>Return Value</h4>
+
+                    <table class="table table-condensed">
+        <tr>
+            <td>string</td>
+            <td></td>
+        </tr>
+    </table>
+
+            
+            
+            
+                    </div>
+    </div>
+
+            </div>
+            </div>
+
+    
+</div><div id="footer">
+        Generated by <a href="https://github.com/code-lts/doctum">Doctum, a API Documentation generator and fork of Sami</a>.</div></div>
+    </div>
+    </body>
+
+</html>

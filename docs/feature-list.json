@@ -1,0 +1,16 @@
+{
+    "pricing": {
+        "description": "Pricing logic and cart behavior",
+        "features": {
+            "dynamic_price_rules": {
+                "title": {
+                    "en": "Dynamic Price Rules"
+                },
+                "description": {
+                    "pl": "Oblicza cenę w zależności od ilości, roli użytkownika i warunków przypisanych do produktu.",
+                    "en": "Calculates price based on quantity, user role, and term-based conditions.\n@desc[pl] Oblicza cenę w zależności od ilości, roli użytkownika i warunków przypisanych do produktu."
+                }
+            }
+        }
+    }
+}

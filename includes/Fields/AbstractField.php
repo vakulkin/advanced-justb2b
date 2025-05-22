@@ -98,10 +98,6 @@ abstract class AbstractField
             $field->set_attribute($attr, $val);
         }
 
-        if (isset($this->defaultValue)) {
-            $field->set_default_value($this->defaultValue);
-        }
-
         if (isset($this->helpText)) {
             $field->set_help_text($this->helpText);
         }

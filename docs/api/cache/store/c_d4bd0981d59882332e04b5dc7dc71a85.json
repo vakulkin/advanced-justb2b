@@ -1,0 +1,72 @@
+{
+    "name": "JustB2b\\Models\\Key\\SettingsModel",
+    "line": 12,
+    "short_desc": null,
+    "long_desc": null,
+    "hint": null,
+    "tags": [],
+    "namespace": "JustB2b\\Models\\Key",
+    "file": "\/Users\/antonvakulov\/Local Sites\/b2b\/app\/public\/wp-content\/plugins\/advanced-justb2b\/includes\/Models\/Key\/SettingsModel.php",
+    "relative_file": null,
+    "hash": "d706408f81c3fdf7a6aed79c8f052d278d5731b9",
+    "parent": "JustB2b\\Models\\Key\\AbstractKeyModel",
+    "modifiers": 0,
+    "is_trait": false,
+    "is_interface": false,
+    "is_read_only": false,
+    "aliases": {
+        "RichText": "JustB2b\\Fields\\RichText",
+        "SelectField": "JustB2b\\Fields\\SelectField",
+        "SeparatorField": "JustB2b\\Fields\\SeparatorField",
+        "TextField": "JustB2b\\Fields\\TextField"
+    },
+    "errors": [],
+    "interfaces": [],
+    "traits": [],
+    "properties": [],
+    "methods": {
+        "getKey": {
+            "name": "getKey",
+            "line": 14,
+            "short_desc": null,
+            "long_desc": null,
+            "hint": [
+                [
+                    "string",
+                    false
+                ]
+            ],
+            "hint_desc": null,
+            "tags": [],
+            "see": [],
+            "modifiers": 1,
+            "is_by_ref": "",
+            "is_intersection_type": false,
+            "exceptions": [],
+            "errors": [],
+            "parameters": []
+        },
+        "getFieldsDefinition": {
+            "name": "getFieldsDefinition",
+            "line": 19,
+            "short_desc": null,
+            "long_desc": null,
+            "hint": [
+                [
+                    "array",
+                    false
+                ]
+            ],
+            "hint_desc": null,
+            "tags": [],
+            "see": [],
+            "modifiers": 9,
+            "is_by_ref": "",
+            "is_intersection_type": false,
+            "exceptions": [],
+            "errors": [],
+            "parameters": []
+        }
+    },
+    "constants": []
+}
