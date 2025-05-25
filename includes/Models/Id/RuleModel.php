@@ -400,7 +400,7 @@ class RuleModel extends AbstractPostModel
 
             (new SelectField('secondary_price_source', 'Secondary price source'))
                 ->setOptions(self::getSecondaryPriceSources())
-                ->setHelpText('Fallback if primary price is 0.')
+                ->setHelpText('Fallback if final price is 0.')
                 ->setWidth(25),
 
             (new SelectField('secondary_rrp_source', 'Secondary RPP source'))
@@ -410,7 +410,7 @@ class RuleModel extends AbstractPostModel
 
             (new SelectField('kind', 'Rodzaj'))
                 ->setOptions([
-                    'price_source' => 'Use another price source',
+                    'price_source' => 'Price source',
                     'net_minus_percent' => 'Net - Percent',
                     'net_plus_percent' => 'Net + Percent',
                     'net_minus_number' => 'Net - Fixed amount',
@@ -422,7 +422,7 @@ class RuleModel extends AbstractPostModel
                     'gross_plus_number' => 'Gross + Fixed amount',
                     'gross_equals_number' => 'Gross = Fixed amount',
                     'non_purchasable' => 'Non-purchasable',
-                    'zero_order_for_price' => '0 price = no order',
+                    'zero_order_for_price' => '0 price & allow order',
                 ])
                 ->setHelpText('How this rule changes the product price.')
                 ->setWidth(25),

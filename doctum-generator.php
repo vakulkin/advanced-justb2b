@@ -16,3 +16,6 @@ return new Doctum($iterator, [
     'cache_dir' => __DIR__ . '/docs/api/cache',
     'source_dir' => __DIR__,
 ]);
+
+
+// php guide-generator.php

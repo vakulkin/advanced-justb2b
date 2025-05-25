@@ -12,6 +12,22 @@ use JustB2b\Fields\FieldBuilder;
 
 defined('ABSPATH') || exit;
 
+/**
+ * @feature-section product_visibility
+ * @title[ru] Управление отображением и ценами товаров
+ * @desc[ru] JustB2B позволяет показывать каждому клиенту именно те товары и цены, которые вы хотите. Цены обновляются автоматически.
+ * @order 300
+ */
+
+/**
+ * @feature product_visibility controller
+ * @title[ru] Управление товарами без кода
+ * @desc[ru] Плагин сам управляет отображением товаров, ценами, покупаемостью и видимостью в каталоге в зависимости от условий — вы просто задаёте правила.
+ * @order 301
+ */
+
+
+
 class ProductsController extends AbstractController
 {
     protected function __construct()
@@ -63,6 +79,12 @@ class ProductsController extends AbstractController
             ->add_fields($fields);
     }
 
+    /**
+     * @feature product_visibility dynamic_price_display
+     * @title[ru] Цены, которые меняются в реальном времени
+     * @desc[ru] JustB2B подменяет цены прямо на витрине WooCommerce в зависимости от роли пользователя, количества, правил и условий — без перезагрузки страницы.
+     * @order 310
+     */
     public function filterGetPriceHtml($price_html, $product)
     {
         if (is_admin()) {
@@ -86,6 +108,13 @@ class ProductsController extends AbstractController
 
         return $priceDisplay->renderPricesHtml();
     }
+
+    /**
+     * @feature product_visibility ajax_price_update
+     * @title[ru] Мгновенное обновление цены при изменении количества
+     * @desc[ru] При смене количества товарной позиции цена пересчитывается моментально с помощью AJAX — клиент сразу видит свою цену.
+     * @order 320
+     */
 
     public function calculatePriceAjaxHandler(): void
     {
@@ -112,6 +141,13 @@ class ProductsController extends AbstractController
         ]);
     }
 
+    /**
+     * @feature product_visibility hide_from_catalog
+     * @title[ru] Скрытие товаров из каталога
+     * @desc[ru] Вы можете полностью скрыть определённые товары из каталога, виджетов и витрин — они не будут видны неподходящим клиентам.
+     * @order 380
+     */
+
     public function hideProductsFromLoop(WP_Query $q)
     {
         $ids_to_exclude = [];
@@ -137,6 +173,13 @@ class ProductsController extends AbstractController
         }
     }
 
+    /**
+     * @feature product_visibility full_hiding
+     * @title[ru] Скрытие товаров полностью
+     * @desc[ru] Если правило говорит «не показывать» — клиент даже не сможет открыть страницу товара. Абсолютный контроль над тем, кто что видит.
+     * @order 330
+     */
+
     public function redirectIfFullyHiddenProduct(): void
     {
         global $post;
@@ -158,6 +201,12 @@ class ProductsController extends AbstractController
         }
     }
 
+    /**
+     * @feature product_visibility request_price_mode
+     * @title[ru] Запрос цены вместо цифры
+     * @desc[ru] Вы можете скрыть цену товара и заменить её надписью «Цена по запросу» — например, для эксклюзивных товаров или оптовых клиентов.
+     * @order 370
+     */
     public function filterZeroPriceRequest($price, $product)
     {
         if (is_admin()) {
@@ -173,6 +222,13 @@ class ProductsController extends AbstractController
 
         return $price;
     }
+
+    /**
+     * @feature product_visibility full_hiding
+     * @title[ru] Скрытие товаров полностью
+     * @desc[ru] Если правило говорит «не показывать» — клиент даже не сможет открыть страницу товара. Абсолютный контроль над тем, кто что видит.
+     * @order 330
+     */
 
     public function filterIsPurchasable(bool $purchasable, WC_Product $product): bool
     {

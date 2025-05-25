@@ -7,6 +7,20 @@ defined('ABSPATH') || exit;
 trait RuntimeCacheTrait
 {
     /**
+     * @feature-section performance
+     * @title[ru] Производительность и кэширование
+     * @desc[ru] JustB2B включает интеллектуальное кэширование значений во время выполнения, что снижает нагрузку на сервер и ускоряет генерацию цен и условий.
+     * @order 60
+     */
+
+    /**
+     * @feature performance runtime_cache
+     * @title[ru] Кэширование на лету (runtime cache)
+     * @desc[ru] Ускоряет расчёты и снижает нагрузку на сервер за счёт сохранения промежуточных результатов — без записи в базу данных.
+     * @order 61
+     */
+    
+    /**
      * Enable or disable runtime caching globally.
      */
     public static bool $enableRuntimeCache = true;

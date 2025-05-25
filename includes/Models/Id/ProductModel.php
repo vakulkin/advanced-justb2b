@@ -13,6 +13,20 @@ use JustB2b\Utils\Pricing\PriceDisplay;
 
 defined('ABSPATH') || exit;
 
+/**
+ * @feature-section product_logic
+ * @title[ru] Умная логика товаров и цен
+ * @desc[ru] JustB2B анализирует условия, подбирает подходящие правила и точно рассчитывает цену для каждого товара и клиента. Всё автоматически.
+ * @order 400
+ */
+
+/**
+ * @feature product_logic model
+ * @title[ru] Привязка условий и правил к товарам
+ * @desc[ru] Каждый товар может участвовать в нескольких правилах одновременно. Плагин сам выбирает первое подходящее и применяет цену.
+ * @order 401
+ */
+
 class ProductModel extends AbstractPostModel
 {
     use RuntimeCacheTrait;
@@ -54,7 +68,7 @@ class ProductModel extends AbstractPostModel
     public function getWCProduct(): WC_Product
     {
         return self::getFromRuntimeCache(
-            fn () => wc_get_product($this->id),
+            fn() => wc_get_product($this->id),
             $this->cacheContext()
         );
     }
@@ -79,6 +93,13 @@ class ProductModel extends AbstractPostModel
         return !$this->isSimpleProduct() && !$this->isVariableProduct() && !$this->isVariation();
     }
 
+    /**
+     * @feature product_logic rule_matching
+     * @title[ru] Автоматический подбор правил
+     * @desc[ru] Плагин находит все правила, подходящие под товар, пользователя, категории, группы и другие условия — вам не нужно ничего связывать вручную.
+     * @order 410
+     */
+
     public function getRules(): array
     {
         return self::getFromRuntimeCache(function () {
@@ -94,6 +115,13 @@ class ProductModel extends AbstractPostModel
         }, $this->cacheContext());
     }
 
+    /**
+     * @feature product_logic rule_priority
+     * @title[ru] Приоритет правил
+     * @desc[ru] Если к товару подходит несколько правил, применяется то, что имеет наивысший приоритет и подходит по количеству.
+     * @order 420
+     */
+
     public function getFirstFullFitRule(): ?RuleModel
     {
         return self::getFromRuntimeCache(function () {
@@ -106,18 +134,32 @@ class ProductModel extends AbstractPostModel
         }, $this->cacheContext());
     }
 
+    /**
+     * @feature product_logic price_calculator
+     * @title[ru] Мгновенный пересчёт цены
+     * @desc[ru] JustB2B рассчитывает цену в зависимости от условий и количества — с учётом скидок, наценок, базовых цен и налогов.
+     * @order 430
+     */
+
     public function getPriceCalculator(): PriceCalculator
     {
         return self::getFromRuntimeCache(
-            fn () => new PriceCalculator($this),
+            fn() => new PriceCalculator($this),
             $this->cacheContext()
         );
     }
 
+    /**
+     * @feature product_logic price_display
+     * @title[ru] Отображение нужной цены нужному клиенту
+     * @desc[ru] Клиент видит именно ту цену, которая для него рассчитана. Больше не нужно догадываться, почему цена отличается.
+     * @order 440
+     */
+
     public function getPriceDisplay(string $defaultPriceHtml, bool $isInLoop): PriceDisplay
     {
         return self::getFromRuntimeCache(
-            fn () => new PriceDisplay($this, $defaultPriceHtml, $isInLoop),
+            fn() => new PriceDisplay($this, $defaultPriceHtml, $isInLoop),
             $this->cacheContext(['is_loop' => $isInLoop])
         );
     }

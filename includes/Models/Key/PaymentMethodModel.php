@@ -12,6 +12,21 @@ use JustB2b\Traits\RuntimeCacheTrait;
 
 defined('ABSPATH') || exit;
 
+/**
+ * @feature-section payment_rules
+ * @title[ru] Настройка платёжных методов
+ * @desc[ru] Управляйте доступностью способов оплаты в зависимости от типа клиента и суммы заказа — это повышает контроль, безопасность и UX.
+ * @order 700
+ */
+
+/**
+ * @feature payment_rules method_visibility
+ * @title[ru] Отображение методов оплаты по ролям и типу клиента
+ * @desc[ru] Показывайте или скрывайте способы оплаты для B2B и B2C клиентов в зависимости от бизнес-логики и условий.
+ * @order 701
+ */
+
+
 class PaymentMethodModel extends AbstractKeyModel
 {
     use RuntimeCacheTrait;
@@ -39,7 +54,7 @@ class PaymentMethodModel extends AbstractKeyModel
     public function getKey(): string
     {
         return self::getFromRuntimeCache(
-            fn () => 'temp_payment---' . str_replace(':', '---', $this->WCMethod->id),
+            fn() => 'temp_payment---' . str_replace(':', '---', $this->WCMethod->id),
             $this->cacheContext()
         );
     }
@@ -68,7 +83,7 @@ class PaymentMethodModel extends AbstractKeyModel
     public function getLabel(): string
     {
         return self::getFromRuntimeCache(
-            fn () => sprintf(
+            fn() => sprintf(
                 '%s (%s)',
                 $this->WCMethod->get_title(),
                 $this->WCMethod->enabled === 'yes' ? 'enabled' : 'disabled'
@@ -76,6 +91,13 @@ class PaymentMethodModel extends AbstractKeyModel
             $this->cacheContext()
         );
     }
+
+    /**
+     * @feature payment_rules method_conditions
+     * @title[ru] Условия отображения платёжного метода
+     * @desc[ru] Метод оплаты будет доступен только если пользователь соответствует заданному типу (B2B/B2C) и другим условиям.
+     * @order 702
+     */
 
     public function isActive(): bool
     {
@@ -95,6 +117,13 @@ class PaymentMethodModel extends AbstractKeyModel
             return true;
         }, $this->cacheContext(['user_id' => get_current_user_id()]));
     }
+
+    /**
+     * @feature payment_rules amount_limits
+     * @title[ru] Ограничения по сумме заказа
+     * @desc[ru] Вы можете задать минимальные и максимальные суммы для каждого способа оплаты — это исключает ошибки и упрощает контроль.
+     * @order 703
+     */
 
     public function getMinOrderTotal(): float
     {

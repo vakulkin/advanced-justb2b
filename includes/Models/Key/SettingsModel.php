@@ -9,6 +9,42 @@ use JustB2b\Fields\TextField;
 
 defined('ABSPATH') || exit;
 
+/**
+ * @feature-section settings_ui
+ * @title[ru] Настройки отображения цен и шаблонов
+ * @desc[ru] Гибкие настройки отображения цен, шаблонов и пользовательских HTML-блоков без необходимости править код.
+ * @order 600
+ */
+
+/**
+ * @feature settings_ui net_gross_selector
+ * @title[ru] Настройка формата цен (нетто / брутто)
+ * @desc[ru] Выберите, в каком формате (с НДС или без) будет рассчитываться базовая цена — для каждой группы цен отдельно.
+ * @order 601
+ */
+
+/**
+ * @feature settings_ui conditional_blocks
+ * @title[ru] Видимость блоков цен в каталоге и на карточке
+ * @desc[ru] Управляйте, какие блоки цен отображаются и в каком контексте (каталог или карточка товара), отдельно для B2B и B2C.
+ * @order 610
+ */
+
+/**
+ * @feature settings_ui conditional_blocks
+ * @title[ru] Видимость блоков цен в каталоге и на карточке
+ * @desc[ru] Управляйте, какие блоки цен отображаются и в каком контексте (каталог или карточка товара), отдельно для B2B и B2C.
+ * @order 610
+ */
+
+/**
+ * @feature settings_ui custom_html_blocks
+ * @title[ru] Кастомный HTML под ценами
+ * @desc[ru] Отображайте любой HTML-блок под ценами (например, условия доставки или скидок) — отдельно для B2B и B2C клиентов.
+ * @order 630
+ */
+
+
 class SettingsModel extends AbstractKeyModel
 {
     public function getKey(): string

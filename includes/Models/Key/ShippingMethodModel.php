@@ -13,6 +13,35 @@ use JustB2b\Traits\RuntimeCacheTrait;
 
 defined('ABSPATH') || exit;
 
+/**
+ * @feature-section shipping_ui
+ * @title[ru] Настройка условий доставки для B2B и B2C
+ * @desc[ru] Позволяет управлять видимостью и условиями доставки в зависимости от типа пользователя и суммы заказа. Максимальная гибкость без необходимости писать код.
+ * @order 700
+ */
+
+/**
+ * @feature shipping_ui method_visibility
+ * @title[ru] Управление доступностью методов доставки
+ * @desc[ru] Метод доставки может отображаться только B2B, только B2C или всем пользователям — настройка производится через выпадающий список.
+ * @order 701
+ */
+
+/**
+ * @feature shipping_ui free_shipping_threshold
+ * @title[ru] Бесплатная доставка от указанной суммы
+ * @desc[ru] Можно задать минимальную сумму заказа (в нетто), от которой метод доставки становится бесплатным — отдельно для каждого метода.
+ * @order 710
+ */
+
+/**
+ * @feature shipping_ui contextual_labels
+ * @title[ru] Информативные метки и зоны
+ * @desc[ru] Название метода доставки включает зону и статус — администратор сразу видит, где и как он работает.
+ * @order 720
+ */
+
+
 class ShippingMethodModel extends AbstractKeyModel
 {
     use RuntimeCacheTrait;

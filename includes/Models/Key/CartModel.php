@@ -6,6 +6,21 @@ use JustB2b\Fields\SelectField;
 
 defined('ABSPATH') || exit;
 
+
+/**
+ * @feature-section cart_visibility
+ * @title[ru] Настройки корзины для B2B и B2C
+ * @desc[ru] JustB2B позволяет настроить, какие цены (нетто или брутто) должны отображаться в мини-корзине — в зависимости от типа клиента.
+ * @order 600
+ */
+
+/**
+ * @feature cart_visibility cart_model
+ * @title[ru] Гибкое отображение цен в мини-корзине
+ * @desc[ru] Вы можете задать, кто видит нетто- и брутто-цены в мини-корзине: B2B, B2C или все. Это помогает соблюдать юридические и UX-требования.
+ * @order 601
+ */
+
 class CartModel extends AbstractKeyModel
 {
     public function getKey(): string

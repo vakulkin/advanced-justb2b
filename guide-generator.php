@@ -1,8 +1,9 @@
 <?php
 
 $dir = __DIR__ . '/includes';
-$sections = [];
+$output = __DIR__ . '/docs/feature-list.json';
 
+$sections = [];
 $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
 
 foreach ($rii as $file) {
@@ -11,69 +12,111 @@ foreach ($rii as $file) {
     }
 
     $contents = file_get_contents($file->getPathname());
+    preg_match_all('#/\*\*(.*?)\*/#s', $contents, $docblocks);
 
-    // Match @feature-section
-    preg_match_all('/@feature-section\s+(\w+)\s+(.+?)\n/', $contents, $sectionMatches, PREG_SET_ORDER);
-    foreach ($sectionMatches as [$_, $section, $description]) {
-        if (!isset($sections[$section])) {
-            $sections[$section] = [
-                'description' => trim($description),
-                'features' => []
-            ];
-        }
-    }
+    foreach ($docblocks[1] as $block) {
+        $lines = preg_split('/\r?\n/', trim($block));
+        $type = null;
+        $sectionKey = null;
+        $featureKey = null;
+        $order = 10000;
 
-    // Match @feature[lang] or base @feature
-    preg_match_all('/@feature(?:\[(\w+)\])?\s+(\w+)\s+(\w+)\s+(.+?)\n/s', $contents, $featureMatches, PREG_SET_ORDER);
-    foreach ($featureMatches as [$_, $lang, $section, $key, $title]) {
-        $lang = $lang ?: 'en';
+        foreach ($lines as $line) {
+            $line = trim($line, " *\t\n\r\0\x0B");
 
-        if (!isset($sections[$section])) {
-            $sections[$section] = [
-                'description' => '',
-                'features' => []
-            ];
-        }
+            if (preg_match('/@feature-section\s+(\w+)/', $line, $m)) {
+                $type = 'section';
+                $sectionKey = $m[1];
+                $sections[$sectionKey] ??= [
+                    'title' => [],
+                    'description' => [],
+                    'features' => [],
+                    'order' => 10000,
+                ];
+                continue;
+            }
 
-        $sections[$section]['features'][$key]['title'][$lang] = trim($title);
-        $sections[$section]['features'][$key]['_last_match_file'] = $file->getFilename();
-    }
+            if (preg_match('/@feature\s+(\w+)\s+(\w+)/', $line, $m)) {
+                $type = 'feature';
+                $sectionKey = $m[1];
+                $featureKey = $m[2];
+                $sections[$sectionKey] ??= ['title' => [], 'description' => [], 'features' => [], 'order' => 10000];
 
-    // Match @desc[lang]
-    preg_match_all('/@desc\[(\w+)\]\s+(.+?)\n/s', $contents, $descMatches, PREG_SET_ORDER);
-    foreach ($descMatches as [$_, $lang, $desc]) {
-        // Link to the last matched feature in this file
-        foreach ($sections as $section => &$sectionData) {
-            foreach ($sectionData['features'] as $key => &$feature) {
-                if (($feature['_last_match_file'] ?? null) === $file->getFilename()) {
-                    $feature['description'][$lang] = trim($desc);
-                    unset($feature['_last_match_file']); // cleanup
-                    break 2; // stop after matching the first relevant one
+                // Prevent overwriting existing feature
+                if (!isset($sections[$sectionKey]['features'][$featureKey])) {
+                    $sections[$sectionKey]['features'][$featureKey] = [
+                        'title' => [],
+                        'description' => [],
+                        'order' => $order,
+                    ];
+                } else {
+                    // Skip duplicate feature
+                    $type = null;
+                    continue;
                 }
+
+                continue;
+            }
+
+            if (preg_match('/@title\[(\w+)]\s+(.+)/', $line, $m)) {
+                $lang = $m[1];
+                $title = trim($m[2]);
+
+                if ($type === 'section' && $sectionKey) {
+                    $sections[$sectionKey]['title'][$lang] = $title;
+                } elseif ($type === 'feature' && $sectionKey && $featureKey) {
+                    $sections[$sectionKey]['features'][$featureKey]['title'][$lang] = $title;
+                }
+                continue;
+            }
+
+            if (preg_match('/@desc\[(\w+)]\s+(.+)/', $line, $m)) {
+                $lang = $m[1];
+                $desc = trim($m[2]);
+
+                if ($type === 'feature' && $sectionKey && $featureKey) {
+                    $sections[$sectionKey]['features'][$featureKey]['description'][$lang] = $desc;
+                } elseif ($type === 'section' && $sectionKey) {
+                    $sections[$sectionKey]['description'][$lang] = $desc;
+                }
+                continue;
+            }
+
+            if (preg_match('/@order\s+(\d+)/', $line, $m)) {
+                $order = (int) $m[1];
+                if ($type === 'section' && $sectionKey) {
+                    $sections[$sectionKey]['order'] = $order;
+                } elseif ($type === 'feature' && $sectionKey && $featureKey) {
+                    $sections[$sectionKey]['features'][$featureKey]['order'] = $order;
+                }
+                continue;
+            }
+        }
+
+        // Remove feature if it has no title
+        if ($type === 'feature' && $sectionKey && $featureKey) {
+            if (empty($sections[$sectionKey]['features'][$featureKey]['title'])) {
+                unset($sections[$sectionKey]['features'][$featureKey]);
             }
         }
     }
-
-    // Fallback: English descriptions from multiline text
-    preg_match_all('/@feature\s+(\w+)\s+(\w+)\s+.+?\n(.*?)\*\//s', $contents, $descFallbackMatches, PREG_SET_ORDER);
-    foreach ($descFallbackMatches as [$_, $section, $key, $desc]) {
-        $desc = trim(preg_replace('/^\s*\*\s?/m', '', $desc));
-        if (!isset($sections[$section]['features'][$key]['description']['en'])) {
-            $sections[$section]['features'][$key]['description']['en'] = $desc;
-        }
-    }
 }
 
-// Clean up
+// Sort by order
+uasort($sections, fn($a, $b) => $a['order'] <=> $b['order']);
+
 foreach ($sections as &$section) {
-    foreach ($section['features'] as &$f) {
-        unset($f['_last_match_file']);
-    }
-    ksort($section['features']);
-}
-ksort($sections);
-unset($section, $f);
+    uksort($section['title'], 'strnatcmp');
+    uksort($section['description'], 'strnatcmp');
 
-// Save JSON
-file_put_contents(__DIR__ . '/docs/feature-list.json', json_encode($sections, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-echo "✅ feature-list.json generated\n";
+    uasort($section['features'], fn($a, $b) => $a['order'] <=> $b['order']);
+
+    foreach ($section['features'] as &$feature) {
+        uksort($feature['title'], 'strnatcmp');
+        uksort($feature['description'], 'strnatcmp');
+    }
+}
+unset($section, $feature);
+
+file_put_contents($output, json_encode($sections, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+echo "✅ feature-list.json generated at: $output\n";

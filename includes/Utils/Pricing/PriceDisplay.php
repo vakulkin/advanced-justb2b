@@ -9,6 +9,12 @@ use JustB2b\Traits\RuntimeCacheTrait;
 
 defined('ABSPATH') || exit;
 
+/**
+ * @feature-section price_display
+ * @title[ru] Отображение цен для B2B и B2C
+ * @desc[ru] Управляет отображением цен в зависимости от типа пользователя, правил, контекста (каталог или товар), с поддержкой HTML-шаблонов и таблиц количеств.
+ * @order 500
+ */
 class PriceDisplay
 {
     use RuntimeCacheTrait;
@@ -23,6 +29,7 @@ class PriceDisplay
         $this->defaultPriceHtml = $defaultPriceHtml;
         $this->isInLoop = $isInLoop;
     }
+
     protected function cacheContext(array $extra = []): array
     {
         return array_merge([
@@ -31,6 +38,7 @@ class PriceDisplay
             'is_loop' => $this->isInLoop,
         ], $extra);
     }
+
     public function getBaseNetPrice(): string
     {
         return self::getFromRuntimeCache(function () {
@@ -83,6 +91,12 @@ class PriceDisplay
         }, $this->cacheContext());
     }
 
+    /**
+     * @feature price_display conditional_visibility
+     * @title[ru] Условная видимость цен
+     * @desc[ru] Позволяет настраивать отображение отдельных блоков цен (брутто, нетто, RRP) в зависимости от роли пользователя и контекста (каталог, карточка).
+     * @order 510
+     */
     protected function showPriceByKey(string $key): bool
     {
         $userController = UsersController::getInstance();
@@ -100,6 +114,12 @@ class PriceDisplay
         return ($this->isInLoop && $value === 'only_loop') || (!$this->isInLoop && $value === 'only_product');
     }
 
+    /**
+     * @feature price_display formatted_price_blocks
+     * @title[ru] Форматированные HTML-блоки цен
+     * @desc[ru] Каждая цена оборачивается в стилизованные блоки с префиксами и постфиксами, заданными в настройках.
+     * @order 520
+     */
     public function getPriceItem($key, $price)
     {
         $html = '';
@@ -182,6 +202,12 @@ class PriceDisplay
     HTML;
     }
 
+    /**
+     * @feature price_display quantity_table
+     * @title[ru] Таблица цен в зависимости от количества
+     * @desc[ru] Отображает на фронтенде таблицу с правилами ценообразования по количеству, включая источник цены, приоритет и границы.
+     * @order 530
+     */
     public function getQtyTable(): string
     {
         $key = 'qty_table';
@@ -250,14 +276,12 @@ class PriceDisplay
         ]);
     }
 
-    private function getFormattedHtml(?string $html, string $wrapperClass): string
-    {
-        if (!empty(trim($html ?? ''))) {
-            return '<div class="' . esc_attr($wrapperClass) . '">' . apply_filters('the_content', $html) . '</div>';
-        }
-        return '';
-    }
-
+    /**
+     * @feature price_display dynamic_html
+     * @title[ru] Динамическое HTML-содержимое
+     * @desc[ru] Позволяет отображать настраиваемый HTML под ценами на основе настроек администратора и роли пользователя.
+     * @order 540
+     */
     public function getHtml(): string
     {
         if (!$this->isInLoop) {
@@ -269,6 +293,14 @@ class PriceDisplay
                 $html = $settingsObject->getFieldValue("{$userType}_html_1");
                 return $this->getFormattedHtml($html, "justb2b-{$userType}-html");
             }
+        }
+        return '';
+    }
+
+    private function getFormattedHtml(?string $html, string $wrapperClass): string
+    {
+        if (!empty(trim($html ?? ''))) {
+            return '<div class="' . esc_attr($wrapperClass) . '">' . apply_filters('the_content', $html) . '</div>';
         }
         return '';
     }

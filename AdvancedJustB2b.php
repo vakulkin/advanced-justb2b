@@ -18,6 +18,7 @@ use JustB2b\Controllers\Key\ShippingController;
 use JustB2b\Controllers\Id\UsersController;
 use JustB2b\Integrations\WCProductTableLitePro;
 use JustB2b\Integrations\WoodMartIntegration;
+use JustB2b\Shortcodes\FeatureShortcodes;
 use JustB2b\Traits\SingletonTrait;
 
 defined('ABSPATH') || exit;
@@ -49,6 +50,7 @@ class AdvancedJustB2b
         RulesController::getInstance();
         ProductsController::getInstance();
         UsersController::getInstance();
+        FeatureShortcodes::getInstance();
     }
 
     protected function bootIntegrations(): void

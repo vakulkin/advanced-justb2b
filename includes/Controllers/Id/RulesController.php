@@ -9,6 +9,20 @@ use JustB2b\Fields\FieldBuilder;
 
 defined('ABSPATH') || exit;
 
+/**
+ * @feature-section admin_rules
+ * @title[ru] Удобное управление ценовыми правилами
+ * @desc[ru] Вы можете легко создавать и редактировать правила, которые автоматически изменяют цену в зависимости от роли клиента, количества, категории и других условий — без необходимости в коде.
+ * @order 200
+ */
+
+/**
+ * @feature admin_rules controller
+ * @title[ru] Всё под контролем — в одном месте
+ * @desc[ru] Все ценовые правила собраны в удобной таблице в админке: редактируйте, фильтруйте, сортируйте.
+ * @order 201
+ */
+
 class RulesController extends AbstractCustomPostController
 {
     protected function __construct()
@@ -32,7 +46,12 @@ class RulesController extends AbstractCustomPostController
         return RuleModel::getPrefixedKey();
     }
 
-
+    /**
+     * @feature admin_rules carbon_fields
+     * @title[ru] Конструктор ценовых правил
+     * @desc[ru] Настройка занимает меньше минуты.
+     * @order 210
+     */
     public function registerCarbonFields()
     {
         $fields = FieldBuilder::buildFields(RuleModel::getFieldsDefinition());

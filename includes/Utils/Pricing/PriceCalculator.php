@@ -1,16 +1,5 @@
 <?php
 
-/**
- * @feature-section pricing Pricing logic and cart behavior
- */
-
-/**
- * @feature pricing dynamic_price_rules Dynamic Price Rules
- *
- * Calculates price based on quantity, user role, and term-based conditions.
- * @desc[pl] Oblicza cenę w zależności od ilości, roli użytkownika i warunków przypisanych do produktu.
- */
-
 namespace JustB2b\Utils\Pricing;
 
 use WC_Tax;
@@ -21,6 +10,13 @@ use JustB2b\Models\Id\ProductModel;
 use JustB2b\Traits\RuntimeCacheTrait;
 
 defined('ABSPATH') || exit;
+
+/**
+ * @feature-section price_rules
+ * @title[ru] Гибкие правила ценообразования
+ * @desc[ru] Модуль расчёта цен JustB2B поддерживает продвинутую логику: скидки и наценки на основе количества, ролей, групп, категорий, условий и приоритетов. Позволяет точно управлять B2B-ценами на уровне каждого товара.
+ * @order 100
+ */
 
 class PriceCalculator
 {
@@ -41,6 +37,12 @@ class PriceCalculator
         ], $extra);
     }
 
+    /**
+     * @feature price_rules tax_rate_detection
+     * @title[ru] Автоматическое определение налоговой ставки
+     * @desc[ru] Учитывает налоговую ставку в зависимости от настроек магазина и местоположения покупателя.
+     * @order 440
+     */
     public function getTaxRates(): array
     {
         return self::getFromRuntimeCache(function () {
@@ -63,7 +65,12 @@ class PriceCalculator
         }, $this->cacheContext());
     }
 
-
+    /**
+     * @feature price_rules rrp_support
+     * @title[ru] Поддержка рекомендуемой розничной цены (RRP)
+     * @desc[ru] Вычисляет и отображает RRP-цену с поддержкой первичного и вторичного источника: если основной источник возвращает 0, используется резервный.
+     * @order 430
+     */
     public function getRRPNetPrice(): float
     {
         return self::getFromRuntimeCache(function () {
@@ -77,7 +84,6 @@ class PriceCalculator
         }, $this->cacheContext());
     }
 
-
     public function getRRPGrossPrice(): float
     {
         return self::getFromRuntimeCache(
@@ -89,7 +95,12 @@ class PriceCalculator
         );
     }
 
-
+    /**
+     * @feature price_rules flexible_sources
+     * @title[ru] Источники цен: WC или JustB2B
+     * @desc[ru] Плагин поддерживает базовые цены как из WooCommerce, так и из собственных мета-полей JustB2B.
+     * @order 420
+     */
     public function getBaseNetPrice(): float
     {
         return self::getFromRuntimeCache(function () {
@@ -105,7 +116,6 @@ class PriceCalculator
         }, $this->cacheContext());
     }
 
-
     public function getBaseGrossPrice(): float
     {
         return self::getFromRuntimeCache(
@@ -117,14 +127,12 @@ class PriceCalculator
         );
     }
 
-
     public function getFinalNetPrice(): float
     {
         return self::getFromRuntimeCache(function () {
             return $this->calcRule();
         }, $this->cacheContext());
     }
-
 
     public function getFinalGrossPrice(): float
     {
@@ -173,6 +181,12 @@ class PriceCalculator
             : self::calcNetFromGrossPrice($price, $this->getTaxRates());
     }
 
+    /**
+     * @feature price_rules net_gross_conversion
+     * @title[ru] Конвертация между нетто и брутто
+     * @desc[ru] Автоматически пересчитывает цену с учётом налога — из брутто в нетто и обратно.
+     * @order 410
+     */
     public static function calcNetFromGrossPrice(float $gross, $taxRates): float
     {
         $removeTaxes = WC_Tax::calc_tax($gross, $taxRates, true);
@@ -185,6 +199,12 @@ class PriceCalculator
         return $net + array_sum($addTaxes);
     }
 
+    /**
+     * @feature price_rules rule_engine
+     * @title[ru] Многоуровневая система расчёта цен
+     * @desc[ru] Определяет цену товара в зависимости от правил: процентные и числовые скидки, наценки, установка фиксированной цены, с учётом нетто и брутто.
+     * @order 400
+     */
     public function calcRule(): float
     {
         $rule = $this->product->getFirstFullFitRule();
