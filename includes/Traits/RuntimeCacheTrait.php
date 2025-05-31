@@ -19,7 +19,7 @@ trait RuntimeCacheTrait
      * @desc[ru] Ускоряет расчёты и снижает нагрузку на сервер за счёт сохранения промежуточных результатов — без записи в базу данных.
      * @order 61
      */
-    
+
     /**
      * Enable or disable runtime caching globally.
      */
@@ -28,7 +28,7 @@ trait RuntimeCacheTrait
     /**
      * Enable or disable debug logging for cache operations.
      */
-    public static bool $debugRuntimeCache = true;
+    public static bool $debugRuntimeCache = false;
 
     /**
      * Retrieve value from runtime cache or generate and cache it if not found.
