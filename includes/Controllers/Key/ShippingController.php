@@ -150,8 +150,8 @@ class ShippingController extends AbstractKeyController
 
             $shippingController = ShippingController::getInstance();
             $shippingMethods = $shippingController->getShippingMethods();
-            $bestMethod = null;
             $smallestFreeFrom = null;
+            $bestMethod = false;
 
             foreach ($availableRates as $rateId => $rateObject) {
                 $method = $shippingMethods[$rateId] ?? null;
@@ -170,7 +170,7 @@ class ShippingController extends AbstractKeyController
                 }
             }
 
-            return $bestMethod ?: false;
+            return $bestMethod;
         });
     }
 
