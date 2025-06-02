@@ -39,6 +39,6 @@ class WoodMartIntegration
 
         $shippingController = ShippingController::getInstance();
         $method = $shippingController->getMethodWithMinimalFreeFrom();
-        return $method ?: $method->getFreeFrom();
+        $value = $method ? $method->getFreeFrom() : $value;
     }
 }

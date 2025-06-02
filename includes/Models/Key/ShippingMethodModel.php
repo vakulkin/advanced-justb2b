@@ -131,7 +131,6 @@ class ShippingMethodModel extends AbstractKeyModel
         return $this->isEmptyField($this->getFreeKey());
     }
 
-
     public function getFields(): array
     {
         return self::getFromRuntimeCache(function () {
