@@ -9,6 +9,7 @@ Text Domain: justb2b
 */
 
 use JustB2b\Controllers\Key\CartController;
+use JustB2b\Controllers\Key\CheckoutController;
 use JustB2b\Controllers\Key\GlobalController;
 use JustB2b\Controllers\Key\PaymentController;
 use JustB2b\Controllers\Id\ProductsController;
@@ -46,6 +47,7 @@ class AdvancedJustB2b
         ShippingController::getInstance();
         PaymentController::getInstance();
         CartController::getInstance();
+        CheckoutController::getInstance();
         RolesController::getInstance();
         RulesController::getInstance();
         ProductsController::getInstance();
