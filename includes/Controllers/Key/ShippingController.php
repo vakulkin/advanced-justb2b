@@ -155,7 +155,7 @@ class ShippingController extends AbstractKeyController
 
             foreach ($availableRates as $rateId => $rateObject) {
                 $method = $shippingMethods[$rateId] ?? null;
-                
+
                 if (!$method) {
                     continue;
                 }
