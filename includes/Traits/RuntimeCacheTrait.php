@@ -21,11 +21,6 @@ trait RuntimeCacheTrait
      */
 
     /**
-     * Enable or disable runtime caching globally.
-     */
-    public static bool $enableRuntimeCache = true;
-
-    /**
      * Enable or disable debug logging for cache operations.
      */
     public static bool $debugRuntimeCache = false;
@@ -36,13 +31,8 @@ trait RuntimeCacheTrait
     protected static function getFromRuntimeCache(
         callable $callback,
         array $context = [],
-        string $group = 'justb2b_plugin',
-        bool $forceRefresh = false
+        string $group = 'justb2b_plugin'
     ): mixed {
-        if (!static::$enableRuntimeCache || $forceRefresh) {
-            return $callback();
-        }
-
         $key = static::generateCacheKey($context);
         $value = wp_cache_get($key, $group, false, $found);
 
@@ -79,8 +69,7 @@ trait RuntimeCacheTrait
         $method = $caller['function'] ?? 'unknown_method';
 
         ksort($context);
-        $contextHash = !empty($context) ? ':' . json_encode($context) : '';
-        // $contextHash = !empty($context) ? ':' . md5(json_encode($context)) : '';
+        $contextHash = !empty($context) ? ':' . md5(json_encode($context)) : '';
 
         return "{$class}::{$method}{$contextHash}";
     }

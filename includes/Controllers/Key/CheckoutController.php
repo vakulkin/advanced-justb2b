@@ -22,9 +22,9 @@ class CheckoutController extends AbstractKeyController
 
         add_action('woocommerce_checkout_create_order', [$this, 'addOrderTypeMeta'], 10, 2);
         add_action('woocommerce_thankyou', [$this, 'renderThankYouOrderMeta']);
+        add_action('woocommerce_order_details_after_order_table', [$this, 'renderThankYouOrderMeta']);
         add_action('woocommerce_admin_order_data_after_order_details', [$this, 'renderAdminOrderMeta']);
         add_action('woocommerce_email_order_meta', [$this, 'renderEmailOrderMeta'], 10, 4);
-
     }
 
     public function getModelObject()

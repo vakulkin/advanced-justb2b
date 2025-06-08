@@ -107,6 +107,12 @@ abstract class AbstractField
 
     public function getPostFieldOriginValue(int $postId): mixed
     {
+        error_log(print_r([
+            'post_id' => $postId,
+            'key' => $this->prefixedKey,
+            'value' => carbon_get_post_meta($postId, $this->prefixedKey)
+        ], true));
+        
         return self::getFromRuntimeCache(
             fn () => carbon_get_post_meta($postId, $this->prefixedKey),
             ['post_id' => $postId, 'key' => $this->prefixedKey]
@@ -177,6 +183,5 @@ abstract class AbstractField
         $values = $this->getPostFieldValue($parentId);
         return $values;
     }
-
 
 }

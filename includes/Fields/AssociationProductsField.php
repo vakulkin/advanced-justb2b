@@ -10,7 +10,7 @@ class AssociationProductsField extends AssociationPostsField
     {
         parent::__construct($key, $label);
 
-        $this->setTypes([
+        $this->setPostTypes([
             [
                 'type' => 'post',
                 'post_type' => 'product',

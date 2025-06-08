@@ -58,6 +58,6 @@ abstract class AbstractPostModel extends AbstractIdModel
     {
         /** @var AbstractField $field */
         $field = $this->getField($key);
-        return $field ? $field->getPostFieldValue($this->id) : null;
+        return $field ? $field->getPostFieldValue(postId: $this->id) : null;
     }
 }

@@ -5,7 +5,7 @@ namespace JustB2b\Controllers\Key;
 use Carbon_Fields\Carbon_Fields;
 use Carbon_Fields\Container\Container;
 use JustB2b\Controllers\Key\AbstractKeyController;
-use JustB2b\Fields\RichText;
+use JustB2b\Fields\RichTextField;
 use JustB2b\Fields\SeparatorField;
 use JustB2b\Fields\SelectField;
 use JustB2b\Fields\TextField;
@@ -136,7 +136,7 @@ class GlobalController extends AbstractKeyController
                 ->setOptions(['show' => 'show', 'hide' => 'hide'])
                 ->setWidth(100);
 
-            $fieldsDefinition[] = (new RichText("{$type}_html_1", "{$type}_html_1"))->setWidth(100);
+            $fieldsDefinition[] = (new RichTextField("{$type}_html_1", "{$type}_html_1"))->setWidth(100);
         }
 
         return $fieldsDefinition;

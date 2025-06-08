@@ -5,6 +5,8 @@ namespace JustB2b\Models\Id;
 use JustB2b\Fields\AbstractField;
 use JustB2b\Fields\SelectField;
 use JustB2b\Traits\RuntimeCacheTrait;
+use JustB2b\Utils\Prefixer;
+use WP_Query;
 
 defined('ABSPATH') || exit;
 
@@ -71,4 +73,77 @@ class UserModel extends AbstractIdModel
         $field = $this->getField($key);
         return $field ? $field->getUserFieldValue($this->id) : null;
     }
+
+    public function getUserBanners(): array
+    {
+        return self::getFromRuntimeCache(function () {
+            $banners = [];
+            foreach ($this->getUserRules() as $rule) {
+                $banners = array_merge($banners, $rule->getBanners());
+            }
+            return $banners;
+        }, $this->cacheContext());
+    }
+
+    public function getWPBakeryBanners() {
+        $images = implode(',', $this->getUserBanners());
+        return do_shortcode("[vc_images_carousel images=\"{$images}\" img_size=\"full\" autoplay=\"yes\"]");
+    }
+
+    public function getUserBannersHtml(): string
+    {
+        $htmlImages = [];
+
+        foreach ($this->getUserBanners() as $bannerId) {
+            $url = wp_get_attachment_image_url($bannerId, 'full');
+            if (!$url) {
+                continue;
+            }
+
+            $alt = get_post_meta($bannerId, '_wp_attachment_image_alt', true);
+            if (!$alt) {
+                $alt = get_the_title($bannerId) ?: '';
+            }
+
+            $htmlImages[] = sprintf(
+                '<img src="%s" alt="%s" loading="lazy" />',
+                esc_url($url),
+                esc_attr($alt)
+            );
+        }
+
+        return implode($htmlImages);
+    }
+
+
+    public function getUserRules(): array
+    {
+        return self::getFromRuntimeCache(function () {
+            $query = new WP_Query($this->getRuleQueryArgs());
+            $results = [];
+            foreach ($query->posts as $post) {
+                $rule = new RuleModel($post->ID);
+                if ($rule->isRuleFitToUser()) {
+                    $results[] = $rule;
+                }
+            }
+            return $results;
+        }, $this->cacheContext());
+    }
+
+
+    protected function getRuleQueryArgs(): array
+    {
+        return [
+            'post_type' => Prefixer::getPrefixed('rule'),
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'meta_query' => $this->getBaseMetaQuery($this->isB2b()),
+            'orderby' => [
+                'priority_clause' => 'ASC',
+                'ID' => 'ASC',
+            ],
+        ];
+    }
+
 }

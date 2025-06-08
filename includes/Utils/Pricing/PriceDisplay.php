@@ -75,6 +75,22 @@ class PriceDisplay
         }, $this->cacheContext());
     }
 
+    public function getFinalNetTotal(): string
+    {
+        return self::getFromRuntimeCache(function () {
+            $price = $this->product->getPriceCalculator()->getFinalNetTotal();
+            return empty($price) ? '' : wc_price($price) . ' (' . $this->product->getQty() . ')';
+        }, $this->cacheContext());
+    }
+
+    public function getFinalGrossTotal(): string
+    {
+        return self::getFromRuntimeCache(function () {
+            $price = $this->product->getPriceCalculator()->getFinalGrossTotal();
+            return empty($price) ? '' : wc_price($price) . ' (' . $this->product->getQty() . ')';
+        }, $this->cacheContext());
+    }
+
     public function getRRPNetPrice(): string
     {
         return self::getFromRuntimeCache(function () {
@@ -162,7 +178,9 @@ class PriceDisplay
                     $html .= $this->getPriceItem('base_net', $this->getBaseNetPrice());
                     $html .= $this->getPriceItem('base_gross', $this->getBaseGrossPrice());
                     $html .= $this->getPriceItem('final_net', $this->getFinalNetPrice());
+                    $html .= $this->getPriceItem('final_net_total', $this->getFinalNetTotal());
                     $html .= $this->getPriceItem('final_gross', $this->getFinalGrossPrice());
+                    $html .= $this->getPriceItem('final_gross_total', $this->getFinalGrossPrice());
                     $html .= $this->getPriceItem('rrp_net', $this->getRRPNetPrice());
                     $html .= $this->getPriceItem('rrp_gross', $this->getRRPGrossPrice());
                 }
@@ -229,7 +247,7 @@ class PriceDisplay
 
     private function getVisibleRules(): array
     {
-        $rules = $this->product->getRules() ?? [];
+        $rules = $this->product->getProductRules() ?? [];
         return array_filter($rules, fn($rule) => $rule->showInQtyTable());
     }
 

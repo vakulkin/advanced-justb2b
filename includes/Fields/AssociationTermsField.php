@@ -10,7 +10,7 @@ class AssociationTermsField extends AssociationField
     {
         parent::__construct($key, $label);
 
-        $this->setTypes([
+        $this->setPostTypes([
             [
                 'type' => 'term',
                 'taxonomy' => 'product_cat',

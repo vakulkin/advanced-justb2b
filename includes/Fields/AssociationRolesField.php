@@ -12,7 +12,7 @@ class AssociationRolesField extends AssociationPostsField
     {
         parent::__construct($key, $label);
 
-        $this->setTypes([
+        $this->setPostTypes([
             [
                 'type' => 'post',
                 'post_type' => Prefixer::getPrefixed('role'),

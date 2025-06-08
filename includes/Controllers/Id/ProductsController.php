@@ -90,20 +90,19 @@ class ProductsController extends AbstractController
         if (is_admin()) {
             return $price_html;
         }
-
-        $productModel = new ProductModel($product->get_id(), 1);
-
+        
         global $post, $woocommerce_loop;
-
+        
         $isMainProduct = is_product()
-            && is_singular('product')
-            && isset($post)
-            && $product->get_id() === $post->ID;
-
+        && is_singular('product')
+        && isset($post)
+        && $product->get_id() === $post->ID;
+        
         $isInNamedLoop = isset($woocommerce_loop['name']) && !empty($woocommerce_loop['name']);
         $isShortcode = isset($woocommerce_loop['is_shortcode']) && $woocommerce_loop['is_shortcode'];
         $isInLoop = $isInNamedLoop || $isShortcode || !$isMainProduct;
-
+        
+        $productModel = new ProductModel($product->get_id(), 1);
         $priceDisplay = $productModel->getPriceDisplay($price_html, $isInLoop);
 
         return $priceDisplay->renderPricesHtml();

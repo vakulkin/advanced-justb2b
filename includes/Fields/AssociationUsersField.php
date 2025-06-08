@@ -10,7 +10,7 @@ class AssociationUsersField extends AssociationField
     {
         parent::__construct($key, $label);
 
-        $this->setTypes([
+        $this->setPostTypes([
             [
                 'type' => 'user',
             ],

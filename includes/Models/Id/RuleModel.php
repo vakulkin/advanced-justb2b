@@ -8,9 +8,10 @@ use JustB2b\Fields\AssociationProductsField;
 use JustB2b\Fields\AssociationRolesField;
 use JustB2b\Fields\AssociationTermsField;
 use JustB2b\Fields\AssociationUsersField;
+use JustB2b\Fields\GalleryField;
 use JustB2b\Fields\NonNegativeNumberField;
 use JustB2b\Fields\NumberField;
-use JustB2b\Fields\RichText;
+use JustB2b\Fields\RichTextField;
 use JustB2b\Fields\SelectField;
 use JustB2b\Fields\TextField;
 use JustB2b\Traits\RuntimeCacheTrait;
@@ -27,8 +28,8 @@ class RuleModel extends AbstractPostModel
 
     public function __construct(
         int $id,
-        int $productId,
-        int $qty,
+        int $productId = 0,
+        int $qty = 0,
     ) {
         parent::__construct($id);
         $this->productId = $productId;
@@ -103,6 +104,15 @@ class RuleModel extends AbstractPostModel
         return $this->getFieldValue('show_in_qty_table') !== 'hide';
     }
 
+
+    public function getBanners(): array
+    {
+        return self::getFromRuntimeCache(
+            fn() => $this->getFieldValue('banners'),
+            $this->cacheContext()
+        );
+    }
+
     public function doesQtyFits(): bool
     {
         return self::getFromRuntimeCache(function () {
@@ -112,7 +122,7 @@ class RuleModel extends AbstractPostModel
         }, $this->cacheContext());
     }
 
-    public function isAssociationFit(): bool
+    public function isFullRuleFit(): bool
     {
         return self::getFromRuntimeCache(function () {
             $userController = UsersController::getInstance();
@@ -128,10 +138,23 @@ class RuleModel extends AbstractPostModel
         }, $this->cacheContext());
     }
 
+    public function isRuleFitToUser()
+    {
+        return self::getFromRuntimeCache(function () {
+            $userController = UsersController::getInstance();
+            $currentUser = $userController->getCurrentUser();
+            $currentUserId = $currentUser->getId();
+
+            return $this->passesMainUsersRolesCheck($currentUserId)
+                && $this->passesQualifyingRolesCheck($currentUserId)
+                && $this->passesExcludingUsersRolesCheck($currentUserId);
+        }, $this->cacheContext());
+    }
+
     public function isPurchasable(): bool
     {
         return self::getFromRuntimeCache(
-            fn () => $this->getKind() !== 'non_purchasable',
+            fn() => $this->getKind() !== 'non_purchasable',
             $this->cacheContext()
         );
     }
@@ -148,7 +171,7 @@ class RuleModel extends AbstractPostModel
     public function isFullyHidden(): bool
     {
         return self::getFromRuntimeCache(
-            fn () => $this->getFieldValue('visibility') === 'fully_hidden',
+            fn() => $this->getFieldValue('visibility') === 'fully_hidden',
             $this->cacheContext()
         );
     }
@@ -156,7 +179,7 @@ class RuleModel extends AbstractPostModel
     public function isZeroRequestPrice(): bool
     {
         return self::getFromRuntimeCache(
-            fn () => $this->getKind() === 'zero_order_for_price',
+            fn() => $this->getKind() === 'zero_order_for_price',
             $this->cacheContext()
         );
     }
@@ -463,7 +486,7 @@ class RuleModel extends AbstractPostModel
                 ->setHelpText('Show this rule in the quantity table.')
                 ->setWidth(25),
 
-            (new RichText('custom_html_1', 'Custom HTML 1'))
+            (new RichTextField('custom_html_1', 'Custom HTML 1'))
                 ->setHelpText('Optional HTML shown on the product page.')
                 ->setWidth(100),
 
@@ -479,6 +502,8 @@ class RuleModel extends AbstractPostModel
             (new AssociationRolesField('excluding_roles', 'Excluding Roles'))->setHelpText('Roles excluded from this rule.'),
             (new AssociationProductsField('excluding_products', 'Excluding Products'))->setHelpText('Products excluded from this rule.'),
             (new AssociationTermsField('excluding_woo_terms', 'Excluding Woo Terms'))->setHelpText('Terms excluded from this rule.'),
+
+            (new GalleryField('banners', 'Banners'))->setHelpText('Banners for this rule.'),
         ];
     }
 }

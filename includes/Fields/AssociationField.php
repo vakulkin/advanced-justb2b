@@ -17,7 +17,7 @@ abstract class AssociationField extends AbstractField
         $this->defaultValue = [];
     }
 
-    public function setTypes(array $postTypes): static
+    public function setPostTypes(array $postTypes): static
     {
         $this->postTypes = $postTypes;
         return $this;

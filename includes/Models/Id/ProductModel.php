@@ -100,14 +100,14 @@ class ProductModel extends AbstractPostModel
      * @order 410
      */
 
-    public function getRules(): array
+    public function getProductRules(): array
     {
         return self::getFromRuntimeCache(function () {
             $query = new WP_Query($this->getRuleQueryArgs());
             $results = [];
             foreach ($query->posts as $post) {
                 $rule = new RuleModel($post->ID, $this->getId(), $this->getQty());
-                if ($rule->isAssociationFit()) {
+                if ($rule->isFullRuleFit()) {
                     $results[] = $rule;
                 }
             }
@@ -125,7 +125,7 @@ class ProductModel extends AbstractPostModel
     public function getFirstFullFitRule(): ?RuleModel
     {
         return self::getFromRuntimeCache(function () {
-            foreach ($this->getRules() as $rule) {
+            foreach ($this->getProductRules() as $rule) {
                 if ($rule->doesQtyFits()) {
                     return $rule;
                 }
@@ -168,37 +168,21 @@ class ProductModel extends AbstractPostModel
     {
         $user = UsersController::getInstance()->getCurrentUser();
 
+        $meta = $this->getBaseMetaQuery($user->isB2b());
+        $meta['min_qty_clause'] = [
+            'key' => Prefixer::getPrefixedMeta('min_qty'),
+            'type' => 'NUMERIC',
+        ];
+        $meta['max_qty_clause'] = [
+            'key' => Prefixer::getPrefixedMeta('max_qty'),
+            'type' => 'NUMERIC',
+        ];
+
         return [
             'post_type' => Prefixer::getPrefixed('rule'),
             'post_status' => 'publish',
             'posts_per_page' => -1,
-            'meta_query' => [
-                'relation' => 'AND',
-                'priority_clause' => [
-                    'key' => Prefixer::getPrefixedMeta('priority'),
-                    'type' => 'NUMERIC',
-                ],
-                'min_qty_clause' => [
-                    'key' => Prefixer::getPrefixedMeta('min_qty'),
-                    'type' => 'NUMERIC',
-                ],
-                'max_qty_clause' => [
-                    'key' => Prefixer::getPrefixedMeta('max_qty'),
-                    'type' => 'NUMERIC',
-                ],
-                'user_type_clause' => [
-                    'relation' => 'OR',
-                    [
-                        'key' => Prefixer::getPrefixedMeta('user_type'),
-                        'value' => $user->isB2b() ? ['b2b', 'b2x'] : ['b2c', 'b2x'],
-                        'compare' => 'IN',
-                    ],
-                    [
-                        'key' => Prefixer::getPrefixedMeta('user_type'),
-                        'compare' => 'NOT EXISTS',
-                    ],
-                ]
-            ],
+            'meta_query' => $meta,
             'orderby' => [
                 'priority_clause' => 'ASC',
                 'min_qty_clause' => 'ASC',
@@ -207,6 +191,7 @@ class ProductModel extends AbstractPostModel
             ],
         ];
     }
+
 
     public static function getFieldsDefinition(): array
     {

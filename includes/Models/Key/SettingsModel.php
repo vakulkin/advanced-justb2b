@@ -2,7 +2,7 @@
 
 namespace JustB2b\Models\Key;
 
-use JustB2b\Fields\RichText;
+use JustB2b\Fields\RichTextField;
 use JustB2b\Fields\SelectField;
 use JustB2b\Fields\SeparatorField;
 use JustB2b\Fields\TextField;
@@ -78,7 +78,7 @@ class SettingsModel extends AbstractKeyModel
                 ->setOptions(['show' => 'show', 'hide' => 'hide'])
                 ->setWidth(100);
 
-            $fieldsDefinition[] = (new RichText("{$type}_html_1", "{$type}_html_1"))->setWidth(100);
+            $fieldsDefinition[] = (new RichTextField("{$type}_html_1", "{$type}_html_1"))->setWidth(100);
         }
 
         return $fieldsDefinition;

@@ -145,6 +145,21 @@ class PriceCalculator
         );
     }
 
+    public function getFinalNetTotal(): float {
+        return self::getTotal(
+            $this->getFinalNetPrice(),
+            $this->product->getQty()
+        );
+    }
+
+    public function getFinalGrossTotal(): float {
+        return self::getTotal(
+            $this->getFinalGrossPrice(),
+            $this->product->getQty()
+        );
+    }
+    
+
     protected function getSecondaryPrice(float $primaryPrice, string $secondaryKey): float
     {
         if ('disabled' !== $secondaryKey && $primaryPrice <= 0) {
@@ -197,6 +212,11 @@ class PriceCalculator
     {
         $addTaxes = WC_Tax::calc_tax($net, $taxRates, false);
         return $net + array_sum($addTaxes);
+    }
+
+    public static function getTotal($price, $qty): float
+    {
+        return $price * $qty;
     }
 
     /**
