@@ -33,13 +33,22 @@ class ProductModel extends AbstractPostModel
 
     protected static string $key = 'product';
     protected int $qty;
+    protected int $originLangProductId;
 
     private ?RuleModel $cachedFirstFullFitRule = null;
 
     public function __construct(int $id, int $conditionQty)
     {
         parent::__construct($id);
+        $default_language = apply_filters('wpml_default_language', null);
+        $origin_language_id = apply_filters('wpml_object_id', $id, 'product', false, $default_language) ?: $id;
+        $this->originLangProductId = $origin_language_id;
         $this->qty = $conditionQty;
+    }
+
+    public function getOriginLangProductId(): int
+    {
+        return $this->originLangProductId;
     }
 
     public static function getSingleName(): string
@@ -68,7 +77,7 @@ class ProductModel extends AbstractPostModel
     public function getWCProduct(): WC_Product
     {
         return self::getFromRuntimeCache(
-            fn() => wc_get_product($this->id),
+            fn () => wc_get_product($this->id),
             $this->cacheContext()
         );
     }
@@ -90,7 +99,7 @@ class ProductModel extends AbstractPostModel
 
     public function isDifferentTypeProduct(): bool
     {
-        return !$this->isSimpleProduct() && !$this->isVariableProduct() && !$this->isVariation();
+        return ! $this->isSimpleProduct() && ! $this->isVariableProduct() && ! $this->isVariation();
     }
 
     /**
@@ -106,7 +115,7 @@ class ProductModel extends AbstractPostModel
             $query = new WP_Query($this->getRuleQueryArgs());
             $results = [];
             foreach ($query->posts as $post) {
-                $rule = new RuleModel($post->ID, $this->getId(), $this->getQty());
+                $rule = new RuleModel($post->ID, $this->getId(), $this->getOriginLangProductId(), $this->getQty());
                 if ($rule->isFullRuleFit()) {
                     $results[] = $rule;
                 }
@@ -144,7 +153,7 @@ class ProductModel extends AbstractPostModel
     public function getPriceCalculator(): PriceCalculator
     {
         return self::getFromRuntimeCache(
-            fn() => new PriceCalculator($this),
+            fn () => new PriceCalculator($this),
             $this->cacheContext()
         );
     }
@@ -159,8 +168,8 @@ class ProductModel extends AbstractPostModel
     public function getPriceDisplay(string $defaultPriceHtml, bool $isInLoop): PriceDisplay
     {
         return self::getFromRuntimeCache(
-            fn() => new PriceDisplay($this, $defaultPriceHtml, $isInLoop),
-            $this->cacheContext(['is_loop' => $isInLoop])
+            fn () => new PriceDisplay($this, $defaultPriceHtml, $isInLoop),
+            $this->cacheContext([ 'is_loop' => $isInLoop ])
         );
     }
 
@@ -192,16 +201,41 @@ class ProductModel extends AbstractPostModel
         ];
     }
 
-
     public static function getFieldsDefinition(): array
     {
-        return [
-            new NonNegativeFloatField('rrp_price', 'rrp_price'),
-            new NonNegativeFloatField('base_price_1', 'base_price_1'),
-            new NonNegativeFloatField('base_price_2', 'base_price_2'),
-            new NonNegativeFloatField('base_price_3', 'base_price_3'),
-            new NonNegativeFloatField('base_price_4', 'base_price_4'),
-            new NonNegativeFloatField('base_price_5', 'base_price_5'),
+
+        global $woocommerce_wpml;
+
+        $base_keys = [
+            'rrp_price',
+            'base_price_1',
+            'base_price_2',
+            'base_price_3',
+            'base_price_4',
+            'base_price_5',
         ];
+
+        // Base fields (default currency or fallback)
+        $fields = array_map(
+            fn ($key) => new NonNegativeFloatField($key, $key),
+            $base_keys
+        );
+
+        // Multi-currency fields
+        if (
+            isset($woocommerce_wpml->settings['currency_options']) &&
+            is_array($woocommerce_wpml->settings['currency_options'])
+        ) {
+            $currency_codes = array_keys($woocommerce_wpml->settings['currency_options']);
+
+            foreach ($currency_codes as $currency) {
+                foreach ($base_keys as $key) {
+                    $composite_key = strtolower($currency) . '__' . $key;
+                    $fields[] = new NonNegativeFloatField($composite_key, $composite_key);
+                }
+            }
+        }
+
+        return $fields;
     }
 }

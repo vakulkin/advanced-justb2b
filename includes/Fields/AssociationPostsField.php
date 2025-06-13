@@ -14,10 +14,9 @@ abstract class AssociationPostsField extends AssociationField
         $posts = parent::getPostFieldValue($parentId);
         $published = [];
         if (is_array($posts)) {
-            foreach ($posts as $post) {
-                $post['id'] = (int) $post['id'] ?? 0;
-                if ($post['id'] && get_post_status($post['id']) === 'publish') {
-                    $published[$post['id']] = $post;
+            foreach ($posts as $postId) {
+                if ($postId && get_post_status($postId) === 'publish') {
+                    $published[$postId] = $postId;
                     continue;
                 }
                 return false;

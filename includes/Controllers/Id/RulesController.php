@@ -106,7 +106,7 @@ class RulesController extends AbstractCustomPostController
             foreach ($fields as $field) {
                 /** @var AbstractField $field */
                 if ($field->getKey() === $orderby && $field->getAttribute('type') === 'number') {
-                    $query->set('meta_key', $field->getPrefixedKey());
+                    $query->set('meta_key', $field->getPrefixedMetaKey());
                     $query->set('orderby', 'meta_value_num');
                     break;
                 }

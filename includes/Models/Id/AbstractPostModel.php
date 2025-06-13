@@ -48,7 +48,8 @@ abstract class AbstractPostModel extends AbstractIdModel
         return Prefixer::getPrefixed(static::getKey());
     }
 
-    public function isEmptyField($key): bool {
+    public function isEmptyField($key): bool
+    {
         /** @var AbstractField $field */
         $field = $this->getField($key);
         return $field ? $field->isPostFieldEmpty($this->id) : true;
@@ -58,6 +59,6 @@ abstract class AbstractPostModel extends AbstractIdModel
     {
         /** @var AbstractField $field */
         $field = $this->getField($key);
-        return $field ? $field->getPostFieldValue(postId: $this->id) : null;
+        return $field ? $field->getPostFieldValue($this->id) : null;
     }
 }

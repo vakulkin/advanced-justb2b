@@ -5,11 +5,12 @@ namespace JustB2b\Utils\Pricing;
 use WC_Tax;
 use WC_Customer;
 use Automattic\WooCommerce\Proxies\LegacyProxy;
+use JustB2b\Fields\NonNegativeNumberField;
 use JustB2b\Controllers\Key\GlobalController;
 use JustB2b\Models\Id\ProductModel;
 use JustB2b\Traits\RuntimeCacheTrait;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * @feature-section price_rules
@@ -18,242 +19,353 @@ defined('ABSPATH') || exit;
  * @order 100
  */
 
-class PriceCalculator
-{
-    use RuntimeCacheTrait;
+class PriceCalculator {
+	use RuntimeCacheTrait;
 
-    protected ProductModel $product;
+	protected ProductModel $product;
 
-    public function __construct(ProductModel $product)
-    {
-        $this->product = $product;
-    }
+	public function __construct( ProductModel $product ) {
+		$this->product = $product;
+	}
 
-    protected function cacheContext(array $extra = []): array
-    {
-        return array_merge([
-            'product_id' => $this->product->getId(),
-            'qty' => $this->product->getQty()
-        ], $extra);
-    }
+	protected function cacheContext( array $extra = [] ): array {
+		return array_merge( [ 
+			'product_id' => $this->product->getOriginLangProductId(),
+			'qty' => $this->product->getQty()
+		], $extra );
+	}
 
-    /**
-     * @feature price_rules tax_rate_detection
-     * @title[ru] Автоматическое определение налоговой ставки
-     * @desc[ru] Учитывает налоговую ставку в зависимости от настроек магазина и местоположения покупателя.
-     * @order 440
-     */
-    public function getTaxRates(): array
-    {
-        return self::getFromRuntimeCache(function () {
-            $WCProduct = $this->product->getWCProduct();
-            if (!$WCProduct->is_taxable()) {
-                return [];
-            }
+	/**
+	 * @feature price_rules tax_rate_detection
+	 * @title[ru] Автоматическое определение налоговой ставки
+	 * @desc[ru] Учитывает налоговую ставку в зависимости от настроек магазина и местоположения покупателя.
+	 * @order 440
+	 */
+	public function getTaxRates(): array {
+		return self::getFromRuntimeCache( function () {
+			$WCProduct = $this->product->getWCProduct();
+			if ( ! $WCProduct->is_taxable() ) {
+				return [];
+			}
 
-            $customerId = get_current_user_id();
+			$customerId = get_current_user_id();
+			if ( apply_filters( 'woocommerce_adjust_non_base_location_prices', true ) ) {
+				return WC_Tax::get_base_tax_rates( $WCProduct->get_tax_class( 'unfiltered' ) );
+			}
 
-            if (apply_filters('woocommerce_adjust_non_base_location_prices', true)) {
-                return WC_Tax::get_base_tax_rates($WCProduct->get_tax_class('unfiltered'));
-            }
+			$customer = $customerId
+				? wc_get_container()->get( LegacyProxy::class)->getInstance_of( WC_Customer::class, $customerId )
+				: null;
 
-            $customer = $customerId
-                ? wc_get_container()->get(LegacyProxy::class)->getInstance_of(WC_Customer::class, $customerId)
-                : null;
+			return WC_Tax::get_rates( $WCProduct->get_tax_class(), $customer );
+		}, $this->cacheContext() );
+	}
 
-            return WC_Tax::get_rates($WCProduct->get_tax_class(), $customer);
-        }, $this->cacheContext());
-    }
+	/**
+	 * @feature price_rules rrp_support
+	 * @title[ru] Поддержка рекомендуемой розничной цены (RRP)
+	 * @desc[ru] Вычисляет и отображает RRP-цену с поддержкой первичного и вторичного источника: если основной источник возвращает 0, используется резервный.
+	 * @order 430
+	 */
+	public function getRRPNet(): float {
+		return self::getFromRuntimeCache( function () {
+			$rule = $this->product->getFirstFullFitRule();
+			if ( $rule ) {
+				$primaryNetRRP = $this->getNetByKey( $rule->getPrimaryRRPSource() );
+				$secondaryNetRRP = $this->getSecondaryPrice( $primaryNetRRP, $rule->getSecondaryRRPSource() );
+				return $this->getSecondaryPrice( $secondaryNetRRP, $rule->getThirdRRPSource() );
+			}
+			return 0;
+		}, $this->cacheContext() );
+	}
 
-    /**
-     * @feature price_rules rrp_support
-     * @title[ru] Поддержка рекомендуемой розничной цены (RRP)
-     * @desc[ru] Вычисляет и отображает RRP-цену с поддержкой первичного и вторичного источника: если основной источник возвращает 0, используется резервный.
-     * @order 430
-     */
-    public function getRRPNetPrice(): float
-    {
-        return self::getFromRuntimeCache(function () {
-            $rule = $this->product->getFirstFullFitRule();
-            if ($rule) {
-                $RRPNet = $this->calcNetFromJustB2bMeta('rrp_price');
-                $secondaryRRPSource = $rule->getSecondaryRRPSource();
-                return $this->getSecondaryPrice($RRPNet, $secondaryRRPSource);
-            }
-            return 0;
-        }, $this->cacheContext());
-    }
+	public function getRRPGross(): float {
+		return self::getFromRuntimeCache(
+			fn() => $this->calcGrossFromNetPrice(
+				$this->getRRPNet(),
+			),
+			$this->cacheContext()
+		);
+	}
 
-    public function getRRPGrossPrice(): float
-    {
-        return self::getFromRuntimeCache(
-            fn() => self::calcGrossFromNetPrice(
-                $this->getRRPNetPrice(),
-                $this->getTaxRates()
-            ),
-            $this->cacheContext()
-        );
-    }
+	/**
+	 * @feature price_rules flexible_sources
+	 * @title[ru] Источники цен: WC или JustB2B
+	 * @desc[ru] Плагин поддерживает базовые цены как из WooCommerce, так и из собственных мета-полей JustB2B.
+	 * @order 420
+	 */
+	public function getBaseNetPrice(): float {
+		return self::getFromRuntimeCache( function () {
+			$rule = $this->product->getFirstFullFitRule();
+			if ( $rule && ! $rule->isZeroRequestPrice() ) {
+				$primaryNetPrice = $this->getNetByKey( $rule->getPrimaryPriceSource() );
+				$secondaryNetPrice = $this->getSecondaryPrice( $primaryNetPrice, $rule->getSecondaryPriceSource() );
+				return $this->getSecondaryPrice( $secondaryNetPrice, $rule->getThirdPriceSource() );
+			}
+			return 0;
+		}, $this->cacheContext() );
+	}
 
-    /**
-     * @feature price_rules flexible_sources
-     * @title[ru] Источники цен: WC или JustB2B
-     * @desc[ru] Плагин поддерживает базовые цены как из WooCommerce, так и из собственных мета-полей JustB2B.
-     * @order 420
-     */
-    public function getBaseNetPrice(): float
-    {
-        return self::getFromRuntimeCache(function () {
-            $rule = $this->product->getFirstFullFitRule();
-            if ($rule && !$rule->isZeroRequestPrice()) {
-                $primary = $this->getNetByKey($rule->getPrimaryPriceSource());
-                return $this->getSecondaryPrice(
-                    $primary,
-                    $rule->getSecondaryPriceSource()
-                );
-            }
-            return 0;
-        }, $this->cacheContext());
-    }
+	public function getBaseGrossPrice(): float {
+		return self::getFromRuntimeCache(
+			fn() => $this->calcGrossFromNetPrice(
+				$this->getBaseNetPrice(),
+			),
+			$this->cacheContext()
+		);
+	}
 
-    public function getBaseGrossPrice(): float
-    {
-        return self::getFromRuntimeCache(
-            fn() => self::calcGrossFromNetPrice(
-                $this->getBaseNetPrice(),
-                $this->getTaxRates()
-            ),
-            $this->cacheContext()
-        );
-    }
+	public function getYourNetPrice(): float {
+		return self::getFromRuntimeCache( function () {
+			return $this->calcRule();
+		}, $this->cacheContext() );
+	}
 
-    public function getFinalNetPrice(): float
-    {
-        return self::getFromRuntimeCache(function () {
-            return $this->calcRule();
-        }, $this->cacheContext());
-    }
+	public function getYourGrossPrice(): float {
+		return self::getFromRuntimeCache(
+			fn() => $this->calcGrossFromNetPrice(
+				$this->getYourNetPrice(),
+			),
+			$this->cacheContext()
+		);
+	}
 
-    public function getFinalGrossPrice(): float
-    {
-        return self::getFromRuntimeCache(
-            fn() => self::calcGrossFromNetPrice(
-                $this->getFinalNetPrice(),
-                $this->getTaxRates()
-            ),
-            $this->cacheContext()
-        );
-    }
+	public function getYourNetTotal(): float {
+		return self::getFromRuntimeCache(
+			fn() => $this->getTotal(
+				$this->getYourNetPrice()
+			),
+			$this->cacheContext()
+		);
+	}
 
-    public function getFinalNetTotal(): float {
-        return self::getTotal(
-            $this->getFinalNetPrice(),
-            $this->product->getQty()
-        );
-    }
+	public function getYourGrossTotal(): float {
+		return self::getFromRuntimeCache(
+			fn() => $this->getTotal(
+				$this->getYourGrossPrice()
+			),
+			$this->cacheContext()
+		);
+	}
 
-    public function getFinalGrossTotal(): float {
-        return self::getTotal(
-            $this->getFinalGrossPrice(),
-            $this->product->getQty()
-        );
-    }
-    
+	public function getNumberOfTimesToAddGifts() {
+		$rule = $this->product->getFirstFullFitRule();
+		if ( $rule ) {
+			if ( $rule->getGiftsEveryItems() > 0 ) {
+				return intdiv( $this->product->getQty(), $rule->getGiftsEveryItems() );
+			}
+			return 1;
+		}
+		return 0;
+	}
 
-    protected function getSecondaryPrice(float $primaryPrice, string $secondaryKey): float
-    {
-        if ('disabled' !== $secondaryKey && $primaryPrice <= 0) {
-            return $this->getNetByKey($secondaryKey);
-        }
-        return $primaryPrice;
-    }
+	public function getNumberfOfGifts(): int {
+		$rule = $this->product->getFirstFullFitRule();
+		if ( $rule ) {
+			return min( $rule->getNumberOfGifts(), $this->product->getQty() ) * $this->getNumberOfTimesToAddGifts();
+		}
+		return 0;
+	}
 
-    protected function getNetByKey(string $source): float
-    {
-        if (str_starts_with($source, 'base_price') || $source === 'rrp_price') {
-            return $this->calcNetFromJustB2bMeta($source);
-        }
-        return $this->calcNetFromWCMeta($source);
-    }
+	public function getGiftsSaleNetTotal(): float {
+		return self::getFromRuntimeCache(
+			fn() => $this->getGiftsSaleTotal(
+				$this->getYourNetPrice()
+			),
+			$this->cacheContext()
+		);
+	}
 
-    protected function calcNetFromWCMeta(string $key): float
-    {
-        $price = get_post_meta($this->product->getId(), $key, true);
-        $price = abs((float) $price);
-        return wc_prices_include_tax()
-            ? self::calcNetFromGrossPrice($price, $this->getTaxRates())
-            : $price;
-    }
+	public function getGiftsSaleGrossTotal(): float {
+		return self::getFromRuntimeCache(
+			fn() => $this->getGiftsSaleTotal(
+				$this->getYourGrossPrice()
+			),
+			$this->cacheContext()
+		);
+	}
 
-    protected function calcNetFromJustB2bMeta(string $key): float
-    {
-        $price = $this->product->getFieldValue($key);
-        $globalController = GlobalController::getInstance();
-        $settingsObject = $globalController->getSettingsModelObject();
-        $isNet = $settingsObject->getFieldValue($key) !== 'gross';
-        return $isNet
-            ? $price
-            : self::calcNetFromGrossPrice($price, $this->getTaxRates());
-    }
+	public function getGiftsSaleTotal( $price ): float {
+		$rule = $this->product->getFirstFullFitRule();
+		if ( $rule ) {
+			return $price * $this->getNumberfOfGifts();
+		}
+		return 0;
+	}
 
-    /**
-     * @feature price_rules net_gross_conversion
-     * @title[ru] Конвертация между нетто и брутто
-     * @desc[ru] Автоматически пересчитывает цену с учётом налога — из брутто в нетто и обратно.
-     * @order 410
-     */
-    public static function calcNetFromGrossPrice(float $gross, $taxRates): float
-    {
-        $removeTaxes = WC_Tax::calc_tax($gross, $taxRates, true);
-        return $gross - array_sum($removeTaxes);
-    }
+	public function getFinalNetTotal(): float {
+		return self::getFromRuntimeCache(
+			fn() => $this->getYourNetPrice() * ( $this->product->getQty() - $this->getNumberfOfGifts() ),
+			$this->cacheContext()
+		);
+	}
+	public function getFinalGrossTotal(): float {
+		return self::getFromRuntimeCache(
+			fn() => $this->getYourGrossPrice() * ( $this->product->getQty() - $this->getNumberfOfGifts() ),
+			$this->cacheContext()
+		);
+	}
 
-    public static function calcGrossFromNetPrice(float $net, $taxRates): float
-    {
-        $addTaxes = WC_Tax::calc_tax($net, $taxRates, false);
-        return $net + array_sum($addTaxes);
-    }
+	public function getFinalNetPerItemPrice(): float {
+		return self::getFromRuntimeCache(
+			fn() => $this->getFinalNetTotal() / $this->product->getQty(),
+			$this->cacheContext()
+		);
+	}
 
-    public static function getTotal($price, $qty): float
-    {
-        return $price * $qty;
-    }
+	public function getFinalGrossPerItemPrice(): float {
+		return self::getFromRuntimeCache(
+			fn() => $this->getFinalGrossTotal() / $this->product->getQty(),
+			$this->cacheContext()
+		);
+	}
 
-    /**
-     * @feature price_rules rule_engine
-     * @title[ru] Многоуровневая система расчёта цен
-     * @desc[ru] Определяет цену товара в зависимости от правил: процентные и числовые скидки, наценки, установка фиксированной цены, с учётом нетто и брутто.
-     * @order 400
-     */
-    public function calcRule(): float
-    {
-        $rule = $this->product->getFirstFullFitRule();
-        if ($rule) {
-            switch ($rule->getKind()) {
-                case 'price_source':
-                    return $this->getBaseNetPrice();
-                case 'net_minus_percent':
-                    return max(0, $this->getBaseNetPrice() - $this->getBaseNetPrice() * $rule->getValue() * 0.01);
-                case 'gross_minus_percent':
-                    return self::calcNetFromGrossPrice($this->getBaseGrossPrice() - $this->getBaseGrossPrice() * $rule->getValue() * 0.01, $this->getTaxRates());
-                case 'net_plus_percent':
-                    return $this->getBaseNetPrice() + $this->getBaseNetPrice() * $rule->getValue() * 0.01;
-                case 'gross_plus_percent':
-                    return self::calcNetFromGrossPrice($this->getBaseGrossPrice() + $this->getBaseGrossPrice() * $rule->getValue() * 0.01, $this->getTaxRates());
-                case 'net_minus_number':
-                    return max(0, $this->getBaseNetPrice() - $rule->getValue());
-                case 'gross_minus_number':
-                    return self::calcNetFromGrossPrice(max(0, $this->getBaseGrossPrice() - $rule->getValue()), $this->getTaxRates());
-                case 'net_plus_number':
-                    return $this->getBaseNetPrice() + $rule->getValue();
-                case 'gross_plus_number':
-                    return self::calcNetFromGrossPrice($this->getBaseGrossPrice() + $rule->getValue(), $this->getTaxRates());
-                case 'net_equals_number':
-                    return $rule->getValue();
-                case 'gross_equals_number':
-                    return self::calcNetFromGrossPrice($rule->getValue(), $this->getTaxRates());
-            }
-        }
-        return 0;
-    }
+	public function getTotal( $price ): float {
+		return $price * $this->product->getQty();
+	}
+
+	protected function getSecondaryPrice( float $primaryPrice, string $secondaryKey ): float {
+		if ( $primaryPrice > 0 ) {
+			return $primaryPrice;
+		}
+
+		if ( 'disabled' !== $secondaryKey ) {
+			return $this->getNetByKey( $secondaryKey );
+		}
+
+		return 0;
+	}
+
+	protected function getNetByKey( string $key ): float {
+		if ( str_starts_with( $key, 'currency_base_price' ) || $key === 'currency_rrp_price' ) {
+			$strippedKey = str_replace( 'currency_', '', $key );
+			$finalKey = strtolower( get_woocommerce_currency() ) . '__' . $strippedKey;
+			return $this->calcNetFromJustB2bMeta( $finalKey );
+		}
+		if ( str_starts_with( $key, 'base_price' ) || $key === 'rrp_price' ) {
+			return $this->calcNetFromJustB2bMeta( $key );
+		}
+		return $this->calcNetFromWCMeta( $key );
+	}
+
+	protected function calcNetFromWCMeta( string $key ): float {
+
+		switch ( $key ) {
+			case '_regular_price':
+				$price = $this->product->getWCProduct()->get_regular_price();
+				break;
+			case '_sale_price':
+				$price = $this->product->getWCProduct()->get_sale_price();
+				break;
+			default:
+				$price = $this->product->getWCProduct()->get_price();
+				break;
+		}
+
+		$price = abs( (float) $price );
+		return wc_prices_include_tax()
+			? $this->calcNetFromGrossPrice( $price )
+			: $price;
+	}
+
+	protected function calcNetFromJustB2bMeta( string $key ): float {
+		$field = new NonNegativeNumberField( $key, '' );
+		// todo: not beautiful place
+		$price = $field->getPostFieldValue( $this->product->getOriginLangProductId() );
+		$globalController = GlobalController::getInstance();
+		$settingsObject = $globalController->getSettingsModelObject();
+		$isNet = $settingsObject->getFieldValue( $key ) !== 'gross';
+		$netPrice = $isNet ? $price : $this->calcNetFromGrossPrice( $price );
+		return apply_filters( 'wcml_raw_price_amount', $netPrice );
+	}
+
+	/**
+	 * @feature price_rules net_gross_conversion
+	 * @title[ru] Конвертация между нетто и брутто
+	 * @desc[ru] Автоматически пересчитывает цену с учётом налога — из брутто в нетто и обратно.
+	 * @order 410
+	 */
+	public function calcNetFromGrossPrice( float $gross ): float {
+		$removeTaxes = WC_Tax::calc_tax( $gross, $this->getTaxRates(), true );
+		return $gross - array_sum( $removeTaxes );
+	}
+
+	public function calcGrossFromNetPrice( float $net ): float {
+		$addTaxes = WC_Tax::calc_tax( $net, $this->getTaxRates(), false );
+		return $net + array_sum( $addTaxes );
+	}
+
+	/**
+	 * @feature price_rules rule_engine
+	 * @title[ru] Многоуровневая система расчёта цен
+	 * @desc[ru] Определяет цену товара в зависимости от правил: процентные и числовые скидки, наценки, установка фиксированной цены, с учётом нетто и брутто.
+	 * @order 400
+	 */
+	public function calcRule(): float {
+		$result = 0;
+		$rule = $this->product->getFirstFullFitRule();
+		if ( $rule ) {
+			switch ( $rule->getKind() ) {
+				case 'price_source':
+					$result = $this->getBaseNetPrice();
+					break;
+				case 'net_minus_percent':
+					$result = max( 0, $this->getBaseNetPrice() - $this->getBaseNetPrice() * $rule->getValue() * 0.01 );
+					break;
+				case 'gross_minus_percent':
+					$result = $this->calcNetFromGrossPrice(
+						$this->getBaseGrossPrice() - $this->getBaseGrossPrice() * $rule->getValue() * 0.01,
+					);
+					break;
+				case 'net_plus_percent':
+					$result = $this->getBaseNetPrice() + $this->getBaseNetPrice() * $rule->getValue() * 0.01;
+					break;
+				case 'gross_plus_percent':
+					$result = $this->calcNetFromGrossPrice(
+						$this->getBaseGrossPrice() + $this->getBaseGrossPrice() * $rule->getValue() * 0.01,
+					);
+					break;
+				case 'net_minus_number':
+					$value = $rule->getValue();
+					$value = apply_filters( 'wcml_raw_price_amount', $rule->getValue() );
+					$result = max( 0, $this->getBaseNetPrice() - $value );
+					break;
+				case 'gross_minus_number':
+					$value = $rule->getValue();
+					$value = apply_filters( 'wcml_raw_price_amount', $rule->getValue() );
+					$result = $this->calcNetFromGrossPrice(
+						max( 0, $this->getBaseGrossPrice() - $value ),
+					);
+					break;
+				case 'net_plus_number':
+					$value = $rule->getValue();
+					$value = apply_filters( 'wcml_raw_price_amount', $rule->getValue() );
+					$result = $this->getBaseNetPrice() + $value;
+					break;
+				case 'gross_plus_number':
+					$value = $rule->getValue();
+					$value = apply_filters( 'wcml_raw_price_amount', $rule->getValue() );
+					$result = $this->calcNetFromGrossPrice(
+						$this->getBaseGrossPrice() + $value,
+					);
+					break;
+				case 'net_equals_number':
+					$value = $rule->getValue();
+					$value = apply_filters( 'wcml_raw_price_amount', $rule->getValue() );
+					$result = $value;
+					break;
+				case 'gross_equals_number':
+					$value = $rule->getValue();
+					$value = apply_filters( 'wcml_raw_price_amount', $rule->getValue() );
+					$result = $this->calcNetFromGrossPrice(
+						$value,
+					);
+					break;
+			}
+		}
+
+		return $result;
+
+	}
+
 }

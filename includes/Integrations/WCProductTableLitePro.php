@@ -22,7 +22,7 @@ defined('ABSPATH') || exit;
  */
 
 /**
- * @feature wcpt_integration user_type_based_total
+ * @feature wcpt_integration customer_type_based_total
  * @title[ru] Учет типа пользователя (B2B / B2C)
  * @desc[ru] Итоговая сумма рассчитывается в зависимости от роли пользователя: B2B видят нетто, B2C — брутто.
  * @order 802

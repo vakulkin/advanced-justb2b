@@ -7,63 +7,56 @@ use JustB2b\Fields\AbstractField;
 use JustB2b\Models\Id\RoleModel;
 use JustB2b\Fields\FieldBuilder;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
-class RolesController extends AbstractCustomPostController
-{
-    public function getSingleName(): string
-    {
-        return RoleModel::getSingleName();
-    }
-    
-    public function getPluralName(): string
-    {
-        return RoleModel::getPluralName();
-    }
+class RolesController extends AbstractCustomPostController {
+	protected function __construct() {
+		parent::__construct();
+		$this->registerAdminColumns();
+	}
 
-    public function getPrefixedKey(): string
-    {
-        return RoleModel::getPrefixedKey();
-    }
+	public function getSingleName(): string {
+		return RoleModel::getSingleName();
+	}
 
-    protected function __construct()
-    {
-        parent::__construct();
-        $this->maybeRegisterAdminColumns();
-    }
+	public function getPluralName(): string {
+		return RoleModel::getPluralName();
+	}
 
-    public function registerCarbonFields()
-    {
-        $definitions = RoleModel::getFieldsDefinition();
-        $fields = FieldBuilder::buildFields($definitions);
+	public function getPrefixedKey(): string {
+		return RoleModel::getPrefixedKey();
+	}
 
-        Container::make('post_meta', 'JustB2B')
-            ->where('post_type', '=', RoleModel::getPrefixedKey())
-            ->add_fields($fields);
-    }
+	public function registerCarbonFields() {
+		$definitions = RoleModel::getFieldsDefinition();
+		$fields = FieldBuilder::buildFields( $definitions );
 
-    protected function maybeRegisterAdminColumns(): void
-    {
-        $fields = RoleModel::getFieldsDefinition();
+		Container::make( 'post_meta', 'JustB2B' )
+			->where( 'post_type', '=', RoleModel::getPrefixedKey() )
+			->add_fields( $fields );
+	}
 
-        $postType = RoleModel::getPrefixedKey();
+	protected function registerAdminColumns(): void {
+		$fields = RoleModel::getFieldsDefinition();
 
-        add_filter("manage_edit-{$postType}_columns", function ($columns) use ($fields) {
-            foreach ($fields as $field) {
-                /** @var AbstractField $field */
-                $columns[$field->getKey()] = $field->getLabel();
-            }
-            return $columns;
-        });
+		$postType = RoleModel::getPrefixedKey();
 
-        add_action("manage_{$postType}_posts_custom_column", function ($column, $postId) use ($fields) {
-            foreach ($fields as $field) {
-                /** @var AbstractField $field */
-                if ($column === $field->getKey()) {
-                    echo $field->renderValue($postId);
-                    return;
-                }
-            }
-        }, 10, 2);
-    }
+		add_filter( "manage_edit-{$postType}_columns", function ($columns) use ($fields) {
+			foreach ( $fields as $field ) {
+				/** @var AbstractField $field */
+				$columns[ $field->getKey()] = $field->getLabel();
+			}
+			return $columns;
+		} );
+
+		add_action( "manage_{$postType}_posts_custom_column", function ($column, $postId) use ($fields) {
+			foreach ( $fields as $field ) {
+				/** @var AbstractField $field */
+				if ( $column === $field->getKey() ) {
+					echo $field->renderValue( $postId );
+					return;
+				}
+			}
+		}, 10, 2 );
+	}
 }

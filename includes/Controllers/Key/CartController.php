@@ -7,7 +7,6 @@ use JustB2b\Controllers\Key\AbstractKeyController;
 use JustB2b\Controllers\Id\UsersController;
 use JustB2b\Models\Id\ProductModel;
 use JustB2b\Models\Key\CartModel;
-use JustB2b\Fields\SelectField;
 use JustB2b\Fields\FieldBuilder;
 use JustB2b\Traits\SingletonTrait;
 use JustB2b\Traits\RuntimeCacheTrait;
@@ -37,7 +36,7 @@ class CartController extends AbstractKeyController
     public function registerCarbonFields(): void
     {
         $fields = FieldBuilder::buildFields(
-            $this->getFieldsDefinition()
+            CartModel::getFieldsDefinition()
         );
 
         $globalController = GlobalController::getInstance();
@@ -48,7 +47,6 @@ class CartController extends AbstractKeyController
 
     public function getShowNetFor(): string
     {
-
         return $this->cartModelObject->getFieldValue('mini_cart_net_price');
     }
 
@@ -107,7 +105,7 @@ class CartController extends AbstractKeyController
 
             $priceCalculator = $productModel->getPriceCalculator();
             $baseGross = $priceCalculator->getBaseGrossPrice();
-            $finalGross = $priceCalculator->getFinalGrossPrice();
+            $finalGross = $priceCalculator->getFinalGrossPerItemPrice();
 
             if ($baseGross > $finalGross) {
                 $product->set_regular_price($baseGross);
@@ -116,28 +114,5 @@ class CartController extends AbstractKeyController
             $product->set_price($finalGross);
             $product->set_sale_price($finalGross);
         }
-    }
-
-    public function getFieldsDefinition(): array
-    {
-        return [
-            (new SelectField('mini_cart_net_price', 'Mini cart net price visibility'))
-                ->setOptions([
-                    'b2x' => 'b2x',
-                    'b2b' => 'b2b',
-                    'b2c' => 'b2c',
-                ])
-                ->setHelpText(__('Choose who should see the net price in the mini cart.', 'justb2b'))
-                ->setWidth(50),
-
-            (new SelectField('mini_cart_gross_price', 'Mini cart gross price visibility'))
-                ->setOptions([
-                    'b2x' => 'b2x',
-                    'b2b' => 'b2b',
-                    'b2c' => 'b2c',
-                ])
-                ->setHelpText(__('Choose who should see the gross price in the mini cart.', 'justb2b'))
-                ->setWidth(50),
-        ];
     }
 }

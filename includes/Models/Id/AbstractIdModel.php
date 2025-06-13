@@ -28,18 +28,17 @@ abstract class AbstractIdModel extends AbstractModel
 
     protected function getUserTypeClause(bool $isB2b): array
     {
-        return [
+        $clauses = [
             'relation' => 'OR',
             [
-                'key' => Prefixer::getPrefixedMeta('user_type'),
+                'key' => Prefixer::getPrefixedMeta('customer_type'),
                 'value' => $isB2b ? ['b2b', 'b2x'] : ['b2c', 'b2x'],
                 'compare' => 'IN',
             ],
-            [
-                'key' => Prefixer::getPrefixedMeta('user_type'),
-                'compare' => 'NOT EXISTS',
-            ],
         ];
+        // todo: add empty logic
+
+        return $clauses;
     }
 
     protected function getBaseMetaQuery(bool $isB2b): array
@@ -50,7 +49,7 @@ abstract class AbstractIdModel extends AbstractModel
                 'key' => Prefixer::getPrefixedMeta('priority'),
                 'type' => 'NUMERIC',
             ],
-            'user_type_clause' => $this->getUserTypeClause($isB2b),
+            'customer_type_clause' => $this->getUserTypeClause($isB2b),
         ];
     }
 }

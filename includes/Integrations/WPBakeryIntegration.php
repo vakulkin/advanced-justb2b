@@ -7,7 +7,7 @@ use JustB2b\Controllers\Id\UsersController;
 
 defined('ABSPATH') || exit;
 
-class WPBakery
+class WPBakeryIntegration
 {
     use SingletonTrait;
 

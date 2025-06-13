@@ -22,7 +22,7 @@ jQuery(document).ready(function () {
     function updatePrice() {
         if (isRequestInProgress) return;
 
-        
+
         const priceContainer = getPriceContainer();
         console.log(priceContainer);
         const qtyInput = jQuery(Selectors.qtyInput);

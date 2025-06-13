@@ -17,9 +17,10 @@ use JustB2b\Controllers\Id\RolesController;
 use JustB2b\Controllers\Id\RulesController;
 use JustB2b\Controllers\Key\ShippingController;
 use JustB2b\Controllers\Id\UsersController;
+use JustB2b\Integrations\WCMLIntegration;
 use JustB2b\Integrations\WCProductTableLitePro;
 use JustB2b\Integrations\WoodMartIntegration;
-use JustB2b\Integrations\WPBakery;
+use JustB2b\Integrations\WPBakeryIntegration;
 use JustB2b\Shortcodes\FeatureShortcodes;
 use JustB2b\Traits\SingletonTrait;
 
@@ -58,9 +59,10 @@ class AdvancedJustB2b
 
     protected function bootIntegrations(): void
     {
+        WCMLIntegration::getInstance();
         WoodMartIntegration::getInstance();
         WCProductTableLitePro::getInstance();
-        WPBakery::getInstance();
+        WPBakeryIntegration::getInstance();
     }
 }
 

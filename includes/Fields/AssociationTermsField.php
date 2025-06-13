@@ -27,8 +27,7 @@ class AssociationTermsField extends AssociationField
         $terms = parent::getPostFieldValue($parentId);
         $result = [];
         if (is_array($terms)) {
-            foreach ($terms as $termData) {
-                $termId = (int) ($termData['id'] ?? 0);
+            foreach ($terms as $termId) {
                 if ($termId && ($term = get_term($termId)) && !is_wp_error($term)) {
                     $result[$term->term_id] = [
                         'id' => $term->term_id,
