@@ -11,7 +11,7 @@ use JustB2b\Utils\Prefixer;
 use JustB2b\Utils\Pricing\PriceCalculator;
 use JustB2b\Utils\Pricing\PriceDisplay;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * @feature-section product_logic
@@ -27,215 +27,178 @@ defined('ABSPATH') || exit;
  * @order 401
  */
 
-class ProductModel extends AbstractPostModel
-{
-    use RuntimeCacheTrait;
+class ProductModel extends AbstractPostModel {
+	use RuntimeCacheTrait;
 
-    protected static string $key = 'product';
-    protected int $qty;
-    protected int $originLangProductId;
+	protected static string $key = 'product';
+	protected int $qty;
+	protected int $originLangProductId;
 
-    private ?RuleModel $cachedFirstFullFitRule = null;
+	private ?RuleModel $cachedFirstFullFitRule = null;
 
-    public function __construct(int $id, int $conditionQty)
-    {
-        parent::__construct($id);
-        $default_language = apply_filters('wpml_default_language', null);
-        $origin_language_id = apply_filters('wpml_object_id', $id, 'product', false, $default_language) ?: $id;
-        $this->originLangProductId = $origin_language_id;
-        $this->qty = $conditionQty;
-    }
+	public function __construct( int $id, int $conditionQty ) {
+		parent::__construct( $id );
+		$default_language = apply_filters( 'wpml_default_language', null );
+		$origin_language_id = apply_filters( 'wpml_object_id', $id, 'product', false, $default_language ) ?: $id;
+		$this->originLangProductId = $origin_language_id;
+		$this->qty = $conditionQty;
+	}
 
-    public function getOriginLangProductId(): int
-    {
-        return $this->originLangProductId;
-    }
+	public function getOriginLangProductId(): int {
+		return $this->originLangProductId;
+	}
 
-    public static function getSingleName(): string
-    {
-        return __('Product', 'justb2b');
-    }
+	public static function getSingleName(): string {
+		return __( 'Product', 'justb2b' );
+	}
 
-    public static function getPluralName(): string
-    {
-        return __('Products', 'justb2b');
-    }
+	public static function getPluralName(): string {
+		return __( 'Products', 'justb2b' );
+	}
 
-    protected function cacheContext(array $extra = []): array
-    {
-        return array_merge([
-            parent::cacheContext($extra),
-            'qty' => $this->qty
-        ]);
-    }
+	protected function cacheContext( array $extra = [] ): array {
+		return array_merge( [ 
+			parent::cacheContext( $extra ),
+			'qty' => $this->qty
+		] );
+	}
 
-    public function getQty(): int
-    {
-        return $this->qty;
-    }
+	public function getQty(): int {
+		return $this->qty;
+	}
 
-    public function getWCProduct(): WC_Product
-    {
-        return self::getFromRuntimeCache(
-            fn () => wc_get_product($this->id),
-            $this->cacheContext()
-        );
-    }
+	public function getWCProduct(): WC_Product {
+		return self::getFromRuntimeCache(
+			fn() => wc_get_product( $this->id ),
+			$this->cacheContext()
+		);
+	}
 
-    public function isSimpleProduct(): bool
-    {
-        return $this->getWCProduct()->is_type('simple');
-    }
+	public function isSimpleProduct(): bool {
+		return $this->getWCProduct()->is_type( 'simple' );
+	}
 
-    public function isVariableProduct(): bool
-    {
-        return $this->getWCProduct()->is_type('variable');
-    }
+	public function isVariableProduct(): bool {
+		return $this->getWCProduct()->is_type( 'variable' );
+	}
 
-    public function isVariation(): bool
-    {
-        return $this->getWCProduct()->is_type('variation');
-    }
+	public function isVariation(): bool {
+		return $this->getWCProduct()->is_type( 'variation' );
+	}
 
-    public function isDifferentTypeProduct(): bool
-    {
-        return ! $this->isSimpleProduct() && ! $this->isVariableProduct() && ! $this->isVariation();
-    }
+	public function isDifferentTypeProduct(): bool {
+		return ! $this->isSimpleProduct() && ! $this->isVariableProduct() && ! $this->isVariation();
+	}
 
-    /**
-     * @feature product_logic rule_matching
-     * @title[ru] Автоматический подбор правил
-     * @desc[ru] Плагин находит все правила, подходящие под товар, пользователя, категории, группы и другие условия — вам не нужно ничего связывать вручную.
-     * @order 410
-     */
+	/**
+	 * @feature product_logic rule_matching
+	 * @title[ru] Автоматический подбор правил
+	 * @desc[ru] Плагин находит все правила, подходящие под товар, пользователя, категории, группы и другие условия — вам не нужно ничего связывать вручную.
+	 * @order 410
+	 */
 
-    public function getProductRules(): array
-    {
-        return self::getFromRuntimeCache(function () {
-            $query = new WP_Query($this->getRuleQueryArgs());
-            $results = [];
-            foreach ($query->posts as $post) {
-                $rule = new RuleModel($post->ID, $this->getId(), $this->getOriginLangProductId(), $this->getQty());
-                if ($rule->isFullRuleFit()) {
-                    $results[] = $rule;
-                }
-            }
-            return $results;
-        }, $this->cacheContext());
-    }
+	public function getProductRules(): array {
+		return self::getFromRuntimeCache( function () {
+			$query = new WP_Query( $this->getRuleQueryArgs() );
+			$results = [];
+			foreach ( $query->posts as $post ) {
+				$rule = new RuleModel( $post->ID, $this->getId(), $this->getOriginLangProductId(), $this->getQty() );
+				if ( $rule->isFullRuleFit() ) {
+					$results[] = $rule;
+				}
+			}
+			return $results;
+		}, $this->cacheContext() );
+	}
 
-    /**
-     * @feature product_logic rule_priority
-     * @title[ru] Приоритет правил
-     * @desc[ru] Если к товару подходит несколько правил, применяется то, что имеет наивысший приоритет и подходит по количеству.
-     * @order 420
-     */
+	/**
+	 * @feature product_logic rule_priority
+	 * @title[ru] Приоритет правил
+	 * @desc[ru] Если к товару подходит несколько правил, применяется то, что имеет наивысший приоритет и подходит по количеству.
+	 * @order 420
+	 */
 
-    public function getFirstFullFitRule(): ?RuleModel
-    {
-        return self::getFromRuntimeCache(function () {
-            foreach ($this->getProductRules() as $rule) {
-                if ($rule->doesQtyFits()) {
-                    return $rule;
-                }
-            }
-            return null;
-        }, $this->cacheContext());
-    }
+	public function getFirstFullFitRule(): ?RuleModel {
+		return self::getFromRuntimeCache( function () {
+			foreach ( $this->getProductRules() as $rule ) {
+				if ( $rule->doesQtyFits() ) {
+					return $rule;
+				}
+			}
+			return null;
+		}, $this->cacheContext() );
+	}
 
-    /**
-     * @feature product_logic price_calculator
-     * @title[ru] Мгновенный пересчёт цены
-     * @desc[ru] JustB2B рассчитывает цену в зависимости от условий и количества — с учётом скидок, наценок, базовых цен и налогов.
-     * @order 430
-     */
+	/**
+	 * @feature product_logic price_calculator
+	 * @title[ru] Мгновенный пересчёт цены
+	 * @desc[ru] JustB2B рассчитывает цену в зависимости от условий и количества — с учётом скидок, наценок, базовых цен и налогов.
+	 * @order 430
+	 */
 
-    public function getPriceCalculator(): PriceCalculator
-    {
-        return self::getFromRuntimeCache(
-            fn () => new PriceCalculator($this),
-            $this->cacheContext()
-        );
-    }
+	public function getPriceCalculator(): PriceCalculator {
+		return self::getFromRuntimeCache(
+			fn() => new PriceCalculator( $this ),
+			$this->cacheContext()
+		);
+	}
 
-    /**
-     * @feature product_logic price_display
-     * @title[ru] Отображение нужной цены нужному клиенту
-     * @desc[ru] Клиент видит именно ту цену, которая для него рассчитана. Больше не нужно догадываться, почему цена отличается.
-     * @order 440
-     */
+	/**
+	 * @feature product_logic price_display
+	 * @title[ru] Отображение нужной цены нужному клиенту
+	 * @desc[ru] Клиент видит именно ту цену, которая для него рассчитана. Больше не нужно догадываться, почему цена отличается.
+	 * @order 440
+	 */
 
-    public function getPriceDisplay(string $defaultPriceHtml, bool $isInLoop): PriceDisplay
-    {
-        return self::getFromRuntimeCache(
-            fn () => new PriceDisplay($this, $defaultPriceHtml, $isInLoop),
-            $this->cacheContext([ 'is_loop' => $isInLoop ])
-        );
-    }
+	public function getPriceDisplay( string $defaultPriceHtml, bool $isInLoop ): PriceDisplay {
+		return self::getFromRuntimeCache(
+			fn() => new PriceDisplay( $this, $defaultPriceHtml, $isInLoop ),
+			$this->cacheContext( [ 'is_loop' => $isInLoop ] )
+		);
+	}
 
-    protected function getRuleQueryArgs(): array
-    {
-        $user = UsersController::getInstance()->getCurrentUser();
+	protected function getRuleQueryArgs(): array {
+		$user = UsersController::getInstance()->getCurrentUser();
 
-        $meta = $this->getBaseMetaQuery($user->isB2b());
-        $meta['min_qty_clause'] = [
-            'key' => Prefixer::getPrefixedMeta('min_qty'),
-            'type' => 'NUMERIC',
-        ];
-        $meta['max_qty_clause'] = [
-            'key' => Prefixer::getPrefixedMeta('max_qty'),
-            'type' => 'NUMERIC',
-        ];
+		$meta = $this->getBaseMetaQuery( $user->isB2b() );
+		$meta['min_qty_clause'] = [ 
+			'key' => Prefixer::getPrefixedMeta( 'min_qty' ),
+			'type' => 'NUMERIC',
+		];
+		$meta['max_qty_clause'] = [ 
+			'key' => Prefixer::getPrefixedMeta( 'max_qty' ),
+			'type' => 'NUMERIC',
+		];
 
-        return [
-            'post_type' => Prefixer::getPrefixed('rule'),
-            'post_status' => 'publish',
-            'posts_per_page' => -1,
-            'meta_query' => $meta,
-            'orderby' => [
-                'priority_clause' => 'ASC',
-                'min_qty_clause' => 'ASC',
-                'max_qty_clause' => 'DESC',
-                'ID' => 'ASC',
-            ],
-        ];
-    }
+		return [ 
+			'post_type' => Prefixer::getPrefixed( 'rule' ),
+			'post_status' => 'publish',
+			'posts_per_page' => -1,
+			'meta_query' => $meta,
+			'orderby' => [ 
+				'priority_clause' => 'ASC',
+				'min_qty_clause' => 'ASC',
+				'max_qty_clause' => 'DESC',
+				'ID' => 'ASC',
+			],
+		];
+	}
 
-    public static function getFieldsDefinition(): array
-    {
+	public static function getFieldsDefinition(): array {
+		$base_keys = [ 
+			'rrp_price',
+			'base_price_1',
+			'base_price_2',
+			'base_price_3',
+			'base_price_4',
+			'base_price_5',
+		];
 
-        global $woocommerce_wpml;
+		$fields = array_map(
+			fn( $key ) => new NonNegativeFloatField( $key, $key ),
+			$base_keys
+		);
 
-        $base_keys = [
-            'rrp_price',
-            'base_price_1',
-            'base_price_2',
-            'base_price_3',
-            'base_price_4',
-            'base_price_5',
-        ];
-
-        // Base fields (default currency or fallback)
-        $fields = array_map(
-            fn ($key) => new NonNegativeFloatField($key, $key),
-            $base_keys
-        );
-
-        // Multi-currency fields
-        if (
-            isset($woocommerce_wpml->settings['currency_options']) &&
-            is_array($woocommerce_wpml->settings['currency_options'])
-        ) {
-            $currency_codes = array_keys($woocommerce_wpml->settings['currency_options']);
-
-            foreach ($currency_codes as $currency) {
-                foreach ($base_keys as $key) {
-                    $composite_key = strtolower($currency) . '__' . $key;
-                    $fields[] = new NonNegativeFloatField($composite_key, $composite_key);
-                }
-            }
-        }
-
-        return $fields;
-    }
+		return apply_filters( "justb2b_product_fields_definition", $fields, $base_keys );
+	}
 }

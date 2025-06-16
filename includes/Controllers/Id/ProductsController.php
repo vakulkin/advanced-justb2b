@@ -51,40 +51,6 @@ class ProductsController extends AbstractController {
 		add_filter( 'carbon_fields_association_field_options_justb2b_woo_terms_term_product_tag', [ $this, 'carbonFieldsFilterTerms' ] );
 		add_filter( 'carbon_fields_association_field_options_justb2b_qualifying_woo_terms_term_product_tag', [ $this, 'carbonFieldsFilterTerms' ] );
 		add_filter( 'carbon_fields_association_field_options_justb2b_excluding_woo_terms_term_product_tag', [ $this, 'carbonFieldsFilterTerms' ] );
-
-		add_filter( 'posts_clauses', function ($clauses, $query) {
-			global $pagenow;
-			if (
-				is_admin() &&
-				$pagenow === 'post.php' &&
-				$query->get( 'justb2b_products_association' )
-			) {
-				$clauses['where'] = preg_replace(
-					'~AND \( \( \( wpml_translations\.language_code~',
-					"AND ( ( ( 1=1 OR wpml_translations.language_code",
-					$clauses['where']
-				);
-			}
-			return $clauses;
-		}, 20, 2 );
-
-
-		add_filter( 'terms_clauses', function ($clauses, $taxonomies, $args) {
-			global $pagenow;
-			if (
-				is_admin() &&
-				$pagenow === 'post.php' &&
-				isset( $args['justb2b_terms_association'] )
-			) {
-				$clauses['where'] = preg_replace(
-					'~AND \( icl_t\.language_code~',
-					"AND (1=1 OR icl_t.language_code",
-					$clauses['where']
-				);
-			}
-			return $clauses;
-		}, 20, 3 );
-
 	}
 
 	public function carbonFieldsFilterVariationsParentProducts( $query_arguments ) {
@@ -147,7 +113,6 @@ class ProductsController extends AbstractController {
 		check_ajax_referer( 'justb2b_price_nonce', 'nonce' );
 
 		$productId = intval( $_POST['product_id'] );
-		// $productId = apply_filters('wpml_object_id', $productId, 'product', false, 'en');
 		$quantity = isset( $_POST['qty'] ) ? intval( $_POST['qty'] ) : 1;
 
 		if ( ! $productId || ! $quantity ) {

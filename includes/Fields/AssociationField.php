@@ -33,7 +33,6 @@ abstract class AssociationField extends AbstractField {
 
 	public function getPostFieldOriginValue( int $postId ): array {
 		global $wpdb;
-		error_log( $postId . ' ' . $this->prefixedKey . ' ' . print_r( $this->getOriginValuesFromMetaTable( $postId, $wpdb->postmeta, 'post_id', '|id' ), true ) );
 		return self::getFromRuntimeCache(
 			fn() => $this->getOriginValuesFromMetaTable( $postId, $wpdb->postmeta, 'post_id', '|id' ),
 			[ 'post_id' => $postId, 'key' => $this->prefixedKey ]
@@ -63,18 +62,15 @@ abstract class AssociationField extends AbstractField {
 		callable $labelGetter
 	): string {
 		$visibleCount = 3;
+		$resolvedEntities = $this->resolveEntities( $values, $resolver );
+		$renderedLinks = $this->renderVisibleEntities( $resolvedEntities, $linkGenerator, $labelGetter, $visibleCount );
+		$moreIndicator = $this->renderRemainingCountIndicator( count( $resolvedEntities ), $visibleCount );
 
-		return print_r( $values, true );
-
-		// $resolvedEntities = $this->resolveEntities( $values, $resolver );
-		// $renderedLinks = $this->renderVisibleEntities( $resolvedEntities, $linkGenerator, $labelGetter, $visibleCount );
-		// $moreIndicator = $this->renderRemainingCountIndicator( count( $resolvedEntities ), $visibleCount );
-
-		// return sprintf(
-		// 	'<div class="justb2b-associations">%s%s</div>',
-		// 	$renderedLinks,
-		// 	$moreIndicator
-		// );
+		return sprintf(
+			'<div class="justb2b-associations">%s%s</div>',
+			$renderedLinks,
+			$moreIndicator
+		);
 	}
 
 	protected function resolveEntities( array $values, callable $resolver ): array {

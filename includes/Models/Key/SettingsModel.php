@@ -45,7 +45,6 @@ class SettingsModel extends AbstractKeyModel {
 	}
 
 	public static function getFieldsDefinition(): array {
-		global $woocommerce_wpml;
 
 		$fieldsDefinition = [];
 
@@ -65,24 +64,7 @@ class SettingsModel extends AbstractKeyModel {
 				->setWidth( 50 );
 		}
 
-		// Multi-currency fields
-		if (
-			isset( $woocommerce_wpml->settings['currency_options'] ) &&
-			is_array( $woocommerce_wpml->settings['currency_options'] )
-		) {
-			$currency_codes = array_keys( $woocommerce_wpml->settings['currency_options'] );
-
-			foreach ( $currency_codes as $currency ) {
-				$currency = strtolower( $currency );
-				foreach ( $base_fields as $field ) {
-					$key = "{$currency}__{$field['key']}";
-					$label = "{$field['label']} ({$currency})";
-					$fieldsDefinition[] = ( new SelectField( $key, $label ) )
-						->setOptions( [ 'net' => 'net', 'gross' => 'gross' ] )
-						->setWidth( 50 );
-				}
-			}
-		}
+		$fieldsDefinition = apply_filters( 'settingsFieldsDefinition', $fieldsDefinition, $base_fields );
 
 		// Visibility and prefix/postfix configuration
 		foreach ( [ [ 'key' => 'base_net', 'label' => 'Base Net' ], [ 'key' => 'base_gross', 'label' => 'Base Gross' ], [ 'key' => 'your_net', 'label' => 'Your Net' ], [ 'key' => 'your_gross', 'label' => 'Your Gross' ], [ 'key' => 'your_net_total', 'label' => 'Your Net Total' ], [ 'key' => 'your_gross_total', 'label' => 'Your Gross Total' ], [ 'key' => 'gifts_net_total', 'label' => 'gifts_net_total' ], [ 'key' => 'gifts_gross_total', 'label' => 'gifts_gross_total' ], [ 'key' => 'final_net_total', 'label' => 'final_net_total' ], [ 'key' => 'final_gross_total', 'label' => 'final_gross_total' ], [ 'key' => 'final_per_item_net', 'label' => 'final_per_item_net' ], [ 'key' => 'final_per_item_gross', 'label' => 'final_per_item_gross' ], [ 'key' => 'rrp_net', 'label' => 'RRP Net' ], [ 'key' => 'rrp_gross', 'label' => 'RRP Gross' ], [ 'key' => 'qty_table', 'label' => 'Qty Table' ],] as $field ) {

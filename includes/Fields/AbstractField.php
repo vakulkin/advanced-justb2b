@@ -43,6 +43,10 @@ abstract class AbstractField {
 		return $this->attributes[ $name ] ?? null;
 	}
 
+	public function getDefaultValue(): mixed {
+		return $this->defaultValue;
+	}
+
 	public function setDefaultValue( mixed $value ): static {
 		$this->defaultValue = $value;
 		return $this;

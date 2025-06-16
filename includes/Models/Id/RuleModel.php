@@ -14,6 +14,7 @@ use JustB2b\Fields\NonNegativeIntegerField;
 use JustB2b\Fields\NumberField;
 use JustB2b\Fields\RichTextField;
 use JustB2b\Fields\SelectField;
+use JustB2b\Integrations\WCMLIntegration;
 use JustB2b\Traits\RuntimeCacheTrait;
 
 defined( 'ABSPATH' ) || exit;
@@ -87,6 +88,16 @@ class RuleModel extends AbstractPostModel {
 
 	public function getValue(): float {
 		return $this->getFieldValue( 'value' );
+	}
+
+	public function getCurrency(): string {
+		/** @var SelectField $selectField */
+		$selectField = WCMLIntegration::currencyWPMLSelectField();
+		$value = $this->getFieldValue( 'currency' );
+		if ( $selectField && isset( $selectField->getOptions()[ $value ] ) ) {
+			return $value;
+		}
+		return $selectField->getDefaultValue();
 	}
 
 	public function getMinQty(): int {
@@ -252,10 +263,11 @@ class RuleModel extends AbstractPostModel {
 			return false;
 		}
 
-		$hasQualifyingRoles = ! empty( $usequalifyingRolesrs );
+		$hasQualifyingRoles = ! empty( $qualifyingRoles );
 		if ( ! $hasQualifyingRoles ) {
 			return true;
 		}
+		error_log("123");
 
 		return $this->checkRoles( $qualifyingRoles );
 	}
@@ -318,20 +330,12 @@ class RuleModel extends AbstractPostModel {
 		if ( isset( $products[ $this->productId ] ) ) {
 			return true;
 		}
-
-		$trid = apply_filters( 'wpml_element_trid', null, $this->productId, 'post_product' );
-		$translations = apply_filters( 'wpml_get_element_translations', null, $trid, 'post_product' ) ?: [];
-		foreach ( $translations as $translation ) {
-			if ( isset( $products[ $translation->element_id ] ) ) {
-				return true;
-			}
-		}
-
-		return false;
+		return apply_filters( "justb2b_check_product", false, $products, $this->productId );
 	}
 
 
 	protected function checkTerms( false|array $terms ): bool {
+
 		if ( ! $terms || empty( $terms ) ) {
 			return false;
 		}
@@ -343,26 +347,7 @@ class RuleModel extends AbstractPostModel {
 			}
 		}
 
-		// Step 2: Get all translated products
-		$productTrid = apply_filters( 'wpml_element_trid', null, $this->productId, 'post_product' );
-		$productTranslations = apply_filters( 'wpml_get_element_translations', null, $productTrid, 'post_product' ) ?: [];
-
-		// Step 3+4: Inline term translation + product-term check
-		foreach ( $terms as $term ) {
-			$termTrid = apply_filters( 'wpml_element_trid', null, $term['id'], 'tax_' . $term['taxonomy'] );
-			$termTranslations = apply_filters( 'wpml_get_element_translations', null, $termTrid, 'tax_' . $term['taxonomy'] );
-
-			foreach ( $termTranslations as $translatedTerm ) {
-				$translatedTermId = $translatedTerm->element_id;
-				foreach ( $productTranslations as $translation ) {
-					if ( has_term( $translatedTermId, $term['taxonomy'], $translation->element_id ) ) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
+		return apply_filters( 'checkTerms', false, $this->productId, $terms );
 	}
 
 
@@ -383,6 +368,7 @@ class RuleModel extends AbstractPostModel {
 			/** @var AssociationField $field */
 			$field = $this->getField( 'users' );
 			$users = $field->getPostFieldValue( $role );
+			error_log(print_r($users, true));
 			$userController = UsersController::getInstance();
 			$currentUser = $userController->getCurrentUser();
 			$currentUserId = $currentUser->getId();
@@ -495,10 +481,11 @@ class RuleModel extends AbstractPostModel {
 				->setHelpText( 'Value used in price calculation.' )
 				->setWidth( 25 ),
 
+			WCMLIntegration::currencyWPMLSelectField(),
+
 			( new NonNegativeIntegerField( 'gifts_number', 'Number of gifts' ) )
 				->setHelpText( 'Number of same product gifts for this product. Defaults to 0. Zero means no gifts.' )
 				->setWidth( 25 ),
-
 
 			( new NonNegativeIntegerField( 'gifts_every_items', 'Add gitfs every Y items' ) )
 				->setHelpText( 'Add X new gifts for every Y items. 0 means only once. Defaults to 0.' )
