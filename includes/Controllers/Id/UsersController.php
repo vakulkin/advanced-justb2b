@@ -40,7 +40,8 @@ class UsersController extends AbstractController
         }, ['user_id' => get_current_user_id()]);
     }
 
-    public function getUserBannersShortcode() {
+    public function getUserBannersShortcode()
+    {
         return $this->getCurrentUser()->getUserBannersHtml();
     }
 }
