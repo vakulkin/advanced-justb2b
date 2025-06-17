@@ -345,7 +345,7 @@ class PriceDisplay {
 				}
 
 				if ( current_user_can( 'administrator' ) ) {
-					$html .= "<div class=\"justb2b-rule-title\">" . $this->product->getId() . esc_html( $rule->getTitle() ) . "</div>";
+					$html .= "<div class=\"justb2b-rule-title\">" . esc_html( $rule->getTitle() ) . "</div>";
 				}
 
 				return apply_filters(

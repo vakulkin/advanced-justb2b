@@ -13,16 +13,19 @@ class WPBakeryIntegration
 
     protected function __construct()
     {
-        add_action('init', function () {
+        add_action('init', function (): void {
             add_shortcode('justb2b_wpbakery_user_banners', [$this, 'getWPBakeryBanners']);
         });
     }
 
-    public function getWPBakeryBanners()
+    public function getWPBakeryBanners(): string
     {
         $userController = UsersController::getInstance();
         $currentUser = $userController->getCurrentUser();
-        $images = implode(',', $currentUser->getUserBanners());
-        return do_shortcode("[vc_images_carousel images=\"{$images}\" img_size=\"full\" autoplay=\"yes\"]");
+        if (count($currentUser->getUserBanners())) {
+            $images = implode(',', $currentUser->getUserBanners());
+            return do_shortcode("[vc_images_carousel images=\"{$images}\" img_size=\"full\" autoplay=\"yes\"]");
+        }
+        return '';
     }
 }

@@ -91,8 +91,10 @@ class RuleModel extends AbstractPostModel {
 	}
 
 	public function getCurrency(): string {
+		$WCMLIntegration = WCMLIntegration::getInstance();
+
 		/** @var SelectField $selectField */
-		$selectField = WCMLIntegration::currencyWPMLSelectField();
+		$selectField = $WCMLIntegration->currencyWPMLSelectField();
 		$value = $this->getFieldValue( 'currency' );
 		if ( $selectField && isset( $selectField->getOptions()[ $value ] ) ) {
 			return $value;
@@ -126,10 +128,7 @@ class RuleModel extends AbstractPostModel {
 
 
 	public function getBanners(): array {
-		return self::getFromRuntimeCache(
-			fn() => $this->getFieldValue( 'banners' ),
-			$this->cacheContext()
-		);
+		return $this->getFieldValue( 'banners' );
 	}
 
 	public function doesQtyFits(): bool {
@@ -228,8 +227,6 @@ class RuleModel extends AbstractPostModel {
 
 		return false;
 	}
-
-
 	private function passesMainProductsTermsCheck(): bool {
 		$products = $this->getFieldValue( 'products' );
 		$terms = $this->getFieldValue( 'woo_terms' );
@@ -252,7 +249,6 @@ class RuleModel extends AbstractPostModel {
 		if ( $hasTerms && $this->checkTerms( $terms ) ) {
 			return true;
 		}
-
 		return false;
 	}
 
@@ -267,7 +263,7 @@ class RuleModel extends AbstractPostModel {
 		if ( ! $hasQualifyingRoles ) {
 			return true;
 		}
-		error_log("123");
+		error_log( "123" );
 
 		return $this->checkRoles( $qualifyingRoles );
 	}
@@ -368,7 +364,7 @@ class RuleModel extends AbstractPostModel {
 			/** @var AssociationField $field */
 			$field = $this->getField( 'users' );
 			$users = $field->getPostFieldValue( $role );
-			error_log(print_r($users, true));
+			error_log( print_r( $users, true ) );
 			$userController = UsersController::getInstance();
 			$currentUser = $userController->getCurrentUser();
 			$currentUserId = $currentUser->getId();
@@ -406,6 +402,8 @@ class RuleModel extends AbstractPostModel {
 	}
 
 	public static function getFieldsDefinition(): array {
+		$WCMLIntegration = WCMLIntegration::getInstance();
+
 		return [ 
 			( new NumberField( 'priority', 'Priority' ) )
 				->setHelpText( 'Lower number = higher priority. Use gaps like 10, 20, 30. Defaults to 0.' )
@@ -481,7 +479,7 @@ class RuleModel extends AbstractPostModel {
 				->setHelpText( 'Value used in price calculation.' )
 				->setWidth( 25 ),
 
-			WCMLIntegration::currencyWPMLSelectField(),
+			// $WCMLIntegration->currencyWPMLSelectField(),
 
 			( new NonNegativeIntegerField( 'gifts_number', 'Number of gifts' ) )
 				->setHelpText( 'Number of same product gifts for this product. Defaults to 0. Zero means no gifts.' )

@@ -1,10 +1,44 @@
 {
-    "require": {
-        "htmlburger/carbon-fields": "^3.6"
-    },
-    "autoload": {
-        "psr-4": {
-            "JustB2b\\": "includes/"
-        }
+  "require": {
+    "htmlburger/carbon-fields": "^3.6"
+  },
+  "require-dev": {
+    "coenjacobs/mozart": "^0.7.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "JustB2b\\": "includes/"
     }
+  },
+  "extra": {
+    "mozart": {
+      "dep_namespace": "JustB2b\\Dependencies\\",
+      "dep_directory": "includes/Dependencies/",
+      "classmap_directory": "includes/Dependencies/legacy/",
+      "classmap_prefix": "JustB2b_",
+      "packages": [
+        "htmlburger/carbon-fields"
+      ],
+      "override_autoload": {
+        "htmlburger/carbon-fields": {
+          "psr-4": {
+            "Carbon_Fields\\": "core/"
+          },
+          "files": [
+            "carbon-fields.php",
+            "core/functions/plugin.php",
+            "core/functions/helpers.php"
+          ]
+        }
+      }
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "vendor/bin/mozart compose"
+    ],
+    "post-update-cmd": [
+      "vendor/bin/mozart compose"
+    ]
+  }
 }
