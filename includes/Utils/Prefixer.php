@@ -15,13 +15,6 @@ class Prefixer
         $prefix = self::$prefix;
         return "{$prefix}_{$value}";
     }
-
-    public static function getPrefixedMeta($value)
-    {
-        $prefixed = self::getPrefixed($value);
-        return "_{$prefixed}";
-    }
-
     public static function getTextdomain()
     {
         return self::$prefix;

@@ -8,7 +8,7 @@ use JustB2b\Traits\RuntimeCacheTrait;
 use JustB2b\Utils\Prefixer;
 use WP_Query;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * @feature-section user_context
@@ -25,125 +25,101 @@ defined('ABSPATH') || exit;
  */
 
 
-class UserModel extends AbstractIdModel
-{
-    use RuntimeCacheTrait;
+class UserModel extends AbstractIdModel {
+	use RuntimeCacheTrait;
 
-    protected function cacheContext(array $extra = []): array
-    {
-        return array_merge(['user_id' => $this->id], $extra);
-    }
+	protected function cacheContext( array $extra = [] ): array {
+		return array_merge( [ 'user_id' => $this->id ], $extra );
+	}
 
-    /**
-     * @feature user_context is_b2b
-     * @title[ru] Определение B2B-клиента
-     * @desc[ru] Система понимает, когда пользователь относится к сегменту B2B, и применяет соответствующие правила и цены.
-     * @order 152
-     */
-    public function isB2b(): bool
-    {
-        return self::getFromRuntimeCache(function () {
-            $kind = $this->getFieldValue('kind');
-            return $kind === 'b2b';
-        }, $this->cacheContext());
+	/**
+	 * @feature user_context is_b2b
+	 * @title[ru] Определение B2B-клиента
+	 * @desc[ru] Система понимает, когда пользователь относится к сегменту B2B, и применяет соответствующие правила и цены.
+	 * @order 152
+	 */
+	public function isB2b(): bool {
+		return self::getFromRuntimeCache( function () {
+			$kind = $this->getFieldValue( 'user_type' );
+			return $kind === 'b2b';
+		}, $this->cacheContext() );
 
-    }
+	}
 
-    public static function getFieldsDefinition(): array
-    {
-        return [
-            (new SelectField('kind', 'Rodzaj'))
-                ->setOptions([
-                    'b2c' => 'b2c',
-                    'b2b' => 'b2b',
-                ]),
-        ];
-    }
+	public static function getFieldsDefinition(): array {
+		return [ 
+			( new SelectField( 'user_type', 'Rodzaj', 'user' ) )
+				->setOptions( [ 
+					'b2c' => 'b2c',
+					'b2b' => 'b2b',
+				] ),
+		];
+	}
 
-    public function isEmptyField($key): bool
-    {
-        /** @var AbstractField $field */
-        $field = $this->getField($key);
-        return $field ? $field->isUserFieldEmpty($this->id) : true;
-    }
+	public function getUserBanners(): array {
+		return self::getFromRuntimeCache( function () {
+			$banners = [];
+			foreach ( $this->getUserRules() as $rule ) {
+				$banner = $rule->getBanner();
+				if ( ! empty( $banner ) ) {
+					$banners[] = $banner;
+				}
+			}
+			return $banners;
+		}, $this->cacheContext() );
+	}
 
-    public function getFieldValue(string $key): mixed
-    {
-        /** @var AbstractField $field */
-        $field = $this->getField($key);
-        return $field ? $field->getUserFieldValue($this->id) : null;
-    }
+	public function getUserBannersHtml(): string {
+		$htmlImages = [];
 
-    public function getUserBanners(): array
-    {
-        return self::getFromRuntimeCache(function () {
-            $banners = [];
-            foreach ($this->getUserRules() as $rule) {
-                $banners = array_merge($banners, $rule->getBanners());
-            }
-            return $banners;
-        }, $this->cacheContext());
-    }
+		foreach ( $this->getUserBanners() as $bannerId ) {
+			$url = wp_get_attachment_image_url( $bannerId, 'full' );
+			if ( ! $url ) {
+				continue;
+			}
 
-    public function getWPBakeryBanners() {
-        $images = implode(',', $this->getUserBanners());
-        return do_shortcode("[vc_images_carousel images=\"{$images}\" img_size=\"full\" autoplay=\"yes\"]");
-    }
+			$alt = get_post_meta( $bannerId, '_wp_attachment_image_alt', true );
+			if ( ! $alt ) {
+				$alt = get_the_title( $bannerId ) ?: '';
+			}
 
-    public function getUserBannersHtml(): string
-    {
-        $htmlImages = [];
+			$htmlImages[] = sprintf(
+				'<img src="%s" alt="%s" loading="lazy" />',
+				esc_url( $url ),
+				esc_attr( $alt )
+			);
+		}
 
-        foreach ($this->getUserBanners() as $bannerId) {
-            $url = wp_get_attachment_image_url($bannerId, 'full');
-            if (!$url) {
-                continue;
-            }
-
-            $alt = get_post_meta($bannerId, '_wp_attachment_image_alt', true);
-            if (!$alt) {
-                $alt = get_the_title($bannerId) ?: '';
-            }
-
-            $htmlImages[] = sprintf(
-                '<img src="%s" alt="%s" loading="lazy" />',
-                esc_url($url),
-                esc_attr($alt)
-            );
-        }
-
-        return implode($htmlImages);
-    }
+		return implode( $htmlImages );
+	}
 
 
-    public function getUserRules(): array
-    {
-        return self::getFromRuntimeCache(function () {
-            $query = new WP_Query($this->getRuleQueryArgs());
-            $results = [];
-            foreach ($query->posts as $post) {
-                $rule = new RuleModel($post->ID);
-                if ($rule->isRuleFitToUser()) {
-                    $results[] = $rule;
-                }
-            }
-            return $results;
-        }, $this->cacheContext());
-    }
+	public function getUserRules(): array {
+		return self::getFromRuntimeCache( function () {
+			$query = new WP_Query( $this->getRuleQueryArgs() );
+			$results = [];
+			foreach ( $query->posts as $post ) {
+				$rule = new RuleModel( $post->ID );
+				if ( $rule->isRuleFitToUser() ) {
+					$results[] = $rule;
+				}
+			}
+			return $results;
+		}, $this->cacheContext() );
+	}
 
 
-    protected function getRuleQueryArgs(): array
-    {
-        return [
-            'post_type' => Prefixer::getPrefixed('rule'),
-            'post_status' => 'publish',
-            'posts_per_page' => -1,
-            'meta_query' => $this->getBaseMetaQuery($this->isB2b()),
-            'orderby' => [
-                'priority_clause' => 'ASC',
-                'ID' => 'ASC',
-            ],
-        ];
-    }
+	protected function getRuleQueryArgs(): array {
+		return [ 
+			'post_type' => Prefixer::getPrefixed( 'rule' ),
+			'post_status' => 'publish',
+			'posts_per_page' => -1,
+			'meta_query' => $this->getBaseMetaQuery( $this->isB2b() ),
+			'orderby' => [ 
+				'priority_clause' => 'ASC',
+				'ID' => 'ASC',
+			],
+		];
+	}
 
 }

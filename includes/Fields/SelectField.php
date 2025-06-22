@@ -4,31 +4,21 @@ namespace JustB2b\Fields;
 
 defined( 'ABSPATH' ) || exit;
 
-use Carbon_Fields\Field\Field;
-
-class SelectField extends TextField {
-	protected string $type = 'select';
-	protected array $options = [];
-
-	public function getOptions(): array {
-		return $this->options;
-	}
+class SelectField extends AbstractOptionsField {
 
 	public function setOptions( array $options ): static {
-		$this->options = $options;
+		parent::setOptions($options);
 		if ( ! empty( $options ) ) {
 			$this->setDefaultValue( array_key_first( $options ) );
 		}
 		return $this;
 	}
 
-	public function toCarbonField(): Field {
-		/** @var Field $field */
-		$field = parent::toCarbonField();
-		if ( ! empty( $this->options ) ) {
-			$field->add_options( $this->options );
-		}
-
+	public function toACF(): array {
+		$field = parent::toACF();
+		$field['type'] = 'select';
+		$field['default_value'] = $this->defaultValue ?? array_key_first( $this->options );
 		return $field;
 	}
+
 }

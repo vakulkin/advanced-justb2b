@@ -221,8 +221,7 @@ class PriceDisplay {
 	 * @order 510
 	 */
 	protected function showPriceByKey( string $key ): bool {
-		$userController = UsersController::getInstance();
-		$currentUser = $userController->getCurrentUser();
+		$currentUser = UsersController::getCurrentUser();
 		$userKind = $currentUser->isB2b() ? 'b2b' : 'b2c';
 		$place = $this->isInLoop ? 'loop' : 'single';
 		$finalKey = "{$place}_{$userKind}_{$key}_visibility";
@@ -261,7 +260,7 @@ class PriceDisplay {
 
 
 	public function getPriceTail( $key, $isPrefix ): string {
-		$currentUser = UsersController::getInstance()->getCurrentUser();
+		$currentUser = UsersController::getCurrentUser();
 		$userKind = $currentUser->isB2b() ? 'b2b' : 'b2c';
 		$place = $this->isInLoop ? 'loop' : 'single';
 		$position = $isPrefix ? 'prefix' : 'postfix';
@@ -277,7 +276,7 @@ class PriceDisplay {
 	}
 
 	public function getPricePriority( string $key ): int {
-		$currentUser = UsersController::getInstance()->getCurrentUser();
+		$currentUser = UsersController::getCurrentUser();
 		$userKind = $currentUser->isB2b() ? 'b2b' : 'b2c';
 		$place = $this->isInLoop ? 'loop' : 'single';
 		$finalKey = "{$place}_{$userKind}_{$key}_priority";
@@ -348,6 +347,7 @@ class PriceDisplay {
 					$html .= "<div class=\"justb2b-rule-title\">" . esc_html( $rule->getTitle() ) . "</div>";
 				}
 
+				
 				return apply_filters(
 					'justb2b_display_prices_html',
 					$this->handlePricesHtmlContainer( $html ),
@@ -356,7 +356,6 @@ class PriceDisplay {
 				);
 			}
 		}
-
 		return apply_filters(
 			'justb2b_display_prices_html',
 			$this->handlePricesHtmlContainer( $this->defaultPriceHtml ),
@@ -480,7 +479,7 @@ class PriceDisplay {
 		if ( ! $this->isInLoop ) {
 			$globalController = GlobalController::getInstance();
 			$settingsObject = $globalController->getSettingsModelObject();
-			$userType = UsersController::getInstance()->getCurrentUser()->isB2b() ? 'b2b' : 'b2c';
+			$userType = UsersController::getCurrentUser()->isB2b() ? 'b2b' : 'b2c';
 			$showHtml = $settingsObject->getFieldValue( "show_{$userType}_html_1" );
 			if ( $showHtml ) {
 				$html = $settingsObject->getFieldValue( "{$userType}_html_1" );

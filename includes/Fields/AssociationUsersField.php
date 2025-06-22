@@ -4,42 +4,42 @@ namespace JustB2b\Fields;
 
 defined( 'ABSPATH' ) || exit;
 
-class AssociationUsersField extends AssociationField {
-	public function __construct( string $key, string $label ) {
-		parent::__construct( $key, $label );
+class AssociationUsersField extends AbstractAssociationField {
 
-		$this->setPostTypes( [ 
-			[ 
-				'type' => 'user',
-			],
-		] );
-	}
-
-	public function getPostFieldValue( int $parentId ): false|array {
-		$users = parent::getPostFieldValue( $parentId );
+	public function getValue( int $id ): array {
+		$users = parent::getValue( $id );
 		$result = [];
-		foreach ( $users as $userId ) {
-			if ( $userId && ( $user = get_userdata( $userId ) ) ) {
-				$result[ $user->ID ] = [ 
-					'id' => $user->ID,
-					'display_name' => $user->display_name,
-					'user_email' => $user->user_email,
-				];
-				continue;
+		if ( is_array( $users ) ) {
+			foreach ( $users as $userId ) {
+				if ( $userId && ( $user = get_userdata( $userId ) ) ) {
+					$result[ $userId ] = [ 
+						'key' => $user->user_email,
+						'valid' => false,
+					];
+				} else {
+					$result[ $userId ] = [ 
+						'key' => "removed user {$userId}",
+						'valid' => false,
+					];
+				}
 			}
-			return false;
 		}
 		return $result;
 	}
 
 	public function renderValue( int $parentId ): string {
-		$users = $this->getPostFieldValue( $parentId );
-
 		return static::renderEntities(
-			$users,
+			$this->getValue( $parentId ),
 			fn( $id ) => get_userdata( $id ),
 			fn( $user ) => get_author_posts_url( $user->ID ),
 			fn( $user ) => $user->display_name
 		);
+	}
+
+	public function toACF(): array {
+		$field = parent::toACF();
+		$field['type'] = 'user';
+		$field['multiple'] = 1;
+		return $field;
 	}
 }

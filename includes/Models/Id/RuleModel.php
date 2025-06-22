@@ -3,12 +3,11 @@
 namespace JustB2b\Models\Id;
 
 use JustB2b\Controllers\Id\UsersController;
-use JustB2b\Fields\AssociationField;
 use JustB2b\Fields\AssociationProductsField;
 use JustB2b\Fields\AssociationRolesField;
 use JustB2b\Fields\AssociationTermsField;
 use JustB2b\Fields\AssociationUsersField;
-use JustB2b\Fields\GalleryField;
+use JustB2b\Fields\ImageField;
 use JustB2b\Fields\NonNegativeFloatField;
 use JustB2b\Fields\NonNegativeIntegerField;
 use JustB2b\Fields\NumberField;
@@ -21,8 +20,6 @@ defined( 'ABSPATH' ) || exit;
 
 class RuleModel extends AbstractPostModel {
 	use RuntimeCacheTrait;
-
-	protected static string $key = 'rule';
 	protected int $productId;
 	protected int $originLangProductId;
 	protected int $qty;
@@ -37,13 +34,6 @@ class RuleModel extends AbstractPostModel {
 		$this->productId = $productId;
 		$this->originLangProductId = $originLangProductId;
 		$this->qty = $qty;
-	}
-
-	public static function getSingleName(): string {
-		return __( 'Rule', 'justb2b' );
-	}
-	public static function getPluralName(): string {
-		return __( 'Rules', 'justb2b' );
 	}
 
 	protected function cacheContext( array $extra = [] ): array {
@@ -91,10 +81,8 @@ class RuleModel extends AbstractPostModel {
 	}
 
 	public function getCurrency(): string {
-		$WCMLIntegration = WCMLIntegration::getInstance();
-
 		/** @var SelectField $selectField */
-		$selectField = $WCMLIntegration->currencyWPMLSelectField();
+		$selectField = WCMLIntegration::currencyWPMLSelectField();
 		$value = $this->getFieldValue( 'currency' );
 		if ( $selectField && isset( $selectField->getOptions()[ $value ] ) ) {
 			return $value;
@@ -126,9 +114,8 @@ class RuleModel extends AbstractPostModel {
 		return $this->getFieldValue( 'show_in_qty_table' ) !== 'hide';
 	}
 
-
-	public function getBanners(): array {
-		return $this->getFieldValue( 'banners' );
+	public function getBanner(): string {
+		return $this->getFieldValue( 'banner' );
 	}
 
 	public function doesQtyFits(): bool {
@@ -203,10 +190,14 @@ class RuleModel extends AbstractPostModel {
 
 
 	private function passesMainUsersRolesCheck(): bool {
-		$users = $this->getFieldValue( 'users' );
-		$roles = $this->getFieldValue( 'roles' );
 
-		if ( false === $users || false === $roles ) {
+		$users = $this->getFieldValue( 'users' );
+		if ( ! $this->allItemsValid( $users ) ) {
+			return false;
+		}
+
+		$roles = $this->getFieldValue( 'roles' );
+		if ( ! $this->allItemsValid( $roles ) ) {
 			return false;
 		}
 
@@ -228,10 +219,14 @@ class RuleModel extends AbstractPostModel {
 		return false;
 	}
 	private function passesMainProductsTermsCheck(): bool {
-		$products = $this->getFieldValue( 'products' );
-		$terms = $this->getFieldValue( 'woo_terms' );
 
-		if ( false === $products || false === $terms ) {
+		$products = $this->getFieldValue( 'products' );
+		if ( ! $this->allItemsValid( $products ) ) {
+			return false;
+		}
+
+		$terms = $this->getFieldValue( 'woo_terms' );
+		if ( ! $this->allItemsValid( $terms ) ) {
 			return false;
 		}
 
@@ -255,7 +250,7 @@ class RuleModel extends AbstractPostModel {
 	private function passesQualifyingRolesCheck(): bool {
 		$qualifyingRoles = $this->getFieldValue( 'qualifying_roles' );
 
-		if ( false === $qualifyingRoles ) {
+		if ( ! $this->allItemsValid( $qualifyingRoles ) ) {
 			return false;
 		}
 
@@ -263,15 +258,13 @@ class RuleModel extends AbstractPostModel {
 		if ( ! $hasQualifyingRoles ) {
 			return true;
 		}
-		error_log( "123" );
-
 		return $this->checkRoles( $qualifyingRoles );
 	}
 
 	private function passesQualifyingTermsCheck(): bool {
 		$qualifyingTerms = $this->getFieldValue( 'qualifying_woo_terms' );
 
-		if ( false === $qualifyingTerms ) {
+		if ( ! $this->allItemsValid( $qualifyingTerms ) ) {
 			return false;
 		}
 
@@ -286,17 +279,17 @@ class RuleModel extends AbstractPostModel {
 	private function passesExcludingUsersRolesCheck(): bool {
 		$excludingUsers = $this->getFieldValue( 'excluding_users' );
 
-		if ( false === $excludingUsers ) {
-			return false;
-		}
-
-		if ( $this->checkUsers( $excludingUsers ) ) {
+		if ( ! $this->allItemsValid( $excludingUsers ) ) {
 			return false;
 		}
 
 		$excludingRoles = $this->getFieldValue( 'excluding_roles' );
 
-		if ( false === $excludingRoles ) {
+		if ( ! $this->allItemsValid( $excludingRoles ) ) {
+			return false;
+		}
+
+		if ( $this->checkUsers( $excludingUsers ) ) {
 			return false;
 		}
 
@@ -305,7 +298,13 @@ class RuleModel extends AbstractPostModel {
 
 	private function passesExcludingProductsTermsCheck(): bool {
 		$excludingProducts = $this->getFieldValue( 'excluding_products' );
-		if ( false === $excludingProducts ) {
+		if ( ! $this->allItemsValid( $excludingProducts ) ) {
+			return false;
+		}
+
+		$excludingTerms = $this->getFieldValue( 'excluding_woo_terms' );
+
+		if ( ! $this->allItemsValid( $excludingTerms ) ) {
 			return false;
 		}
 
@@ -313,16 +312,10 @@ class RuleModel extends AbstractPostModel {
 			return false;
 		}
 
-		$excludingTerms = $this->getFieldValue( 'excluding_woo_terms' );
-
-		if ( false === $excludingTerms ) {
-			return false;
-		}
-
 		return ! $this->checkTerms( $excludingTerms );
 	}
 
-	protected function checkProduct( false|array $products ): bool {
+	protected function checkProduct( array $products ): bool {
 		if ( isset( $products[ $this->productId ] ) ) {
 			return true;
 		}
@@ -330,15 +323,20 @@ class RuleModel extends AbstractPostModel {
 	}
 
 
-	protected function checkTerms( false|array $terms ): bool {
-
-		if ( ! $terms || empty( $terms ) ) {
-			return false;
+	protected function allItemsValid( array $items ): bool {
+		foreach ( $items as $item ) {
+			if ( $item['valid'] === false ) {
+				return false;
+			}
 		}
+		return true;
+	}
 
+
+	protected function checkTerms( array $terms ): bool {
 		// Step 1: Exact match
-		foreach ( $terms as $term ) {
-			if ( has_term( $term['id'], $term['taxonomy'], $this->productId ) ) {
+		foreach ( $terms as $termId => $term ) {
+			if ( has_term( $termId, $term['key'], $this->productId ) ) {
 				return true;
 			}
 		}
@@ -347,9 +345,8 @@ class RuleModel extends AbstractPostModel {
 	}
 
 
-	protected function checkUsers( false|array $users ): bool {
-		$userController = UsersController::getInstance();
-		$currentUser = $userController->getCurrentUser();
+	protected function checkUsers( array $users ): bool {
+		$currentUser = UsersController::getCurrentUser();
 		$currentUserId = $currentUser->getId();
 		$result = false;
 		if ( isset( $users[ $currentUserId ] ) ) {
@@ -358,16 +355,14 @@ class RuleModel extends AbstractPostModel {
 		return $result;
 	}
 
-	protected function checkRoles( false|array $roles ): bool {
+	protected function checkRoles( array $roles ): bool {
 		$result = false;
+		$currentUser = UsersController::getCurrentUser();
+		$currentUserId = $currentUser->getId();
 		foreach ( $roles as $role ) {
-			/** @var AssociationField $field */
+			/** @var AssociationUsersField $field */
 			$field = $this->getField( 'users' );
-			$users = $field->getPostFieldValue( $role );
-			error_log( print_r( $users, true ) );
-			$userController = UsersController::getInstance();
-			$currentUser = $userController->getCurrentUser();
-			$currentUserId = $currentUser->getId();
+			$users = $field->getValue( $role );
 			if ( isset( $users[ $currentUserId ] ) ) {
 				$result = true;
 				break;
@@ -402,18 +397,15 @@ class RuleModel extends AbstractPostModel {
 	}
 
 	public static function getFieldsDefinition(): array {
-		$WCMLIntegration = WCMLIntegration::getInstance();
-
 		return [ 
 			( new NumberField( 'priority', 'Priority' ) )
 				->setHelpText( 'Lower number = higher priority. Use gaps like 10, 20, 30. Defaults to 0.' )
 				->setWidth( 25 ),
-
 			( new SelectField( 'customer_type', 'Customer type' ) )
 				->setOptions( [ 
-					'b2b' => 'Business users (B2B)',
-					'b2c' => 'Individual users (B2C)',
-					'b2x' => 'All users (B2X)',
+					'b2b' => 'Business customers (B2B)',
+					'b2c' => 'Individual customers (B2C)',
+					'b2x' => 'All customers (B2X)',
 				] )
 				->setHelpText( 'Target user type. b2x means all users.' )
 				->setWidth( 25 ),
@@ -479,7 +471,7 @@ class RuleModel extends AbstractPostModel {
 				->setHelpText( 'Value used in price calculation.' )
 				->setWidth( 25 ),
 
-			// $WCMLIntegration->currencyWPMLSelectField(),
+			// $WCMLIntegration::currencyWPMLSelectField(),
 
 			( new NonNegativeIntegerField( 'gifts_number', 'Number of gifts' ) )
 				->setHelpText( 'Number of same product gifts for this product. Defaults to 0. Zero means no gifts.' )
@@ -532,7 +524,7 @@ class RuleModel extends AbstractPostModel {
 			( new AssociationProductsField( 'excluding_products', 'Excluding Products' ) )->setHelpText( 'Products excluded from this rule.' ),
 			( new AssociationTermsField( 'excluding_woo_terms', 'Excluding Woo Terms' ) )->setHelpText( 'Terms excluded from this rule.' ),
 
-			( new GalleryField( 'banners', 'Banners' ) )->setHelpText( 'Banners for this rule.' ),
+			( new ImageField( 'banner', 'Banner' ) )->setHelpText( 'Banner for this rule.' ),
 		];
 	}
 }

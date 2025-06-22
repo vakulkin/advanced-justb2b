@@ -2,37 +2,29 @@
 
 namespace JustB2b\Fields;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
-use Carbon_Fields\Field\Field;
+class NumberField extends TextField {
 
-class NumberField extends TextField
-{
-    public function toCarbonField(): Field
-    {
-        $field = parent::toCarbonField();
-        $field->set_attribute('type', 'number');
-        return $field;
-    }
+	public function __construct( string $key, string $label ) {
+		parent::__construct( $key, $label );
+		$this->defaultValue = 0;
+	}
 
-    public function __construct(string $key, string $label)
-    {
-        parent::__construct($key, $label);
-        $this->defaultValue = 0;
-    }
+	public function isEmptyValue( $id ): bool {
+		return parent::isEmptyValue( $id )
+			&& $this->getOriginValue( $id ) !== 0
+			&& $this->getOriginValue( $id ) !== '0';
+	}
 
-    public function getPostFieldValue(int $postId): float
-    {
-        return (float) parent::getPostFieldValue($postId);
-    }
+	public function toACF(): array {
+		$field = parent::toACF();
+		$field['type'] = 'number';
+		return $field;
+	}
 
-    public function getUserFieldValue(int $userId): float
-    {
-        return (float) parent::getPostFieldValue($userId);
-    }
+	public function getValue( int $postId ): float {
+		return (float) parent::getValue( $postId );
+	}
 
-    public function getOptionValue(): float
-    {
-        return (float) parent::getOptionValue();
-    }
 }

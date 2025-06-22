@@ -23,17 +23,6 @@ class WCMLIntegration {
 		return $actions;
 	}
 
-	public function getCurrencyCodes(): array {
-		global $woocommerce_wpml;
-		if (
-			isset( $woocommerce_wpml->settings['currency_options'] ) &&
-			is_array( $woocommerce_wpml->settings['currency_options'] )
-		) {
-			return array_keys( $woocommerce_wpml->settings['currency_options'] );
-		}
-		return [];
-	}
-
 	public function getProductFieldsDefinition( array $fields, array $base_keys ): array {
 		$currency_codes = $this->getCurrencyCodes();
 		foreach ( $currency_codes as $currency ) {
@@ -45,11 +34,23 @@ class WCMLIntegration {
 		return $fields;
 	}
 
-	public function currencyWPMLSelectField(): SelectField {
+
+	public static function getCurrencyCodes(): array {
+		global $woocommerce_wpml;
+		if (
+			isset( $woocommerce_wpml->settings['currency_options'] ) &&
+			is_array( $woocommerce_wpml->settings['currency_options'] )
+		) {
+			return array_keys( $woocommerce_wpml->settings['currency_options'] );
+		}
+		return [];
+	}
+
+	public static function currencyWPMLSelectField(): SelectField {
 
 		$default_currency = get_option( 'woocommerce_currency', 'undefined_currency' );
 		$currency_codes = [ $default_currency ];
-		$currency_codes = array_unique( array_merge( [ $default_currency ], $this->getCurrencyCodes() ) );
+		$currency_codes = array_unique( array_merge( [ $default_currency ], static::getCurrencyCodes() ) );
 
 		return ( new SelectField( 'currency', 'Currency' ) )
 			->setOptions( array_combine( $currency_codes, $currency_codes ) )
@@ -58,7 +59,7 @@ class WCMLIntegration {
 	}
 
 	public function settingsFieldsDefinition( array $fieldsDefinition, array $base_fields ): array {
-		$currency_codes = $this->getCurrencyCodes();
+		$currency_codes = static::getCurrencyCodes();
 		foreach ( $currency_codes as $currency ) {
 			$currency = strtolower( $currency );
 			foreach ( $base_fields as $field ) {

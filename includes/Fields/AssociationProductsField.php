@@ -2,24 +2,11 @@
 
 namespace JustB2b\Fields;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
-class AssociationProductsField extends AssociationPostsField
-{
-    public function __construct(string $key, string $label)
-    {
-        parent::__construct($key, $label);
-
-        $this->setPostTypes([
-            [
-                'type' => 'post',
-                'post_type' => 'product',
-            ],
-            // Uncomment if variations should be selectable:
-            // [
-            //     'type' => 'post',
-            //     'post_type' => 'product_variation',
-            // ],
-        ]);
-    }
+class AssociationProductsField extends AbstractAssociationPostsField {
+	public function __construct( string $key, string $label ) {
+		parent::__construct( $key, $label );
+		$this->setPostTypes( [ 'product' ] );
+	}
 }

@@ -2,6 +2,8 @@
 
 namespace JustB2b\Models\Key;
 
+use JustB2b\Controllers\Id\SettingsController;
+use JustB2b\Controllers\Key\GlobalController;
 use JustB2b\Fields\NonNegativeIntegerField;
 use JustB2b\Fields\RichTextField;
 use JustB2b\Fields\SelectField;
@@ -40,8 +42,9 @@ defined( 'ABSPATH' ) || exit;
 
 
 class SettingsModel extends AbstractKeyModel {
-	public function getKey(): string {
-		return 'settings';
+
+	protected function getSettingsId(): int {
+		return GlobalController::getSettingsId();
 	}
 
 	public static function getFieldsDefinition(): array {
@@ -59,7 +62,7 @@ class SettingsModel extends AbstractKeyModel {
 
 		// Default fields (without currency)
 		foreach ( $base_fields as $field ) {
-			$fieldsDefinition[] = ( new SelectField( $field['key'], $field['label'] ) )
+			$fieldsDefinition[] = ( new SelectField( "type_{$field['key']}", $field['label'] ) )
 				->setOptions( [ 'net' => 'net', 'gross' => 'gross' ] )
 				->setWidth( 50 );
 		}

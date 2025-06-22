@@ -4,43 +4,35 @@ namespace JustB2b\Fields;
 
 defined( 'ABSPATH' ) || exit;
 
-use Carbon_Fields\Field\Field;
 use JustB2b\Utils\Prefixer;
 use JustB2b\Traits\RuntimeCacheTrait;
 
 abstract class AbstractField {
 	use RuntimeCacheTrait;
 
-	protected string $type;
 	protected string $key;
 	protected string $label;
+	protected string $idType;
 	protected string $prefixedKey;
-	protected string $prefixedMetaKey;
 	protected int $width = 100;
-	protected array $attributes = [];
 	protected mixed $defaultValue = '';
 	protected string $helpText = '';
 	protected string $sectionName = 'Main';
 
-	public function __construct( string $key, string $label ) {
+	public function __construct( string $key, string $label, string $idType = '' ) {
 		$this->key = $key;
 		$this->label = $label;
+		$this->idType = $idType;
 		$this->prefixedKey = Prefixer::getPrefixed( $key );
-		$this->prefixedMetaKey = Prefixer::getPrefixedMeta( $key );
+	}
+
+	public function getACFId( $id ) {
+		return $this->idType === '' ? $id : "{$this->idType}_{$id}";
 	}
 
 	public function setWidth( int $width ): static {
 		$this->width = $width;
 		return $this;
-	}
-
-	public function setAttribute( string $name, mixed $value ): static {
-		$this->attributes[ $name ] = $value;
-		return $this;
-	}
-
-	public function getAttribute( string $name ): mixed {
-		return $this->attributes[ $name ] ?? null;
 	}
 
 	public function getDefaultValue(): mixed {
@@ -57,10 +49,6 @@ abstract class AbstractField {
 	}
 
 	public function getPrefixedKey(): string {
-		return $this->prefixedKey;
-	}
-
-	public function getPrefixedMetaKey(): string {
 		return $this->prefixedKey;
 	}
 
@@ -86,102 +74,123 @@ abstract class AbstractField {
 		return $this;
 	}
 
-	public function toCarbonField(): Field {
-		$field = Field::make( $this->type, $this->prefixedKey, $this->label )
-			->set_width( $this->width );
-
-		foreach ( $this->attributes as $attr => $val ) {
-			$field->set_attribute( $attr, $val );
-		}
+	public function toACF(): array {
+		$field = [ 
+			'key' => $this->prefixedKey,
+			'name' => $this->prefixedKey,
+			'label' => $this->label,
+			'type' => 'text',
+			'wrapper' => [ 
+				'width' => $this->width,
+			],
+		];
 
 		if ( isset( $this->helpText ) ) {
-			$field->set_help_text( $this->helpText );
+			$field['instructions'] = $this->helpText;
 		}
 
 		return $field;
 	}
 
-	abstract public function getPostFieldOriginValue( int $postId ): mixed;
-	abstract public function getUserFieldOriginValue( int $userId ): mixed;
-	abstract public function getOptionOriginValue(): mixed;
-
-	public function isPostFieldEmpty( int $postId ): bool {
-		return $this->isEmpty( $this->getPostFieldOriginValue( $postId ) );
-	}
-
-	public function isUserFieldEmpty( int $postId ): bool {
-		return $this->isEmpty( $this->getUserFieldOriginValue( $postId ) );
-	}
-
-	public function isOptionEmpty(): bool {
-		return $this->isEmpty( $this->getOptionOriginValue() );
-	}
-
 	protected function isEmpty( $value ): bool {
-		return $value === null;
+		return empty( $value );
 	}
 
-	protected function resolveFieldValue( mixed $value, mixed $default ): mixed {
-		return empty( $value ) ? $default : $value;
+	public function isEmptyValue( int $id ): bool {
+		return $this->isEmpty( $this->getOriginValue( $id ) );
 	}
 
-	public function getPostFieldValue( int $postId ): mixed {
-		$value = $this->getPostFieldOriginValue( $postId );
-		return $this->resolveFieldValue( $value, $this->defaultValue );
+	public function getOriginValue( int $id ): mixed {
+		return get_field( self::getPrefixedKey(), $this->getACFId( $id ) );
 	}
 
-	public function getUserFieldValue( int $userId ): mixed {
-		$value = $this->getUserFieldOriginValue( $userId );
-		return $this->resolveFieldValue( $value, $this->defaultValue );
+	public function getValue( int $id ): mixed {
+		$value = $this->getOriginValue( $id );
+		return $this->isEmpty( $value ) ? $this->defaultValue : $value;
 	}
 
-	public function getOptionValue(): mixed {
-		$value = $this->getOptionOriginValue();
-		return $this->resolveFieldValue( $value, $this->defaultValue );
-	}
-
-	public function renderValue( int $parentId ): string {
-		$values = $this->getPostFieldValue( $parentId );
-		return $values;
+	public function renderValue( int $id ): string {
+		$value = $this->getValue( $id );
+		return $value;
 	}
 
 
-	protected function getOriginValuesFromMetaTable(
-		int|string $entityId,
-		string $tableName,
-		string $idColumn,
-		string $metaKeySuffix = '|id'
-	): array {
-		global $wpdb;
+	protected function renderEntities(
+		array $values,
+		callable $resolver,
+		callable $linkGenerator,
+		callable $labelGetter
+	): string {
 
-		$like = $wpdb->esc_like( $this->prefixedMetaKey . '|||' ) . '%' . $metaKeySuffix;
+		if (false === $values) {
+			return 'error';
+		}
 
-		$values = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT meta_value FROM {$tableName}
-			 WHERE {$idColumn} = %d AND meta_key LIKE %s",
-				$entityId,
-				$like
-			)
-		) ?? [];
+		$visibleCount = 3;
+		$resolvedEntities = $this->resolveEntities( $values, $resolver );
+		$renderedLinks = $this->renderVisibleEntities( $resolvedEntities, $linkGenerator, $labelGetter, $visibleCount );
+		$moreIndicator = $this->renderRemainingCountIndicator( count( $resolvedEntities ), $visibleCount );
 
-		return array_map( 'intval', array_filter( $values, fn( $value ) => $value !== '' ) );
+		return sprintf(
+			'<div class="justb2b-associations">%s%s</div>',
+			$renderedLinks,
+			$moreIndicator
+		);
 	}
 
-	protected function getOriginValuesFromOptionsTable( string $metaKeySuffix = '|id' ): array {
-		global $wpdb;
+	protected function resolveEntities( array $values, callable $resolver ): array {
+		$entities = [];
 
-		$like = $wpdb->esc_like( $this->prefixedMetaKey . '|||' ) . '%' . $metaKeySuffix;
+		foreach ( $values as $value ) {
+			$id = (int) ( $value['id'] ?? 0 );
+			if ( ! $id ) {
+				continue;
+			}
 
-		$values = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT option_value FROM {$wpdb->options}
-			 WHERE option_name LIKE %s",
-				$like
-			)
-		) ?? [];
+			$entity = $resolver( $id );
+			if ( $entity && ! is_wp_error( $entity ) ) {
+				$subtype = $value['subtype'] ?? $value['taxonomy'] ?? ( $value['user_email'] ?? false ? 'user' : 'item' );
+				$entities[] = [ 'entity' => $entity, 'subtype' => $subtype ];
+			}
+		}
 
-		return array_map( 'intval', array_filter( $values, fn( $value ) => $value !== '' ) );
+		return $entities;
 	}
 
+	protected function renderVisibleEntities(
+		array $entities,
+		callable $linkGenerator,
+		callable $labelGetter,
+		int $visibleCount
+	): string {
+		$output = '';
+
+		foreach ( array_slice( $entities, 0, $visibleCount ) as $item ) {
+			$label = esc_attr( $labelGetter( $item['entity'] ) );
+			$url = esc_url( $linkGenerator( $item['entity'] ) );
+			$output .= sprintf(
+				'<a class="justb2b-association-field justb2b-%s-field-value" href="%s" target="_blank" rel="noopener noreferrer" title="%s">%s</a>',
+				$item['subtype'],
+				$url,
+				$label,
+				$label
+			);
+		}
+
+		return $output;
+	}
+
+	protected function renderRemainingCountIndicator( int $total, int $visibleCount ): string {
+		$remaining = $total - $visibleCount;
+
+		if ( $remaining > 0 ) {
+			// Use a generic "item" subtype; you can adjust this logic if needed.
+			return sprintf(
+				'<span class="justb2b-association-field justb2b-item-field-value">+%s</span>',
+				esc_html( $remaining )
+			);
+		}
+
+		return '';
+	}
 }

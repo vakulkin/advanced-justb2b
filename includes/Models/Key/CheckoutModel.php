@@ -2,18 +2,18 @@
 
 namespace JustB2b\Models\Key;
 
-defined('ABSPATH') || exit;
+use JustB2b\Controllers\Key\CheckoutController;
+
+defined( 'ABSPATH' ) || exit;
 
 
-class CheckoutModel extends AbstractKeyModel
-{
-    public function getKey(): string
-    {
-        return 'checkout';
-    }
+class CheckoutModel extends AbstractKeyModel {
 
-    public static function getFieldsDefinition(): array
-    {
-        return [];
-    }
+	protected function getSettingsId(): int {
+		return CheckoutController::getSettingsId();
+	}
+
+	public static function getFieldsDefinition(): array {
+		return [];
+	}
 }

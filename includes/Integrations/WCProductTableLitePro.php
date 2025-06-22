@@ -46,9 +46,7 @@ class WCProductTableLitePro
             return wc_price(0);
         }
 
-        $userController = UsersController::getInstance();
-        $currentUser = $userController->getCurrentUser();
-
+        $currentUser = UsersController::getCurrentUser();
         $total = 0;
 
         foreach ($cart->get_cart() as $cart_item) {
