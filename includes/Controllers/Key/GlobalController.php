@@ -28,9 +28,19 @@ class GlobalController extends AbstractKeyController {
 					flex-wrap: wrap;
 					gap: 7px;
 				}
+
+				.acf-field.acf-field-checkbox .acf-checkbox-list::before {
+					content: none;
+				}
 			</style>';
 		} );
 
+		add_filter( 'acf/field_wrapper_attributes', function ($wrapper, $field) {
+			if ( isset( $field['index'] ) && (int) $field['index'] > 0 ) {
+				$wrapper['data-index'] = (int) $field['index'];
+			}
+			return $wrapper;
+		}, 10, 2 );
 	}
 
 	public static function getKey() {

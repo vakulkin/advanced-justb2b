@@ -14,7 +14,7 @@
     text-overflow: ellipsis;
 }
 
-.justb2b-product-field-value {
+.justb2b-post-field-value {
     border: 1px solid #6AD9EF;
     color: #02b2d5;
 }
@@ -32,4 +32,96 @@
 .justb2b-user-field-value {
     border: 1px solid #80ED99;
     color: #00c22d;
+}
+
+.justb2b-field-error {
+    border-color: #f44336;
+    color: #f44336;
+    background-color: #ffe5e5;
+}
+
+.justb2b-scalar-field {
+    display: inline-block;
+    padding: .2rem;
+    font-size: .7rem;
+    line-height: 1;
+    border-radius: 25px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 1px solid #6AD9EF;
+    color: #02b2d5;
+}
+
+
+.acf-field {
+    position: relative;
+}
+
+/* Only render badge if data-index exists */
+.acf-field[data-index]::before {
+    content: attr(data-index);
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    background: #d0e7ff;
+    color: #005799;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    font-size: 8px;
+    line-height: 18px;
+    text-align: center;
+    font-weight: bold;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.justb2b-buttons {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.justb2b-button {
+    position: relative;
+    display: inline-block;
+    padding: 6px 14px;
+    background: #d0e7ff;
+    color: #005799;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: background 0.2s ease;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+
+.justb2b-button:hover {
+    background: #b9dbff;
+    color: #003f6d;
+}
+
+.justb2b-button.is-active {
+    background: #b9dbff;
+    border-color: #005799;
+    box-shadow: 0 0 0 1px #005799 inset;
+}
+
+.justb2b-button[data-index]::after {
+    content: attr(data-index);
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    background: #ffedc0;
+    color: #d35400;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    font-size: 8px;
+    line-height: 18px;
+    text-align: center;
+    font-weight: bold;
+    z-index: 10;
+    pointer-events: none;
 }

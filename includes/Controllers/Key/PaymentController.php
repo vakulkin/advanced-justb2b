@@ -2,6 +2,7 @@
 
 namespace JustB2b\Controllers\Key;
 
+use JustB2b\Fields\FieldBuilder;
 use WC_Payment_Gateways;
 use JustB2b\Models\Key\PaymentMethodModel;
 use JustB2b\Traits\RuntimeCacheTrait;
@@ -17,6 +18,7 @@ class PaymentController extends AbstractKeyController {
 	protected function __construct() {
 		parent::__construct();
 		add_filter( 'woocommerce_available_payment_gateways', [ $this, 'filterPaymentMethods' ] );
+		// add_action( 'acf/init', [ $this, 'registerACF2' ] );
 	}
 
 	public static function getKey() {
@@ -33,6 +35,10 @@ class PaymentController extends AbstractKeyController {
 
 	public function getDefinitions(): array {
 		return PaymentMethodModel::getFieldsDefinition();
+	}
+
+	public function getDefinitions2(): array {
+		return PaymentMethodModel::getFieldsDefinition2();
 	}
 
 	public function filterPaymentMethods( $available_gateways ) {
@@ -74,7 +80,40 @@ class PaymentController extends AbstractKeyController {
 			}
 			return $methods;
 		} );
-
 	}
 
+
+	// todo: temp code
+
+	// public function registerACF(): void {
+	// 	return;
+	// }
+
+
+	public function registerACF2(): void {
+
+		if ( function_exists( 'acf_add_local_field_group' ) ) {
+			$blocks = $this->getDefinitions2();
+
+			foreach ( $blocks as $block ) {
+
+				$params = [ 
+					'key' => $block['key'],
+					'title' => $block['label'],
+					'fields' => FieldBuilder::buildACF( $block['fields'] ),
+					'location' => [ 
+						[ 
+							[ 
+								'param' => 'post',
+								'operator' => '==',
+								'value' => self::getSettingsId(),
+							],
+						],
+					],
+				];
+
+				acf_add_local_field_group( $params );
+			}
+		}
+	}
 }

@@ -13,13 +13,13 @@ abstract class AbstractKeyModel extends AbstractModel {
 
 	public function isEmptyField( string $key ): bool {
 		/** @var AbstractField $field */
-		$field = $this->getField( $key );
+		$field = static::getField( $key );
 		return $field ? $field->isEmptyValue( $this->getSettingsId() ) : true;
 	}
 
 	public function getFieldValue( string $key ): mixed {
 		/** @var AbstractField $field */
-		$field = $this->getField( $key );
+		$field = static::getField( $key );
 		return $field ? $field->getValue( $this->getSettingsId() ) : null;
 	}
 }

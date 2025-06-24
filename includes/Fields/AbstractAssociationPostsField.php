@@ -21,7 +21,7 @@ abstract class AbstractAssociationPostsField extends AbstractAssociationField {
 				if ( $postId && get_post_status( $postId ) === 'publish' ) {
 					$result[ $postId ] = [ 
 						'key' => get_the_title( $postId ),
-						'valid' => false,
+						'valid' => true,
 					];
 				} else {
 					$result[ $postId ] = [ 
@@ -34,20 +34,12 @@ abstract class AbstractAssociationPostsField extends AbstractAssociationField {
 		return $result;
 	}
 
-	public function toACF(): array {
-		$field = parent::toACF();
+	public function toACF($index = 0): array {
+		$field = parent::toACF($index);
 		$field['type'] = 'relationship';
 		$field['post_type'] = $this->postTypes;
 		$field['min'] = 0;
 		return $field;
 	}
 
-	public function renderValue( int $parentId ): string {
-		return $this->renderEntities(
-			$this->getValue( $parentId ),
-			fn( $id ) => get_post( $id ),
-			fn( $post ) => get_permalink( $post ),
-			fn( $post ) => $post->post_title
-		);
-	}
 }

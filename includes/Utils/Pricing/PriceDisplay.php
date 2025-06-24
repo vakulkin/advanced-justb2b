@@ -224,7 +224,7 @@ class PriceDisplay {
 		$currentUser = UsersController::getCurrentUser();
 		$userKind = $currentUser->isB2b() ? 'b2b' : 'b2c';
 		$place = $this->isInLoop ? 'loop' : 'single';
-		$finalKey = "{$place}_{$userKind}_{$key}_visibility";
+		$finalKey = "setting_{$place}_{$userKind}_{$key}_visibility";
 
 		$globalController = GlobalController::getInstance();
 		$settingsObject = $globalController->getSettingsModelObject();
@@ -264,7 +264,7 @@ class PriceDisplay {
 		$userKind = $currentUser->isB2b() ? 'b2b' : 'b2c';
 		$place = $this->isInLoop ? 'loop' : 'single';
 		$position = $isPrefix ? 'prefix' : 'postfix';
-		$finalKey = "{$place}_{$userKind}_{$key}_{$position}";
+		$finalKey = "setting_{$place}_{$userKind}_{$key}_{$position}";
 		$globalController = GlobalController::getInstance();
 		$settingsObject = $globalController->getSettingsModelObject();
 		$value = $settingsObject->getFieldValue( $finalKey );
@@ -279,7 +279,7 @@ class PriceDisplay {
 		$currentUser = UsersController::getCurrentUser();
 		$userKind = $currentUser->isB2b() ? 'b2b' : 'b2c';
 		$place = $this->isInLoop ? 'loop' : 'single';
-		$finalKey = "{$place}_{$userKind}_{$key}_priority";
+		$finalKey = "setting_{$place}_{$userKind}_{$key}_priority";
 
 		$globalController = GlobalController::getInstance();
 		$settingsObject = $globalController->getSettingsModelObject();
@@ -480,9 +480,9 @@ class PriceDisplay {
 			$globalController = GlobalController::getInstance();
 			$settingsObject = $globalController->getSettingsModelObject();
 			$userType = UsersController::getCurrentUser()->isB2b() ? 'b2b' : 'b2c';
-			$showHtml = $settingsObject->getFieldValue( "show_{$userType}_html_1" );
+			$showHtml = $settingsObject->getFieldValue( "setting_show_{$userType}_html_1" );
 			if ( $showHtml ) {
-				$html = $settingsObject->getFieldValue( "{$userType}_html_1" );
+				$html = $settingsObject->getFieldValue( "setting_{$userType}_html_1" );
 				$result = $this->getFormattedHtml( $html, "justb2b-{$userType}-html" );
 				return apply_filters( 'justb2b_display_custom_html_1', $result, $this, $html );
 			}
@@ -501,7 +501,7 @@ class PriceDisplay {
 	private function getCustomHtml1(): string {
 		$rule = $this->product->getFirstFullFitRule();
 		if ( $rule ) {
-			$ruleHtml1 = $rule->getFieldValue( 'custom_html_1' );
+			$ruleHtml1 = $rule->getFieldValue( 'setting_custom_html_1' );
 			$result = $this->getFormattedHtml( $ruleHtml1, 'justb2b-rule-html-1' );
 			return apply_filters( 'justb2b_display_rule_custom_html_1', $result, $this, $ruleHtml1 );
 		}

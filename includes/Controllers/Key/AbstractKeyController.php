@@ -12,6 +12,8 @@ abstract class AbstractKeyController extends AbstractController {
 	protected function __construct() {
 		parent::__construct();
 		register_activation_hook( JUSTB2B_PLUGIN_FILE, [ $this, 'create_setting_post' ] );
+		do_action( 'wpml_register_post_type_translation', static::getPrefixedKey(), [ 'translate' => false ] );
+
 	}
 
 	public function create_setting_post() {
@@ -23,6 +25,8 @@ abstract class AbstractKeyController extends AbstractController {
 			'post_status' => 'any',
 			'numberposts' => 1,
 			'fields' => 'ids',
+			'suppress_filters' => false,
+			'lang' => '',
 		] );
 
 		if ( empty( $existing ) ) {
@@ -48,13 +52,13 @@ abstract class AbstractKeyController extends AbstractController {
 
 		if ( function_exists( 'acf_add_local_field_group' ) ) {
 			$fields = FieldBuilder::buildACF( $this->getDefinitions() );
-			$params = [
+			$params = [ 
 				'key' => static::getKey(),
 				'title' => static::getKey(),
 				'fields' => $fields,
-				'location' => [
-					[
-						[
+				'location' => [ 
+					[ 
+						[ 
 							'param' => 'post',
 							'operator' => '==',
 							'value' => self::getSettingsId(),

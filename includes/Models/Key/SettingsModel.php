@@ -52,17 +52,17 @@ class SettingsModel extends AbstractKeyModel {
 		$fieldsDefinition = [];
 
 		$base_fields = [ 
-			[ 'key' => 'rrp_price', 'label' => 'RRP' ],
 			[ 'key' => 'base_price_1', 'label' => 'Base price 1' ],
 			[ 'key' => 'base_price_2', 'label' => 'Base price 2' ],
 			[ 'key' => 'base_price_3', 'label' => 'Base price 3' ],
 			[ 'key' => 'base_price_4', 'label' => 'Base price 4' ],
 			[ 'key' => 'base_price_5', 'label' => 'Base price 5' ],
+			[ 'key' => 'rrp_price', 'label' => 'RRP' ],
 		];
 
 		// Default fields (without currency)
 		foreach ( $base_fields as $field ) {
-			$fieldsDefinition[] = ( new SelectField( "type_{$field['key']}", $field['label'] ) )
+			$fieldsDefinition[] = ( new SelectField( "setting_type_{$field['key']}", $field['label'] ) )
 				->setOptions( [ 'net' => 'net', 'gross' => 'gross' ] )
 				->setWidth( 50 );
 		}
@@ -71,7 +71,7 @@ class SettingsModel extends AbstractKeyModel {
 
 		// Visibility and prefix/postfix configuration
 		foreach ( [ [ 'key' => 'base_net', 'label' => 'Base Net' ], [ 'key' => 'base_gross', 'label' => 'Base Gross' ], [ 'key' => 'your_net', 'label' => 'Your Net' ], [ 'key' => 'your_gross', 'label' => 'Your Gross' ], [ 'key' => 'your_net_total', 'label' => 'Your Net Total' ], [ 'key' => 'your_gross_total', 'label' => 'Your Gross Total' ], [ 'key' => 'gifts_net_total', 'label' => 'gifts_net_total' ], [ 'key' => 'gifts_gross_total', 'label' => 'gifts_gross_total' ], [ 'key' => 'final_net_total', 'label' => 'final_net_total' ], [ 'key' => 'final_gross_total', 'label' => 'final_gross_total' ], [ 'key' => 'final_per_item_net', 'label' => 'final_per_item_net' ], [ 'key' => 'final_per_item_gross', 'label' => 'final_per_item_gross' ], [ 'key' => 'rrp_net', 'label' => 'RRP Net' ], [ 'key' => 'rrp_gross', 'label' => 'RRP Gross' ], [ 'key' => 'qty_table', 'label' => 'Qty Table' ],] as $field ) {
-			$fieldsDefinition[] = new SeparatorField( "sep_{$field['key']}", $field['label'] );
+			$fieldsDefinition[] = new SeparatorField( "setting_sep_{$field['key']}", $field['label'] );
 			$fieldsDefinition = array_merge(
 				$fieldsDefinition,
 				self::generateVisibilityFields( $field['key'] )
@@ -80,11 +80,11 @@ class SettingsModel extends AbstractKeyModel {
 
 		// Custom HTML fields
 		foreach ( [ 'b2c', 'b2b' ] as $type ) {
-			$fieldsDefinition[] = ( new SelectField( "show_{$type}_html_1", "show_{$type}_html_1" ) )
+			$fieldsDefinition[] = ( new SelectField( "setting_show_{$type}_html_1", "show_{$type}_html_1" ) )
 				->setOptions( [ 'show' => 'show', 'hide' => 'hide' ] )
 				->setWidth( 100 );
 
-			$fieldsDefinition[] = ( new RichTextField( "{$type}_html_1", "{$type}_html_1" ) )->setWidth( 100 );
+			$fieldsDefinition[] = ( new RichTextField( "setting_{$type}_html_1", "{$type}_html_1" ) )->setWidth( 100 );
 		}
 
 		return $fieldsDefinition;
@@ -98,7 +98,7 @@ class SettingsModel extends AbstractKeyModel {
 
 		foreach ( [ 'single', 'loop' ] as $place ) {
 			foreach ( [ 'b2c', 'b2b' ] as $kind ) {
-				$generalKey = "{$place}_{$kind}_{$key}";
+				$generalKey = "setting_{$place}_{$kind}_{$key}";
 				$visibilityKey = "{$generalKey}_visibility";
 				$fields[] = ( new SelectField( $visibilityKey, "{$kind} {$place} visibility" ) )
 					->setOptions( [ 

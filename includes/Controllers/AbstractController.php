@@ -11,7 +11,7 @@ abstract class AbstractController {
 	use SingletonTrait;
 
 	protected function __construct() {
-		$this->registerACF();
+		add_action( 'acf/init', [ $this, 'registerACF' ], 0 );
 	}
 
 	abstract public function registerACF(): void;

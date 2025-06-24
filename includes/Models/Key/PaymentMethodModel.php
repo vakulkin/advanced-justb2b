@@ -53,7 +53,7 @@ class PaymentMethodModel extends AbstractKeyModel {
 
 	public function getKey(): string {
 		return self::getFromRuntimeCache(
-			fn() => '_temp__' . str_replace( ':', '_', $this->WCMethod->id ),
+			fn() => '_temp__payment' . str_replace( ':', '_', $this->WCMethod->id ),
 			$this->cacheContext()
 		);
 	}
@@ -138,7 +138,7 @@ class PaymentMethodModel extends AbstractKeyModel {
 						'b2c' => 'b2c',
 						'b2b' => 'b2b',
 					] )
-					->setWidth( 33 ),
+					->setWidth( 34 ),
 				( new NonNegativeFloatField( $this->getMinTotalKey(), 'Min Order Total' ) )
 					->setDefaultValue( false )
 					->setWidth( 33 ),
@@ -157,6 +157,21 @@ class PaymentMethodModel extends AbstractKeyModel {
 				$fields = array_merge( $fields, $method->getFields() );
 			}
 			return $fields;
+		} );
+	}
+
+
+	public static function getFieldsDefinition2(): array {
+		return self::getFromRuntimeCache( function () {
+			$boxes = [];
+			foreach ( PaymentController::getPaymentMethods() as $method ) {
+				$boxes[] = [
+					'fields' => $method->getFields(),
+					'label' => $method->getLabel(),
+					'key' => $method->getKey(),
+				];
+			}
+			return $boxes;
 		} );
 	}
 

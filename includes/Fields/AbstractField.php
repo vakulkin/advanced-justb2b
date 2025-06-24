@@ -74,7 +74,7 @@ abstract class AbstractField {
 		return $this;
 	}
 
-	public function toACF(): array {
+	public function toACF( $index = 0 ): array {
 		$field = [ 
 			'key' => $this->prefixedKey,
 			'name' => $this->prefixedKey,
@@ -83,11 +83,14 @@ abstract class AbstractField {
 			'wrapper' => [ 
 				'width' => $this->width,
 			],
+			'index' => $index,
 		];
 
 		if ( isset( $this->helpText ) ) {
 			$field['instructions'] = $this->helpText;
 		}
+
+
 
 		return $field;
 	}
@@ -111,86 +114,86 @@ abstract class AbstractField {
 
 	public function renderValue( int $id ): string {
 		$value = $this->getValue( $id );
-		return $value;
-	}
 
-
-	protected function renderEntities(
-		array $values,
-		callable $resolver,
-		callable $linkGenerator,
-		callable $labelGetter
-	): string {
-
-		if (false === $values) {
-			return 'error';
+		if ( is_array( $value ) ) {
+			return $this->hasInvalidItems( $value )
+				? $this->renderInvalidItems( $value )
+				: $this->renderAllItems( $value );
 		}
 
-		$visibleCount = 3;
-		$resolvedEntities = $this->resolveEntities( $values, $resolver );
-		$renderedLinks = $this->renderVisibleEntities( $resolvedEntities, $linkGenerator, $labelGetter, $visibleCount );
-		$moreIndicator = $this->renderRemainingCountIndicator( count( $resolvedEntities ), $visibleCount );
+		return $this->renderScalarValue( $value );
+	}
+
+	public function hasInvalidItems( array $items ): bool {
+		foreach ( $items as $item ) {
+			if ( isset( $item['valid'] ) && $item['valid'] === false ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public function renderScalarValue( mixed $value ): string {
+		if ( $value === null || ( is_string( $value ) && trim( $value ) === '' ) ) {
+			return '';
+		}
 
 		return sprintf(
-			'<div class="justb2b-associations">%s%s</div>',
-			$renderedLinks,
-			$moreIndicator
+			'<span class="justb2b-scalar-field">%s</span>',
+			esc_html( (string) $value )
 		);
 	}
 
-	protected function resolveEntities( array $values, callable $resolver ): array {
-		$entities = [];
+	public function renderAllItems( array $items ): string {
+		$html = '<div class="justb2b-associations">';
 
-		foreach ( $values as $value ) {
-			$id = (int) ( $value['id'] ?? 0 );
-			if ( ! $id ) {
-				continue;
+		foreach ( $items as $item ) {
+			$html .= $this->renderItem( $item );
+		}
+
+		$html .= '</div>';
+		return $html;
+	}
+	public function renderInvalidItems( array $items ): string {
+		$html = '<div class="justb2b-associations">';
+
+		foreach ( $items as $item ) {
+			if ( isset( $item['valid'] ) && $item['valid'] === false ) {
+				$html .= $this->renderItem( $item );
 			}
-
-			$entity = $resolver( $id );
-			if ( $entity && ! is_wp_error( $entity ) ) {
-				$subtype = $value['subtype'] ?? $value['taxonomy'] ?? ( $value['user_email'] ?? false ? 'user' : 'item' );
-				$entities[] = [ 'entity' => $entity, 'subtype' => $subtype ];
-			}
 		}
 
-		return $entities;
+		$html .= '</div>';
+		return $html;
 	}
 
-	protected function renderVisibleEntities(
-		array $entities,
-		callable $linkGenerator,
-		callable $labelGetter,
-		int $visibleCount
-	): string {
-		$output = '';
-
-		foreach ( array_slice( $entities, 0, $visibleCount ) as $item ) {
-			$label = esc_attr( $labelGetter( $item['entity'] ) );
-			$url = esc_url( $linkGenerator( $item['entity'] ) );
-			$output .= sprintf(
-				'<a class="justb2b-association-field justb2b-%s-field-value" href="%s" target="_blank" rel="noopener noreferrer" title="%s">%s</a>',
-				$item['subtype'],
-				$url,
-				$label,
-				$label
-			);
+	protected function renderItem( array $item ): string {
+		if ( ! isset( $item['key'] ) ) {
+			return '';
 		}
 
-		return $output;
-	}
+		$isInvalid = isset( $item['valid'] ) && $item['valid'] === false;
 
-	protected function renderRemainingCountIndicator( int $total, int $visibleCount ): string {
-		$remaining = $total - $visibleCount;
-
-		if ( $remaining > 0 ) {
-			// Use a generic "item" subtype; you can adjust this logic if needed.
-			return sprintf(
-				'<span class="justb2b-association-field justb2b-item-field-value">+%s</span>',
-				esc_html( $remaining )
-			);
+		$classes = 'justb2b-association-field justb2b-post-field-value';
+		if ( $isInvalid ) {
+			$classes .= ' justb2b-field-error';
 		}
 
-		return '';
+		$title = $isInvalid
+			? ' title="Ponieważ ten element jest nieprawidłowy, ta reguła nie będzie działać."'
+			: '';
+
+		return sprintf(
+			'<span class="%s"%s>%s%s</span>',
+			esc_attr( $classes ),
+			$title,
+			$isInvalid ? '<span style="color:red; margin-right:0.2em;">&#10060;</span>' : '',
+			esc_html( $item['key'] )
+		);
 	}
+
+
+
+
+
 }

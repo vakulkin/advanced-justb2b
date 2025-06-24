@@ -12,7 +12,7 @@ class AssociationTermsField extends AbstractOptionsField {
 		$this->defaultValue = [];
 	}
 
-	public function toACF(): array {
+	public function toACF($index = 0): array {
 		$field = parent::toACF();
 		$field['type'] = 'checkbox';
 		$field['multiple'] = 1;
@@ -26,27 +26,18 @@ class AssociationTermsField extends AbstractOptionsField {
 			foreach ( $terms as $termId ) {
 				if ( $termId && ( $term = get_term( $termId ) ) && ! is_wp_error( $term ) ) {
 					$result[ $term->term_id ] = [ 
-						'key' => $term->taxonomy,
+						'key' => $term->name,
 						'valid' => true,
 					];
 				} else {
-					$result[ $term->term_id ] = [ 
-						'key' => "removed taxomony {$term->term_id}",
+					$result[ $termId ] = [ 
+						'key' => "removed taxomony {$termId}",
 						'valid' => false,
 					];
 				}
 			}
 		}
 		return $result;
-	}
-
-	public function renderValue( int $parentId ): string {
-		return $this->renderEntities(
-			$this->getValue( $parentId ),
-			fn( $id ) => get_term( $id ),
-			fn( $term ) => get_term_link( $term ),
-			fn( $term ) => $term->name
-		);
 	}
 
 	public function getCombinedProductTerms(): array {

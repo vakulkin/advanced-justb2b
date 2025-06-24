@@ -2,6 +2,7 @@
 
 namespace JustB2b\Controllers\Key;
 
+use JustB2b\Fields\FieldBuilder;
 use WC_Product_Simple;
 use WC_Shipping_Zone;
 use WC_Shipping_Zones;
@@ -17,6 +18,7 @@ class ShippingController extends AbstractKeyController {
 		parent::__construct();
 		add_filter( 'woocommerce_package_rates', [ $this, 'filterShippingMethods' ] );
 		add_action( 'woocommerce_checkout_update_order_review', [ $this, 'resetShippingCache' ] );
+		// add_action( 'acf/init', [ $this, 'registerACF2' ] );
 	}
 
 	public static function getKey() {
@@ -33,6 +35,10 @@ class ShippingController extends AbstractKeyController {
 
 	public function getDefinitions(): array {
 		return ShippingMethodModel::getFieldsDefinition();
+	}
+
+	public function getDefinitions2(): array {
+		return ShippingMethodModel::getFieldsDefinition2();
 	}
 
 	public function filterShippingMethods( $rates ) {
@@ -184,4 +190,37 @@ class ShippingController extends AbstractKeyController {
 			return [ $package ];
 		} );
 	}
+
+	// public function registerACF(): void {
+	// 	// Deprecated: replaced by registerACF2
+	// 	return;
+	// }
+
+	public function registerACF2(): void {
+		if ( function_exists( 'acf_add_local_field_group' ) ) {
+			$blocks = $this->getDefinitions2();
+
+			foreach ( $blocks as $block ) {
+				if ( ! isset( $block['key'], $block['label'], $block['fields'] ) ) {
+					continue;
+				}
+
+				acf_add_local_field_group( [ 
+					'key' => $block['key'],
+					'title' => $block['label'],
+					'fields' => FieldBuilder::buildACF( $block['fields'] ),
+					'location' => [ 
+						[ 
+							[ 
+								'param' => 'post',
+								'operator' => '==',
+								'value' => self::getSettingsId(),
+							],
+						],
+					],
+				] );
+			}
+		}
+	}
+
 }

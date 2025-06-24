@@ -25,7 +25,7 @@ class RoleModel extends AbstractPostModel
     public static function getFieldsDefinition(): array
     {
         return [
-            new AssociationUsersField('users', 'Users'),
+            new AssociationUsersField('role_users', 'Users'),
         ];
     }
 }

@@ -15,8 +15,8 @@ class AbstractOptionsField extends TextField {
 		return $this;
 	}
 
-	public function toACF(): array {
-		$field = parent::toACF();
+	public function toACF($index = 0): array {
+		$field = parent::toACF($index);
 		$field['choices'] = $this->options;
 		return $field;
 	}

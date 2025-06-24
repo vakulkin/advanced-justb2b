@@ -16,13 +16,17 @@ abstract class AbstractModel {
 		return $extra;
 	}
 
-	public function getField( string $key ): ?object {
-		/** @var AbstractField $field */
+	public static function getKeyFieldsDefinition(): array {
+		$keyFields = [];
 		foreach ( static::getFieldsDefinition() as $field ) {
-			if ( $key == $field->getKey() ) {
-				return $field;
-			}
+			$keyFields[ $field->getKey()] = $field;
 		}
-		return null;
+		return $keyFields;
+	}
+
+
+	public static function getField( string $key ): ?object {
+		/** @var AbstractField|null $field */
+		return static::getKeyFieldsDefinition()[ $key ] ?? null;
 	}
 }

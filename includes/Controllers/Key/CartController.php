@@ -43,11 +43,11 @@ class CartController extends AbstractKeyController {
 	}
 
 	public function getShowNetFor(): string {
-		return $this->cartModelObject->getFieldValue( 'mini_cart_net_price' );
+		return $this->cartModelObject->getFieldValue( 'cart_mini_net_price' );
 	}
 
 	public function getShowGrossFor(): string {
-		return $this->cartModelObject->getFieldValue( 'mini_cart_gross_price' );
+		return $this->cartModelObject->getFieldValue( 'cart_mini_gross_price' );
 	}
 
 	public function miniCartPriceFilter( $output, $cart_item ): string {

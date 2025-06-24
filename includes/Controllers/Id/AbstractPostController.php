@@ -3,6 +3,7 @@
 namespace JustB2b\Controllers\Id;
 
 use JustB2b\Fields\FieldBuilder;
+use JustB2b\Fields\AbstractField;
 use JustB2b\Traits\SingletonTrait;
 
 defined( 'ABSPATH' ) || exit;
@@ -26,6 +27,7 @@ abstract class AbstractPostController extends AbstractIdController {
 		if ( ! function_exists( 'acf_add_local_field_group' ) ) {
 			return;
 		}
+
 		$fields = FieldBuilder::buildACF( $this->getDefinitions() );
 
 		if ( ! empty( $fields ) ) {
@@ -47,4 +49,41 @@ abstract class AbstractPostController extends AbstractIdController {
 			acf_add_local_field_group( $params );
 		}
 	}
+
+	protected function registerAdminColumns(): void {
+		$fields = $this->getDefinitions();
+
+		$postType = self::getPrefixedKey();
+
+		add_filter( "manage_edit-{$postType}_columns",
+			function ($columns) use ($fields) {
+				foreach ( $fields as $field ) {
+					/** @var AbstractField $field */
+					$columns[ $field->getKey()] = $field->getLabel();
+				}
+				return $columns;
+			} );
+
+		add_action( "manage_{$postType}_posts_custom_column",
+			function ($column, $postId) use ($fields) {
+				foreach ( $fields as $field ) {
+					/** @var AbstractField $field */
+					if ( $column === $field->getKey() ) {
+						echo $field->renderValue( $postId );
+						return;
+					}
+				}
+			}, 10, 2 );
+
+		// add_filter( "manage_edit-{$postType}_sortable_columns", function ($columns) use ($fields) {
+		// 	/** @var AbstractField $field */
+		// 	foreach ( $fields as $field ) {
+		// 		if ( $field->getAttribute( 'type' ) === 'number' ) {
+		// 			$columns[ $field->getKey()] = $field->getPrefixedKey();
+		// 		}
+		// 	}
+		// 	return $columns;
+		// } );
+	}
 }
+

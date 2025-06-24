@@ -36,7 +36,6 @@ class ProductsController extends AbstractPostController {
 		add_filter( 'acf/fields/relationship/query/name=justb2b_products', [ $this, 'acfFilterVariationsParentProducts' ], 1000, 3 );
 		add_filter( 'acf/fields/relationship/query/name=justb2b_excluding_products', [ $this, 'acfFilterVariationsParentProducts' ], 1000, 3 );
 
-
 		// Future enhancements:
 		// add_action('woocommerce_product_query', [$this, 'hideProductsFromLoop']);
 		// add_filter('woocommerce_show_variation_price', '__return_true', 25);

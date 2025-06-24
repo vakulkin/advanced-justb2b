@@ -279,7 +279,7 @@ class PriceCalculator {
 		$price = $field->getValue( $this->product->getOriginLangProductId() );
 		$globalController = GlobalController::getInstance();
 		$settingsObject = $globalController->getSettingsModelObject();
-		$isNet = $settingsObject->getFieldValue( "type_$key" ) !== 'gross';
+		$isNet = $settingsObject->getFieldValue( "setting_type_$key" ) !== 'gross';
 		return $isNet ? $price : $this->calcNetFromGrossPrice( $price );
 	}
 

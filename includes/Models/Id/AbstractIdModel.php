@@ -23,24 +23,24 @@ abstract class AbstractIdModel extends AbstractModel {
 		$this->id = $id;
 	}
 
-	protected function getUserTypeClause( bool $isB2b ): array {
-		$clauses = [ 
-			'relation' => 'OR',
-			[ 
-				'key' => Prefixer::getPrefixed( 'customer_type' ),
-				'value' => $isB2b ? [ 'b2b', 'b2x' ] : [ 'b2c', 'b2x' ],
-				'compare' => 'IN',
-			],
-		];
-		// todo: add empty logic
+	// protected function getUserTypeClause( bool $isB2b ): array {
+	// 	$clauses = [ 
+	// 		'relation' => 'OR',
+	// 		[ 
+	// 			'key' => Prefixer::getPrefixed( 'customer_type' ),
+	// 			'value' => $isB2b ? [ 'b2b', 'b2x' ] : [ 'b2c', 'b2x' ],
+	// 			'compare' => 'IN',
+	// 		],
+	// 	];
+	// 	// todo: add empty logic
 
-		return $clauses;
-	}
+	// 	return $clauses;
+	// }
 
 	protected function getBaseMetaQuery( bool $isB2b ): array {
 		return [ 
 			'priority_clause' => [ 
-				'key' => Prefixer::getPrefixed( 'priority' ),
+				'key' => Prefixer::getPrefixed( 'rule_priority' ),
 				'type' => 'NUMERIC',
 			],
 			// 'customer_type_clause' => $this->getUserTypeClause($isB2b),
@@ -50,13 +50,13 @@ abstract class AbstractIdModel extends AbstractModel {
 
 	public function isEmptyField( string $key ): bool {
 		/** @var AbstractField $field */
-		$field = $this->getField( $key );
+		$field = static::getField( $key );
 		return $field ? $field->isEmptyValue( $this->id ) : true;
 	}
 
 	public function getFieldValue( string $key ): mixed {
 		/** @var AbstractField $field */
-		$field = $this->getField( $key );
+		$field = static::getField( $key );
 		// error_log(print_r($field, true));
 		return $field ? $field->getValue( $this->id ) : null;
 	}

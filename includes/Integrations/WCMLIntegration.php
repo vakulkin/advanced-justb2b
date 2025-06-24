@@ -28,7 +28,7 @@ class WCMLIntegration {
 		foreach ( $currency_codes as $currency ) {
 			foreach ( $base_keys as $key ) {
 				$composite_key = strtolower( $currency ) . '__' . $key;
-				$fields[] = new NonNegativeFloatField( $composite_key, $composite_key );
+				$fields[] = (new NonNegativeFloatField( $composite_key, $composite_key ))->setWidth(33);
 			}
 		}
 		return $fields;

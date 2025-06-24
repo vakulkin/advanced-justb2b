@@ -145,4 +145,19 @@ class ShippingMethodModel extends AbstractKeyModel {
 		return $fields;
 	}
 
+	public static function getFieldsDefinition2(): array {
+		return self::getFromRuntimeCache( function () {
+			$boxes = [];
+			foreach ( ShippingController::getShippingMethods() as $method ) {
+				$boxes[] = [ 
+					'fields' => $method->getFields(),
+					'label' => $method->getLabel(),
+					'key' => $method->getKey(),
+				];
+			}
+			return $boxes;
+		} );
+	}
+
+
 }

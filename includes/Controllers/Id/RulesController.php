@@ -2,8 +2,8 @@
 
 namespace JustB2b\Controllers\Id;
 
-use JustB2b\Fields\AbstractField;
 use JustB2b\Models\Id\RuleModel;
+use JustB2b\Fields\AbstractField;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,7 +26,57 @@ class RulesController extends AbstractCustomPostController {
 		parent::__construct();
 		$this->registerAdminColumns();
 		add_filter( 'acf/fields/relationship/result', [ $this, 'addImageRelation' ], 10, 4 );
+
+		add_action( 'admin_head', function () {
+			$screen = get_current_screen();
+			if ( $screen->post_type === $this->getPrefixedKey() ) {
+				echo '<style>
+					.wp-list-table.widefat {
+						display: block;
+						overflow-x: auto;
+						white-space: nowrap;
+						padding-bottom: 16px;
+					}
+					.wp-list-table.widefat thead th,
+					.wp-list-table.widefat tbody td {
+						white-space: nowrap;
+					}
+				</style>';
+			}
+		} );
+
+		add_filter( 'acf/prepare_field/name=justb2b_rule_users', [ $this, 'prepareAssocField' ] );
+		add_filter( 'acf/prepare_field/name=justb2b_rule_roles', [ $this, 'prepareAssocField' ] );
+		add_filter( 'acf/prepare_field/name=justb2b_rule_products', [ $this, 'prepareAssocField' ] );
+		add_filter( 'acf/prepare_field/name=justb2b_rule_woo_terms', [ $this, 'prepareAssocField' ] );
+
+		add_filter( 'acf/prepare_field/name=justb2b_rule_qualifying_roles', [ $this, 'prepareAssocField' ] );
+		add_filter( 'acf/prepare_field/name=justb2b_rule_qualifying_woo_terms', [ $this, 'prepareAssocField' ] );
+
+		add_filter( 'acf/prepare_field/name=justb2b_rule_excluding_users', [ $this, 'prepareAssocField' ] );
+		add_filter( 'acf/prepare_field/name=justb2b_rule_excluding_roles', [ $this, 'prepareAssocField' ] );
+		add_filter( 'acf/prepare_field/name=justb2b_rule_excluding_products', [ $this, 'prepareAssocField' ] );
+		add_filter( 'acf/prepare_field/name=justb2b_rule_excluding_woo_terms', [ $this, 'prepareAssocField' ] );
 	}
+
+	public static function prepareAssocField( array $field ): array {
+		/** @var AbstractField $fieldObj */
+
+		if ( is_admin() && isset( $_GET['post'] ) && isset( $_GET['action'] ) && 'edit' === $_GET['action'] ) {
+			$post_id = (int) $_GET['post'];
+
+			$withoutPrefix = str_replace( 'justb2b_', '', $field['key'] );
+			$fieldObj = RuleModel::getField( $withoutPrefix );
+
+			$rendered = $fieldObj->renderValue( $post_id );
+
+			// Wrap rendered value in a styled <div>
+			$field['instructions'] .= '<div style="margin-top:1em;">' . $rendered . '</div>';
+		}
+
+		return $field;
+	}
+
 
 	public function addImageRelation( $title, $post, $field, $post_id ) {
 		// if ( isset( $field['name'] ) && $field['name'] === 'your_relationship_field_name' ) {
@@ -52,41 +102,4 @@ class RulesController extends AbstractCustomPostController {
 	public function getDefinitions(): array {
 		return RuleModel::getFieldsDefinition();
 	}
-
-	protected function registerAdminColumns(): void {
-		$fields = RuleModel::getFieldsDefinition();
-
-		$postType = self::getPrefixedKey();
-
-		add_filter( "manage_edit-{$postType}_columns",
-			function ($columns) use ($fields) {
-				/** @var AbstractField $field */
-				foreach ( $fields as $field ) {
-					$columns[ $field->getKey()] = $field->getLabel();
-				}
-				return $columns;
-			} );
-
-		add_action( "manage_{$postType}_posts_custom_column",
-			function ($column, $postId) use ($fields) {
-				foreach ( $fields as $field ) {
-					/** @var AbstractField $field */
-					if ( $column === $field->getKey() ) {
-						echo $field->renderValue( $postId );
-						return;
-					}
-				}
-			}, 10, 2 );
-
-		// add_filter( "manage_edit-{$postType}_sortable_columns", function ($columns) use ($fields) {
-		// 	/** @var AbstractField $field */
-		// 	foreach ( $fields as $field ) {
-		// 		if ( $field->getAttribute( 'type' ) === 'number' ) {
-		// 			$columns[ $field->getKey()] = $field->getPrefixedKey();
-		// 		}
-		// 	}
-		// 	return $columns;
-		// } );
-	}
-
 }

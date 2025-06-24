@@ -2,7 +2,6 @@
 
 namespace JustB2b\Models\Id;
 
-use JustB2b\Fields\AbstractField;
 use JustB2b\Fields\SelectField;
 use JustB2b\Traits\RuntimeCacheTrait;
 use JustB2b\Utils\Prefixer;

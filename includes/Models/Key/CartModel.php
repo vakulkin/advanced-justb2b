@@ -31,7 +31,7 @@ class CartModel extends AbstractKeyModel {
 
 	public static function getFieldsDefinition(): array {
 		return [ 
-			( new SelectField( 'mini_cart_net_price', 'Mini cart net price visibility' ) )
+			( new SelectField( 'cart_mini_net_price', 'Mini cart net price visibility' ) )
 				->setOptions( [ 
 					'b2x' => 'b2x',
 					'b2b' => 'b2b',
@@ -40,7 +40,7 @@ class CartModel extends AbstractKeyModel {
 				->setHelpText( 'Choose who should see the net price in the mini cart.' )
 				->setWidth( 50 ),
 
-			( new SelectField( 'mini_cart_gross_price', 'Mini cart gross price visibility' ) )
+			( new SelectField( 'cart_mini_gross_price', 'Mini cart gross price visibility' ) )
 				->setOptions( [ 
 					'b2x' => 'b2x',
 					'b2b' => 'b2b',

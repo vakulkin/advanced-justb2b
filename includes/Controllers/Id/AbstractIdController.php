@@ -15,6 +15,4 @@ abstract class AbstractIdController extends AbstractController {
 	}
 
 	abstract public function getDefinitions(): array;
-
-
 }
