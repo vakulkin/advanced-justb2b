@@ -8,9 +8,13 @@ class FieldBuilder {
 	public static function buildACF( array $definitions ): array {
 		$fields = [];
 
-		/** @var AbstractField $fiedefinitionld */
-		foreach ( $definitions as $index => $definition ) {
-			$fields[] = $definition->toACF( $index + 1 );
+
+		$index = 1;
+		foreach ( $definitions as $definition ) {
+			/** @var AbstractField $definition */
+			$definition->setIndex( $index );
+			$fields[] = $definition->toACF();
+			$index++;
 		}
 
 		return $fields;

@@ -17,8 +17,8 @@ class NumberField extends TextField {
 			&& $this->getOriginValue( $id ) !== '0';
 	}
 
-	public function toACF($index = 0): array {
-		$field = parent::toACF($index);
+	public function toACF(): array {
+		$field = parent::toACF();
 		$field['type'] = 'number';
 		return $field;
 	}

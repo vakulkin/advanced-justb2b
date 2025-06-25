@@ -38,7 +38,7 @@ class CheckoutController extends AbstractKeyController {
 	}
 
 	public function getDefinitions(): array {
-		return CheckoutModel::getFieldsDefinition();
+		return CheckoutModel::getKeyFieldsDefinition();
 	}
 
 	public function getModelObject() {

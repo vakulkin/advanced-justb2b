@@ -52,7 +52,6 @@ abstract class AbstractPostController extends AbstractIdController {
 
 	protected function registerAdminColumns(): void {
 		$fields = $this->getDefinitions();
-
 		$postType = self::getPrefixedKey();
 
 		add_filter( "manage_edit-{$postType}_columns",
@@ -75,15 +74,19 @@ abstract class AbstractPostController extends AbstractIdController {
 				}
 			}, 10, 2 );
 
-		// add_filter( "manage_edit-{$postType}_sortable_columns", function ($columns) use ($fields) {
-		// 	/** @var AbstractField $field */
-		// 	foreach ( $fields as $field ) {
-		// 		if ( $field->getAttribute( 'type' ) === 'number' ) {
-		// 			$columns[ $field->getKey()] = $field->getPrefixedKey();
-		// 		}
-		// 	}
-		// 	return $columns;
-		// } );
+		add_filter( "manage_edit-{$postType}_sortable_columns", function ($columns) use ($fields) {
+			/** @var AbstractField $field */
+			foreach ( $fields as $field ) {
+				if ( $this->isInstanceOrChildOf( 'JustB2b\Fields\NumberField', $field ) ) {
+					$columns[ $field->getKey()] = $field->getPrefixedKey();
+				}
+			}
+			return $columns;
+		} );
+	}
+
+	protected function isInstanceOrChildOf( string $class, object $object ): bool {
+		return get_class( $object ) === $class || is_subclass_of( $object, $class );
 	}
 }
 

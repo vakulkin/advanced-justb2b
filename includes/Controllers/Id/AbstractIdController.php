@@ -13,6 +13,4 @@ abstract class AbstractIdController extends AbstractController {
 	protected function __construct() {
 		parent::__construct();
 	}
-
-	abstract public function getDefinitions(): array;
 }

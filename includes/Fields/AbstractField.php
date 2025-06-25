@@ -14,6 +14,7 @@ abstract class AbstractField {
 	protected string $label;
 	protected string $idType;
 	protected string $prefixedKey;
+	protected int $index = 0;
 	protected int $width = 100;
 	protected mixed $defaultValue = '';
 	protected string $helpText = '';
@@ -74,7 +75,16 @@ abstract class AbstractField {
 		return $this;
 	}
 
-	public function toACF( $index = 0 ): array {
+	public function getIndex() {
+		return $this->index;
+	}
+
+	public function setIndex(int $index) {
+		$this->index = $index;
+		return $this;
+	}
+
+	public function toACF(): array {
 		$field = [ 
 			'key' => $this->prefixedKey,
 			'name' => $this->prefixedKey,
@@ -83,7 +93,7 @@ abstract class AbstractField {
 			'wrapper' => [ 
 				'width' => $this->width,
 			],
-			'index' => $index,
+			'index' => $this->index,
 		];
 
 		if ( isset( $this->helpText ) ) {
@@ -173,11 +183,9 @@ abstract class AbstractField {
 		}
 
 		$isInvalid = isset( $item['valid'] ) && $item['valid'] === false;
+		$type = $item['type'] ?? 'error';
 
-		$classes = 'justb2b-association-field justb2b-post-field-value';
-		if ( $isInvalid ) {
-			$classes .= ' justb2b-field-error';
-		}
+		$classes = "justb2b-association-field justb2b-{$type}-field-value";
 
 		$title = $isInvalid
 			? ' title="Ponieważ ten element jest nieprawidłowy, ta reguła nie będzie działać."'

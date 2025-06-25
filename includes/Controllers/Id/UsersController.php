@@ -30,7 +30,7 @@ class UsersController extends AbstractIdController {
 	}
 
 	public function getDefinitions(): array {
-		return UserModel::getFieldsDefinition();
+		return UserModel::getKeyFieldsDefinition();
 	}
 	public function getUserBannersShortcode() {
 		return self::getCurrentUser()->getUserBannersHtml();

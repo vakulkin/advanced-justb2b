@@ -14,12 +14,12 @@
     text-overflow: ellipsis;
 }
 
-.justb2b-post-field-value {
+.justb2b-product-field-value {
     border: 1px solid #6AD9EF;
     color: #02b2d5;
 }
 
-.justb2b-product_cat-field-value {
+.justb2b-term-field-value {
     border: 1px solid #C17AFF;
     color: #C17AFF;
 }
@@ -34,7 +34,7 @@
     color: #00c22d;
 }
 
-.justb2b-field-error {
+.justb2b-error-field {
     border-color: #f44336;
     color: #f44336;
     background-color: #ffe5e5;
@@ -49,9 +49,10 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    border: 1px solid #6AD9EF;
-    color: #02b2d5;
+    border: 1px solid #d1bfa7;
+    color: #9c805f;
 }
+
 
 
 .acf-field {

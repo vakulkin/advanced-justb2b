@@ -12,7 +12,7 @@ class AssociationTermsField extends AbstractOptionsField {
 		$this->defaultValue = [];
 	}
 
-	public function toACF($index = 0): array {
+	public function toACF(): array {
 		$field = parent::toACF();
 		$field['type'] = 'checkbox';
 		$field['multiple'] = 1;
@@ -27,11 +27,13 @@ class AssociationTermsField extends AbstractOptionsField {
 				if ( $termId && ( $term = get_term( $termId ) ) && ! is_wp_error( $term ) ) {
 					$result[ $term->term_id ] = [ 
 						'key' => $term->name,
+						'type' => 'term',
 						'valid' => true,
 					];
 				} else {
 					$result[ $termId ] = [ 
 						'key' => "removed taxomony {$termId}",
+						'type' => 'error',
 						'valid' => false,
 					];
 				}

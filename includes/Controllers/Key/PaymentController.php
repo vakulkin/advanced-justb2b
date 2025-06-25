@@ -34,11 +34,11 @@ class PaymentController extends AbstractKeyController {
 	}
 
 	public function getDefinitions(): array {
-		return PaymentMethodModel::getFieldsDefinition();
+		return PaymentMethodModel::getKeyFieldsDefinition();
 	}
 
 	public function getDefinitions2(): array {
-		return PaymentMethodModel::getFieldsDefinition2();
+		return PaymentMethodModel::getKeyFieldsDefinition();
 	}
 
 	public function filterPaymentMethods( $available_gateways ) {

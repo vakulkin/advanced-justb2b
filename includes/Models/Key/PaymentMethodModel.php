@@ -15,15 +15,22 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @feature-section payment_rules
  * @title[ru] Настройка платёжных методов
- * @desc[ru] Управляйте доступностью способов оплаты в зависимости от типа клиента и суммы заказа — это повышает контроль, безопасность и UX.
+ * @desc[ru] Управление доступностью оплаты по типу клиента и сумме заказа.
  * @order 700
  */
 
 /**
  * @feature payment_rules method_visibility
- * @title[ru] Отображение методов оплаты по ролям и типу клиента
- * @desc[ru] Показывайте или скрывайте способы оплаты для B2B и B2C клиентов в зависимости от бизнес-логики и условий.
+ * @title[ru] Отображение методов оплаты по клиенту
+ * @desc[ru] Делайте способы оплаты доступными для B2B или B2C в зависимости от условий.
  * @order 701
+ */
+
+/**
+ * @feature payment_rules amount_conditions
+ * @title[ru] Доступность методов оплаты по сумме заказа
+ * @desc[ru] Ограничивайте доступ к способам оплаты по минимальной и максимальной сумме.
+ * @order 702
  */
 
 
@@ -165,7 +172,7 @@ class PaymentMethodModel extends AbstractKeyModel {
 		return self::getFromRuntimeCache( function () {
 			$boxes = [];
 			foreach ( PaymentController::getPaymentMethods() as $method ) {
-				$boxes[] = [
+				$boxes[] = [ 
 					'fields' => $method->getFields(),
 					'label' => $method->getLabel(),
 					'key' => $method->getKey(),

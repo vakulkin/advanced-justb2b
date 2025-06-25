@@ -70,7 +70,7 @@ class ProductsController extends AbstractPostController {
 	}
 
 	public function getDefinitions(): array {
-		return ProductModel::getFieldsDefinition();
+		return ProductModel::getKeyFieldsDefinition();
 	}
 
 	/**

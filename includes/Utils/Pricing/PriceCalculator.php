@@ -151,8 +151,8 @@ class PriceCalculator {
 	public function getNumberOfTimesToAddGifts() {
 		$rule = $this->product->getFirstFullFitRule();
 		if ( $rule ) {
-			if ( $rule->getGiftsEveryItems() > 0 ) {
-				return intdiv( $this->product->getQty(), $rule->getGiftsEveryItems() );
+			if ( $rule->getFreeEveryItems() > 0 ) {
+				return intdiv( $this->product->getQty(), $rule->getFreeEveryItems() );
 			}
 			return 1;
 		}
@@ -162,7 +162,7 @@ class PriceCalculator {
 	public function getNumberfOfGifts(): int {
 		$rule = $this->product->getFirstFullFitRule();
 		if ( $rule ) {
-			return min( $rule->getNumberOfGifts(), $this->product->getQty() ) * $this->getNumberOfTimesToAddGifts();
+			return min( $rule->getNumberOfFree(), $this->product->getQty() ) * $this->getNumberOfTimesToAddGifts();
 		}
 		return 0;
 	}

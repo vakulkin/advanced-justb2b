@@ -4,6 +4,7 @@ namespace JustB2b\Controllers;
 
 use JustB2b\Traits\SingletonTrait;
 use JustB2b\Utils\Prefixer;
+use JustB2b\Fields\AbstractField;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,6 +23,10 @@ abstract class AbstractController {
 
 	abstract public static function getSingleName(): string;
 	abstract public static function getPluralName(): string;
+	abstract public function getDefinitions(): array;
 
-
+	public function getField( string $key ): ?object {
+		/** @var AbstractField|null $field */
+		return $this->getDefinitions()[ $key ] ?? null;
+	}
 }

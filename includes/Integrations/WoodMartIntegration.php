@@ -9,15 +9,15 @@ defined('ABSPATH') || exit;
 
 /**
  * @feature-section theme_integration
- * @title[ru] Интеграция с темами и шаблонами
- * @desc[ru] JustB2B автоматически адаптируется к WoodMart.
+ * @title[ru] Интеграция с темой WoodMart
+ * @desc[ru] JustB2B автоматически подставляет минимальную сумму для бесплатной доставки в прогресс-бар WoodMart, с учётом B2B-логики.
  * @order 900
  */
 
 /**
- * @feature theme_integration woodmart_shipping_bar
- * @title[ru] Поддержка индикатора доставки в теме WoodMart
- * @desc[ru] JustB2B подставляет правильную минимальную сумму для бесплатной доставки в прогресс-бар темы WoodMart, с учётом условий и логики B2B.
+ * @feature theme_integration shipping_progress_bar
+ * @title[ru] Прогресс-бар доставки WoodMart
+ * @desc[ru] Значение для бесплатной доставки подставляется динамически — на основе условий JustB2B.
  * @order 901
  */
 

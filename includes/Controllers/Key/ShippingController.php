@@ -34,11 +34,11 @@ class ShippingController extends AbstractKeyController {
 	}
 
 	public function getDefinitions(): array {
-		return ShippingMethodModel::getFieldsDefinition();
+		return ShippingMethodModel::getKeyFieldsDefinition();
 	}
 
 	public function getDefinitions2(): array {
-		return ShippingMethodModel::getFieldsDefinition2();
+		return ShippingMethodModel::getKeyFieldsDefinition();
 	}
 
 	public function filterShippingMethods( $rates ) {

@@ -7,6 +7,21 @@ use JustB2b\Controllers\Id\UsersController;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * @feature-section wpbakery_integration
+ * @title[ru] Интеграция с WPBakery
+ * @desc[ru] JustB2B добавляет шорткод для вывода баннеров пользователя в формате WPBakery-карусели.
+ * @order 910
+ */
+
+/**
+ * @feature wpbakery_integration user_banners_shortcode
+ * @title[ru] Карусель баннеров WPBakery
+ * @desc[ru] Шорткод [justb2b_wpbakery_user_banners] автоматически подставляет баннеры текущего пользователя в формате vc_images_carousel.
+ * @order 911
+ */
+
+
 class WPBakeryIntegration {
 	use SingletonTrait;
 

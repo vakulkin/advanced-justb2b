@@ -37,15 +37,20 @@ abstract class AbstractIdModel extends AbstractModel {
 	// 	return $clauses;
 	// }
 
-	protected function getBaseMetaQuery( bool $isB2b ): array {
+	public static function getPriorityClause(): array {
 		return [ 
 			'priority_clause' => [ 
 				'key' => Prefixer::getPrefixed( 'rule_priority' ),
 				'type' => 'NUMERIC',
 			],
-			// 'customer_type_clause' => $this->getUserTypeClause($isB2b),
-			// todo: uncomment and fix
 		];
+	}
+
+	public static function getBaseMetaQuery( bool $isB2b ): array {
+		return array_merge(
+			self::getPriorityClause()
+			// , self::getUserTypeClause($isB2b) // TODO: uncomment and fix
+		);
 	}
 
 	public function isEmptyField( string $key ): bool {

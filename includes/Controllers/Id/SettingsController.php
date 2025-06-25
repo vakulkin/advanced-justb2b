@@ -2,7 +2,7 @@
 
 namespace JustB2b\Controllers\Id;
 
-use JustB2b\Models\Id\SettingModel;
+use JustB2b\Models\Key\SettingsModel;
 use WP_Admin_Bar;
 
 defined( 'ABSPATH' ) || exit;
@@ -19,10 +19,6 @@ class SettingsController extends AbstractCustomPostController {
 
 		add_action( 'all_admin_notices', [ $this, 'renderButtonsOnListScreens' ] );
 		add_action( 'all_admin_notices', [ $this, 'renderButtonsAboveSingleEdit' ] );
-
-
-
-
 
 		// add_action( 'restrict_manage_posts', function () {
 		// 	$screen = get_current_screen();
@@ -131,9 +127,9 @@ class SettingsController extends AbstractCustomPostController {
 
 	public function getSettingsPageHtml(): string {
 		return '<div class="wrap">
-		<h1 class="wp-heading-inline">' . esc_html__( 'JustB2B Settings', 'justb2b' ) . '</h1>
-		' . $this->getSettingsButtonsHtml() . '
-	</div>';
+			<h1 class="wp-heading-inline">' . esc_html__( 'JustB2B Settings', 'justb2b' ) . '</h1>
+			' . $this->getSettingsButtonsHtml() . '
+		</div>';
 	}
 
 	public function getSettingsButtonsHtml( ?int $activeId = null ): string {
@@ -151,7 +147,6 @@ class SettingsController extends AbstractCustomPostController {
 		$is_general_page = $current_screen && $current_screen->base === 'toplevel_page_justb2b-settings';
 
 		$index = 1;
-
 		// Info button
 		$buttons[] = sprintf(
 			'<a href="%s" class="justb2b-button %s" data-index="%d">%s</a>',
@@ -159,6 +154,13 @@ class SettingsController extends AbstractCustomPostController {
 			$is_general_page ? 'is-active' : '',
 			$index++,
 			esc_html__( 'JustB2B', 'justb2b' )
+		);
+
+		$buttons[] = sprintf(
+			'<a href="%s" class="justb2b-button" data-index="%d">%s</a>',
+			esc_url( admin_url( 'edit.php?post_type=product' ) ),
+			$index++,
+			esc_html__( 'products', 'justb2b' )
 		);
 
 		// Manage Roles
@@ -191,8 +193,6 @@ class SettingsController extends AbstractCustomPostController {
 				esc_html__( $title, 'justb2b' )
 			);
 		}
-
-
 
 		return '<div class="justb2b-buttons" style="margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px;">'
 			. implode( '', $buttons ) .
@@ -234,7 +234,7 @@ class SettingsController extends AbstractCustomPostController {
 	}
 
 	public function getDefinitions(): array {
-		return SettingModel::getFieldsDefinition();
+		return SettingsModel::getKeyFieldsDefinition();
 	}
 
 	protected function getPostTypeArgs(): array {

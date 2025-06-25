@@ -2,6 +2,8 @@
 
 namespace JustB2b\Models\Id;
 
+use JustB2b\Controllers\Id\SettingsController;
+use JustB2b\Controllers\Key\GlobalController;
 use WP_Query;
 use WC_Product;
 use JustB2b\Controllers\Id\UsersController;
@@ -15,17 +17,53 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * @feature-section product_logic
- * @title[ru] Умная логика товаров и цен
- * @desc[ru] JustB2B анализирует условия, подбирает подходящие правила и точно рассчитывает цену для каждого товара и клиента. Всё автоматически.
+ * @title[ru] Логика товаров и расчёта цен
+ * @desc[ru] JustB2B автоматически подбирает правила и рассчитывает цену для каждого товара с учётом условий.
  * @order 400
  */
 
 /**
  * @feature product_logic model
- * @title[ru] Привязка условий и правил к товарам
- * @desc[ru] Каждый товар может участвовать в нескольких правилах одновременно. Плагин сам выбирает первое подходящее и применяет цену.
+ * @title[ru] Привязка правил к товарам
+ * @desc[ru] Товар может участвовать в нескольких правилах. Применяется подходящее правило.
  * @order 401
  */
+
+/**
+ * @feature product_logic rule_matching
+ * @title[ru] Подбор правил
+ * @desc[ru] Правила подбираются по пользователю, ролям, количеству, категориям и другим условиям.
+ * @order 410
+ */
+
+/**
+ * @feature product_logic rule_priority
+ * @title[ru] Приоритет правил
+ * @desc[ru] Применяется правило с минимальным значением приоритета, подходящее по условиям.
+ * @order 420
+ */
+
+/**
+ * @feature product_logic price_calculator
+ * @title[ru] Расчёт цены
+ * @desc[ru] Цена рассчитывается с учётом условий, количества, скидок, наценок и налогов.
+ * @order 430
+ */
+
+/**
+ * @feature product_logic price_display
+ * @title[ru] Вывод рассчитанной цены
+ * @desc[ru] Показывается только та цена, которая применима к клиенту.
+ * @order 440
+ */
+
+/**
+ * @feature product_logic base_prices
+ * @title[ru] Источники базовых цен
+ * @desc[ru] Поддержка до 5 базовых цен и RRP. Используются в расчётах и отображении.
+ * @order 450
+ */
+
 
 class ProductModel extends AbstractPostModel {
 	use RuntimeCacheTrait;
@@ -148,35 +186,55 @@ class ProductModel extends AbstractPostModel {
 		);
 	}
 
+	public static function getMinQtyClause(): array {
+		return [ 
+			'min_qty_clause' => [ 
+				'key' => Prefixer::getPrefixed( 'rule_min_qty' ),
+				'type' => 'NUMERIC',
+			],
+		];
+	}
+
+	public static function getMaxQtyClause(): array {
+		return [ 
+			'max_qty_clause' => [ 
+				'key' => Prefixer::getPrefixed( 'rule_max_qty' ),
+				'type' => 'NUMERIC',
+			],
+		];
+	}
+
+	protected function getOrderByClauses(): array {
+		return [ 
+			'priority_clause' => 'ASC',
+			'min_qty_clause' => 'ASC',
+			'max_qty_clause' => 'DESC',
+			'ID' => 'ASC',
+		];
+	}
+
 	protected function getRuleQueryArgs(): array {
 		$user = UsersController::getCurrentUser();
-		$meta = $this->getBaseMetaQuery( $user->isB2b() );
-		$meta['min_qty_clause'] = [ 
-			'key' => Prefixer::getPrefixed( 'rule_min_qty' ),
-			'type' => 'NUMERIC',
-		];
-		$meta['max_qty_clause'] = [ 
-			'key' => Prefixer::getPrefixed( 'rule_max_qty' ),
-			'type' => 'NUMERIC',
-		];
+
+		$meta = array_merge(
+			self::getBaseMetaQuery( $user->isB2b() ),
+			self::getMinQtyClause(),
+			self::getMaxQtyClause()
+		);
 
 		return [ 
 			'post_type' => Prefixer::getPrefixed( 'rule' ),
 			'post_status' => 'publish',
 			'posts_per_page' => -1,
 			'meta_query' => $meta,
-			'orderby' => [ 
-				'priority_clause' => 'ASC',
-				'min_qty_clause' => 'ASC',
-				'max_qty_clause' => 'DESC',
-				'ID' => 'ASC',
-			],
+			'orderby' => $this->getOrderByClauses(),
 		];
 	}
 
+
 	public static function getFieldsDefinition(): array {
 		$base_keys = [ 
-            'base_price_1',
+			'base_price_1',
 			'base_price_2',
 			'base_price_3',
 			'base_price_4',
@@ -184,8 +242,10 @@ class ProductModel extends AbstractPostModel {
 			'rrp_price',
 		];
 
+		$settingsController = SettingsController::getInstance();
+
 		$fields = array_map(
-			fn( $key ) => ( new NonNegativeFloatField( $key, $key ) )->setWidth( 33 ),
+			fn( $key ) => ( new NonNegativeFloatField( $key, $settingsController->getField( "setting_label_{$key}" )->getValue(GlobalController::getSettingsId()) ?: $key ) )->setWidth( 33 ),
 			$base_keys
 		);
 

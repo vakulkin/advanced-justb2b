@@ -21,11 +21,13 @@ abstract class AbstractAssociationPostsField extends AbstractAssociationField {
 				if ( $postId && get_post_status( $postId ) === 'publish' ) {
 					$result[ $postId ] = [ 
 						'key' => get_the_title( $postId ),
+						'type' => get_post_type($postId),
 						'valid' => true,
 					];
 				} else {
 					$result[ $postId ] = [ 
 						'key' => "removed post {$postId}",
+						'type' => "error",
 						'valid' => false,
 					];
 				}
@@ -34,8 +36,8 @@ abstract class AbstractAssociationPostsField extends AbstractAssociationField {
 		return $result;
 	}
 
-	public function toACF($index = 0): array {
-		$field = parent::toACF($index);
+	public function toACF(): array {
+		$field = parent::toACF();
 		$field['type'] = 'relationship';
 		$field['post_type'] = $this->postTypes;
 		$field['min'] = 0;

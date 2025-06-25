@@ -6,8 +6,8 @@ defined( 'ABSPATH' ) || exit;
 
 class NonNegativeNumberField extends NumberField {
 
-	public function toACF($index = 0): array {
-		$field = parent::toACF($index);
+	public function toACF(): array {
+		$field = parent::toACF();
 		$field['min'] = 0;
 		return $field;
 	}

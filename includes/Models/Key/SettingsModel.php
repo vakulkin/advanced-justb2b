@@ -14,31 +14,68 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * @feature-section settings_ui
+ * @title[ru] Отображение цен для B2B и B2C
+ * @desc[ru] Управление выводом цен, таблицы правил и HTML-блоков по типу пользователя и контексту.
+ * @order 500
+ */
+
+/**
+ * @feature-section settings_ui
  * @title[ru] Настройки отображения цен и шаблонов
- * @desc[ru] Гибкие настройки отображения цен, шаблонов и пользовательских HTML-блоков без необходимости править код.
+ * @desc[ru] Управление выводом цен, шаблонов и HTML-блоков без правки кода.
  * @order 600
  */
 
 /**
  * @feature settings_ui net_gross_selector
  * @title[ru] Настройка формата цен (нетто / брутто)
- * @desc[ru] Выберите, в каком формате (с НДС или без) будет рассчитываться базовая цена — для каждой группы цен отдельно.
+ * @desc[ru] Выбор формата расчёта базовой цены — с НДС или без, отдельно для каждой группы цен.
  * @order 601
  */
 
 /**
- * @feature settings_ui conditional_blocks
- * @title[ru] Видимость блоков цен в каталоге и на карточке
- * @desc[ru] Управляйте, какие блоки цен отображаются и в каком контексте (каталог или карточка товара), отдельно для B2B и B2C.
- * @order 610
+ * @feature settings_ui price_visibility
+ * @title[ru] Отображение цен
+ * @desc[ru] Включение или скрытие каждой цены отдельно для B2B и B2C.
+ * @order 602
  */
+
+/**
+ * @feature settings_ui price_format
+ * @title[ru] Префиксы и постфиксы
+ * @desc[ru] Добавление префиксов и постфиксов к каждой цене.
+ * @order 603
+ */
+
+/**
+ * @feature settings_ui price_context
+ * @title[ru] Контекстное отображение цен
+ * @desc[ru] Настройка отображения цен на страницах товаров и в списках — отдельно для B2B и B2C.
+ * @order 604
+ */
+
+/**
+ * @feature settings_ui price_options_count
+ * @title[ru] Количество доступных опций
+ * @desc[ru] Более 250 параметров настройки отображения цен.
+ * @order 605
+ */
+
 
 /**
  * @feature settings_ui custom_html_blocks
  * @title[ru] Кастомный HTML под ценами
- * @desc[ru] Отображайте любой HTML-блок под ценами (например, условия доставки или скидок) — отдельно для B2B и B2C клиентов.
+ * @desc[ru] Вывод HTML-блоков под ценами — отдельно для B2B и B2C.
  * @order 630
  */
+
+/**
+ * @feature settings_ui quantity_table
+ * @title[ru] Таблица цен по количеству
+ * @desc[ru] Показывает таблицу правил с приоритетами, границами и ценами. Можно скрыть или показать отдельно для B2B и B2C.
+ * @order 530
+ */
+
 
 
 class SettingsModel extends AbstractKeyModel {
@@ -62,9 +99,11 @@ class SettingsModel extends AbstractKeyModel {
 
 		// Default fields (without currency)
 		foreach ( $base_fields as $field ) {
-			$fieldsDefinition[] = ( new SelectField( "setting_type_{$field['key']}", $field['label'] ) )
+			$fieldsDefinition[] = ( new TextField( "setting_label_{$field['key']}", $field['label'] . ' Label' ) )
+				->setWidth( 25 );
+			$fieldsDefinition[] = ( new SelectField( "setting_type_{$field['key']}", $field['label'] . ' Type' ) )
 				->setOptions( [ 'net' => 'net', 'gross' => 'gross' ] )
-				->setWidth( 50 );
+				->setWidth( 25 );
 		}
 
 		$fieldsDefinition = apply_filters( 'justb2b_settings_fields_definition', $fieldsDefinition, $base_fields );

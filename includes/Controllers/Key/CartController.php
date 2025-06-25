@@ -39,7 +39,7 @@ class CartController extends AbstractKeyController {
 	}
 
 	public function getDefinitions(): array {
-		return CartModel::getFieldsDefinition();
+		return CartModel::getKeyFieldsDefinition();
 	}
 
 	public function getShowNetFor(): string {

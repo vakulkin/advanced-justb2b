@@ -6,23 +6,35 @@ use JustB2b\Traits\SingletonTrait;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * @feature-section wpml_integration
+ * @title[ru] Поддержка WPML и переводов
+ * @desc[ru] Расширяет проверку условий на переводы продуктов и терминов с учётом WPML.
+ * @order 910
+ */
+
+/**
+ * @feature wpml_integration product_match
+ * @title[ru] Поиск товара среди переводов
+ * @desc[ru] Учитываются переводы товаров при проверке условий применения правил.
+ * @order 911
+ */
+
+/**
+ * @feature wpml_integration term_match
+ * @title[ru] Учет переводов терминов
+ * @desc[ru] Плагин ищет соответствие терминов в любых языковых версиях товара.
+ * @order 912
+ */
+
+
 class WPMLIntegration {
 	use SingletonTrait;
 
 	protected function __construct() {
-		// add_action( 'add_meta_boxes', [ $this, 'maybeRemoveCarbonFieldsMetaBox' ], 100 );
 		add_filter( 'justb2b_check_product', [ $this, 'checkProduct' ], 10, 3 );
 		add_filter( 'justb2b_check_terms', [ $this, 'checkTerms' ], 10, 3 );
 	}
-
-	// public function maybeRemoveCarbonFieldsMetaBox(): void {
-	// 	$default_lang = apply_filters( 'wpml_default_language', null );
-	// 	$current_lang = apply_filters( 'wpml_current_language', null );
-
-	// 	if ( $default_lang !== $current_lang ) {
-	// 		remove_meta_box( 'acf-product', 'product', 'side' );
-	// 	}
-	// }
 
 	public function checkProduct( bool $result, $products, int $product_id ): bool {
 		$trid = apply_filters( 'wpml_element_trid', null, $product_id, 'post_product' );

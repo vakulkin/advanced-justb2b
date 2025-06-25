@@ -347,7 +347,7 @@ class PriceDisplay {
 					$html .= "<div class=\"justb2b-rule-title\">" . esc_html( $rule->getTitle() ) . "</div>";
 				}
 
-				
+
 				return apply_filters(
 					'justb2b_display_prices_html',
 					$this->handlePricesHtmlContainer( $html ),
@@ -452,8 +452,11 @@ class PriceDisplay {
 	}
 
 	private function renderQtyTableRow( $rule ): string {
-		$priceCalculator = $this->product->getPriceCalculator();
-		$price = $priceCalculator->calcRule();
+		$qty = $rule->getMaxQty() > 0 ? $rule->getMaxQty()
+			: ( $rule->getMinQty() > 0 ? $rule->getMinQty() : 1 );
+
+		$product = new ProductModel( $this->product->getId(), $qty );
+		$priceCalculator = $product->getPriceCalculator();
 
 		$html = implode( '', [ 
 			'<tr>',
@@ -462,7 +465,7 @@ class PriceDisplay {
 			'<td>' . esc_html( $rule->getPriority() ) . '</td>',
 			'<td>' . esc_html( $rule->getMinQty() ) . '</td>',
 			'<td>' . esc_html( $rule->getMaxQty() ) . '</td>',
-			'<td>' . wc_price( $price ) . '</td>',
+			'<td>' . wc_price( $priceCalculator->getFinalNetPerItemPrice() ) . '</td>',
 			'</tr>',
 		] );
 

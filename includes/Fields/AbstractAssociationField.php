@@ -12,8 +12,8 @@ abstract class AbstractAssociationField extends AbstractField {
 		$this->defaultValue = [];
 	}
 
-	public function toACF( $index = 0 ): array {
-		$field = parent::toACF( $index );
+	public function toACF(): array {
+		$field = parent::toACF();
 		$field['return_format'] = 'id';
 		return $field;
 	}

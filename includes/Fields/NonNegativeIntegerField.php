@@ -6,8 +6,8 @@ defined( 'ABSPATH' ) || exit;
 
 class NonNegativeIntegerField extends NonNegativeNumberField {
 
-	public function toACF($index = 0): array {
-		$field = parent::toACF($index);
+	public function toACF(): array {
+		$field = parent::toACF();
 		$field['step'] = 1;
 		return $field;
 	}

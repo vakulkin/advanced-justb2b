@@ -14,8 +14,8 @@ class ImageField extends AbstractField {
 		$this->defaultValue = '';
 	}
 
-	public function toACF($index = 0): array {
-		$field = parent::toACF($index);
+	public function toACF(): array {
+		$field = parent::toACF();
 		$field['type'] = 'image';
 		$field['return_format'] = 'id';
 		$field['preview_size'] = 'thumbnail';

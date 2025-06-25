@@ -2,8 +2,11 @@
 
 namespace JustB2b\Controllers\Id;
 
+use JustB2b\Models\Id\ProductModel;
 use JustB2b\Models\Id\RuleModel;
 use JustB2b\Fields\AbstractField;
+use JustB2b\Utils\Prefixer;
+use WP_Query;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -31,6 +34,10 @@ class RulesController extends AbstractCustomPostController {
 			$screen = get_current_screen();
 			if ( $screen->post_type === $this->getPrefixedKey() ) {
 				echo '<style>
+					html, body {
+						overflow-x: hidden !important;
+					}
+
 					.wp-list-table.widefat {
 						display: block;
 						overflow-x: auto;
@@ -57,6 +64,33 @@ class RulesController extends AbstractCustomPostController {
 		add_filter( 'acf/prepare_field/name=justb2b_rule_excluding_roles', [ $this, 'prepareAssocField' ] );
 		add_filter( 'acf/prepare_field/name=justb2b_rule_excluding_products', [ $this, 'prepareAssocField' ] );
 		add_filter( 'acf/prepare_field/name=justb2b_rule_excluding_woo_terms', [ $this, 'prepareAssocField' ] );
+
+		add_action( 'pre_get_posts', function (WP_Query $query) {
+			if ( ! is_admin() || ! $query->is_main_query() ) {
+				return;
+			}
+
+			$screen = get_current_screen();
+			if ( $screen && $screen->post_type === static::getPrefixedKey() ) {
+
+				$meta_query = array_merge(
+					ProductModel::getPriorityClause(),
+					ProductModel::getMinQtyClause(),
+					ProductModel::getMaxQtyClause()
+				);
+
+				$query->set( 'meta_query', $meta_query );
+
+				$query->set( 'orderby', [ 
+					'priority_clause' => 'ASC',
+					'min_qty_clause' => 'ASC',
+					'max_qty_clause' => 'DESC',
+					'ID' => 'ASC',
+				] );
+			}
+		} );
+
+
 	}
 
 	public static function prepareAssocField( array $field ): array {
@@ -100,6 +134,6 @@ class RulesController extends AbstractCustomPostController {
 		return 'Rules';
 	}
 	public function getDefinitions(): array {
-		return RuleModel::getFieldsDefinition();
+		return RuleModel::getKeyFieldsDefinition();
 	}
 }

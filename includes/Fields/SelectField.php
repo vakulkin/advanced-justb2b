@@ -14,8 +14,8 @@ class SelectField extends AbstractOptionsField {
 		return $this;
 	}
 
-	public function toACF($index = 0): array {
-		$field = parent::toACF($index);
+	public function toACF(): array {
+		$field = parent::toACF();
 		$field['type'] = 'select';
 		$field['default_value'] = $this->defaultValue ?? array_key_first( $this->options );
 		return $field;

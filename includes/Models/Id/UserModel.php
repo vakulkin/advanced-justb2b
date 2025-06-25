@@ -11,16 +11,9 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * @feature-section user_context
- * @title[ru] Контекст клиента: B2B или B2C
- * @desc[ru] JustB2B автоматически различает клиентов по типу (B2B или B2C) и использует это как основу для ценообразования и отображения товаров.
+ * @title[ru] Тип клиента (B2B/B2C)
+ * @desc[ru] Администратор назначает тип клиента. Это влияет на цены и условия.
  * @order 150
- */
-
-/**
- * @feature user_context model
- * @title[ru] Идентификация клиента
- * @desc[ru] Плагин определяет, является ли пользователь B2B-клиентом, и на основе этого показывает нужные цены и товары.
- * @order 151
  */
 
 
@@ -31,12 +24,6 @@ class UserModel extends AbstractIdModel {
 		return array_merge( [ 'user_id' => $this->id ], $extra );
 	}
 
-	/**
-	 * @feature user_context is_b2b
-	 * @title[ru] Определение B2B-клиента
-	 * @desc[ru] Система понимает, когда пользователь относится к сегменту B2B, и применяет соответствующие правила и цены.
-	 * @order 152
-	 */
 	public function isB2b(): bool {
 		return self::getFromRuntimeCache( function () {
 			$kind = $this->getFieldValue( 'user_type' );

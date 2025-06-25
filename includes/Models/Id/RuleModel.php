@@ -10,13 +10,82 @@ use JustB2b\Fields\AssociationUsersField;
 use JustB2b\Fields\ImageField;
 use JustB2b\Fields\NonNegativeFloatField;
 use JustB2b\Fields\NonNegativeIntegerField;
-use JustB2b\Fields\NumberField;
 use JustB2b\Fields\RichTextField;
 use JustB2b\Fields\SelectField;
 use JustB2b\Integrations\WCMLIntegration;
 use JustB2b\Traits\RuntimeCacheTrait;
 
 defined( 'ABSPATH' ) || exit;
+
+/**
+ * @feature-section rules
+ * @title[ru] Правила ценообразования
+ * @desc[ru] Управляют скидками, надбавками, видимостью цен и условиями покупки в зависимости от ролей, продуктов, категорий и количества.
+ * @order 100
+ */
+
+/**
+ * @feature rules types
+ * @title[ru] Типы правил
+ * @desc[ru] Поддержка различных типов расчёта: процент, фиксированная сумма, итоговая цена, цена по источнику, RRP, запрет покупки и другие.
+ * @order 101
+ */
+
+/**
+ * @feature rules conditions
+ * @title[ru] Условия применения
+ * @desc[ru] Применение правил по ролям, пользователям, товарам, категориям и количеству. Поддерживаются исключения.
+ * @order 102
+ */
+
+/**
+ * @feature rules qty_limits
+ * @title[ru] Ограничения по количеству
+ * @desc[ru] Настройка min/max количества, подарков и схем вроде «1 бесплатно за каждые 3».
+ * @order 103
+ */
+
+/**
+ * @feature rules price_sources
+ * @title[ru] Источники цен
+ * @desc[ru] Указание основного и резервных источников цены и RRP для расчёта.
+ * @order 104
+ */
+
+/**
+ * @feature rules visibility
+ * @title[ru] Видимость правил и цен
+ * @desc[ru] Управление отображением правил и цен — можно скрыть на странице товара, в списке или полностью.
+ * @order 105
+ */
+
+/**
+ * @feature rules qty_table
+ * @title[ru] Таблица цен по количеству
+ * @desc[ru] Показывает правила с приоритетами и диапазонами количества. Можно включить или скрыть для каждого правила.
+ * @order 106
+ */
+
+/**
+ * @feature rules html_banner
+ * @title[ru] Баннер и HTML под ценой
+ * @desc[ru] К каждому правилу можно привязать баннер или HTML-блок, отображаемый на странице товара.
+ * @order 107
+ */
+
+/**
+ * @feature rules priority
+ * @title[ru] Приоритет правил
+ * @desc[ru] У каждого правила есть числовой приоритет. Чем ниже значение, тем раньше применяется правило.
+ * @order 108
+ */
+
+/**
+ * @feature rules customer_type
+ * @title[ru] Тип клиента
+ * @desc[ru] Правило может применяться только к B2B, только к B2C или ко всем клиентам.
+ * @order 109
+ */
 
 class RuleModel extends AbstractPostModel {
 	use RuntimeCacheTrait;
@@ -102,12 +171,12 @@ class RuleModel extends AbstractPostModel {
 		return $this->isEmptyField( 'rule_max_qty' );
 	}
 
-	public function getNumberOfGifts(): int {
-		return $this->getFieldValue( 'rule_gifts_number' );
+	public function getNumberOfFree(): int {
+		return $this->getFieldValue( 'rule_free_number' );
 	}
 
-	public function getGiftsEveryItems(): int {
-		return $this->getFieldValue( 'rule_gifts_every_items' );
+	public function getFreeEveryItems(): int {
+		return $this->getFieldValue( 'rule_free_every_items' );
 	}
 
 	public function showInQtyTable(): bool {
@@ -371,8 +440,8 @@ class RuleModel extends AbstractPostModel {
 		$currentUserId = $currentUser->getId();
 		foreach ( $roles as $role ) {
 			/** @var AssociationUsersField $field */
-			$role = new RoleModel((int) $role );
-			$users = $role->getFieldValue('role_users');
+			$role = new RoleModel( (int) $role );
+			$users = $role->getFieldValue( 'role_users' );
 			if ( isset( $users[ $currentUserId ] ) ) {
 				$result = true;
 				break;
@@ -408,7 +477,7 @@ class RuleModel extends AbstractPostModel {
 
 	public static function getFieldsDefinition(): array {
 		return [ 
-			( new NumberField( 'rule_priority', 'Priority' ) )
+			( new NonNegativeIntegerField( 'rule_priority', 'Priority' ) )
 				->setHelpText( 'Lower number = higher priority. Use gaps like 10, 20, 30. Defaults to 0.' )
 				->setWidth( 25 ),
 			( new SelectField( 'rule_customer_type', 'Customer type' ) )
@@ -481,14 +550,14 @@ class RuleModel extends AbstractPostModel {
 				->setHelpText( 'Value used in price calculation.' )
 				->setWidth( 25 ),
 
-			// $WCMLIntegration::currencyWPMLSelectField(),
+			WCMLIntegration::currencyWPMLSelectField(),
 
-			( new NonNegativeIntegerField( 'rule_gifts_number', 'Number of gifts' ) )
-				->setHelpText( 'Number of same product gifts for this product. Defaults to 0. Zero means no gifts.' )
+			( new NonNegativeIntegerField( 'rule_free_number', 'Number for free' ) )
+				->setHelpText( 'Number of same product for free. Defaults to 0. Zero means no gifts.' )
 				->setWidth( 25 ),
 
-			( new NonNegativeIntegerField( 'rule_gifts_every_items', 'Add gitfs every Y items' ) )
-				->setHelpText( 'Add X new gifts for every Y items. 0 means only once. Defaults to 0.' )
+			( new NonNegativeIntegerField( 'rule_free_every_items', 'Add X for free every Y items' ) )
+				->setHelpText( 'Add X free for every Y items. 0 means only once. Defaults to 0.' )
 				->setWidth( 25 ),
 
 			( new NonNegativeIntegerField( 'rule_min_qty', 'Min ilość' ) )

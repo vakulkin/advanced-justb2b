@@ -14,11 +14,13 @@ class AssociationUsersField extends AbstractAssociationField {
 				if ( $userId && ( $user = get_userdata( $userId ) ) ) {
 					$result[ $userId ] = [ 
 						'key' => $user->user_email,
+						'type' => 'user',
 						'valid' => true,
 					];
 				} else {
 					$result[ $userId ] = [ 
 						'key' => "removed user {$userId}",
+						'type' => 'error',
 						'valid' => false,
 					];
 				}
@@ -27,8 +29,8 @@ class AssociationUsersField extends AbstractAssociationField {
 		return $result;
 	}
 
-	public function toACF( $index = 0 ): array {
-		$field = parent::toACF( $index );
+	public function toACF(): array {
+		$field = parent::toACF();
 		$field['type'] = 'user';
 		$field['multiple'] = 1;
 		return $field;

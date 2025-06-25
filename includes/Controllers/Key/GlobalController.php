@@ -56,7 +56,7 @@ class GlobalController extends AbstractKeyController {
 	}
 
 	public function getDefinitions(): array {
-		return SettingsModel::getFieldsDefinition();
+		return SettingsModel::getKeyFieldsDefinition();
 	}
 
 	public function getSettingsModelObject() {

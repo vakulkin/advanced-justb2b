@@ -28,7 +28,7 @@ class WCMLIntegration {
 		foreach ( $currency_codes as $currency ) {
 			foreach ( $base_keys as $key ) {
 				$composite_key = strtolower( $currency ) . '__' . $key;
-				$fields[] = (new NonNegativeFloatField( $composite_key, $composite_key ))->setWidth(33);
+				$fields[] = (new NonNegativeFloatField( $composite_key, $composite_key ))->setWidth(25);
 			}
 		}
 		return $fields;
@@ -52,9 +52,9 @@ class WCMLIntegration {
 		$currency_codes = [ $default_currency ];
 		$currency_codes = array_unique( array_merge( [ $default_currency ], static::getCurrencyCodes() ) );
 
-		return ( new SelectField( 'currency', 'Currency' ) )
+		return ( new SelectField( 'rule_currency', 'Currency' ) )
 			->setOptions( array_combine( $currency_codes, $currency_codes ) )
-			->setHelpText( 'Currency for this rule. Used only for base prices.' )
+			->setHelpText( 'Currency for this rule.' )
 			->setWidth( 25 );
 	}
 
@@ -63,7 +63,7 @@ class WCMLIntegration {
 		foreach ( $currency_codes as $currency ) {
 			$currency = strtolower( $currency );
 			foreach ( $base_fields as $field ) {
-				$key = "{$currency}__{$field['key']}";
+				$key = "setting_{$currency}__{$field['key']}";
 				$label = "{$field['label']} ({$currency})";
 				$fieldsDefinition[] = ( new SelectField( $key, $label ) )
 					->setOptions( [ 'net' => 'net', 'gross' => 'gross' ] )

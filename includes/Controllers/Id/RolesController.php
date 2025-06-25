@@ -25,6 +25,6 @@ class RolesController extends AbstractCustomPostController {
 	}
 
 	public function getDefinitions(): array {
-		return RoleModel::getFieldsDefinition();
+		return RoleModel::getKeyFieldsDefinition();
 	}
 }
