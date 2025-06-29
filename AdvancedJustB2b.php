@@ -4,7 +4,7 @@ namespace JustB2b;
 
 /*
 Plugin Name:  Advanced B2B | JustB2B
-Description: The plugin to manage B2B interactions with custom business rules, user roles, product groups, and pricing strategies.
+Description: The plugin to manage B2B interactions with custom pricing strategies.
 Text Domain: justb2b
 */
 

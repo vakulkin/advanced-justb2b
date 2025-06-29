@@ -1,9 +1,10 @@
 <?php
 
-namespace JustB2b\Models\Key;
+namespace JustB2b\Models\Key\Method;
 
 use WC_Shipping_Method;
 use WC_Shipping_Zone;
+use JustB2b\Models\Key\AbstractKeyModel;
 use JustB2b\Controllers\Id\UsersController;
 use JustB2b\Controllers\Key\ShippingController;
 use JustB2b\Fields\NonNegativeFloatField;

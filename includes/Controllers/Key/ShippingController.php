@@ -6,7 +6,7 @@ use JustB2b\Fields\FieldBuilder;
 use WC_Product_Simple;
 use WC_Shipping_Zone;
 use WC_Shipping_Zones;
-use JustB2b\Models\Key\ShippingMethodModel;
+use JustB2b\Models\Key\Method\ShippingMethodModel;
 use JustB2b\Traits\RuntimeCacheTrait;
 
 defined( 'ABSPATH' ) || exit;

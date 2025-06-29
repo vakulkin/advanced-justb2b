@@ -2,7 +2,6 @@
 
 namespace JustB2b\Models\Key;
 
-use JustB2b\Controllers\Id\SettingsController;
 use JustB2b\Controllers\Key\GlobalController;
 use JustB2b\Fields\NonNegativeIntegerField;
 use JustB2b\Fields\RichTextField;

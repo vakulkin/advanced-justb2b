@@ -1,9 +1,10 @@
 <?php
 
-namespace JustB2b\Models\Key;
+namespace JustB2b\Models\Key\Method;
 
-use JustB2b\Controllers\Key\PaymentController;
 use WC_Payment_Gateway;
+use JustB2b\Controllers\Key\PaymentController;
+use JustB2b\Models\Key\AbstractKeyModel;
 use JustB2b\Controllers\Id\UsersController;
 use JustB2b\Fields\SelectField;
 use JustB2b\Fields\SeparatorField;

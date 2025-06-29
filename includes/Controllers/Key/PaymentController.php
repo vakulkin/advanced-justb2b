@@ -4,7 +4,7 @@ namespace JustB2b\Controllers\Key;
 
 use JustB2b\Fields\FieldBuilder;
 use WC_Payment_Gateways;
-use JustB2b\Models\Key\PaymentMethodModel;
+use JustB2b\Models\Key\Method\PaymentMethodModel;
 use JustB2b\Traits\RuntimeCacheTrait;
 
 defined( 'ABSPATH' ) || exit;
