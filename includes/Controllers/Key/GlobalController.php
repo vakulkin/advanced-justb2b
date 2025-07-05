@@ -8,9 +8,7 @@ use JustB2b\Models\Key\SettingsModel;
 defined( 'ABSPATH' ) || exit;
 
 class GlobalController extends AbstractKeyController {
-	private string $key = 'global';
 	protected SettingsModel $settingsModelObject;
-
 	protected function __construct() {
 		parent::__construct();
 

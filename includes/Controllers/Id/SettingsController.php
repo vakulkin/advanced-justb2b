@@ -34,12 +34,9 @@ class SettingsController extends AbstractCustomPostController {
 		// 	add_filter( "views_edit-{$prefixedKey}", '__return_empty_array' );
 		// } );
 
-
-
 		// add_filter( 'disable_months_dropdown', function ($disable, $post_type) {
 		// 	return $post_type === static::getPrefixedKey() ? true : $disable;
 		// }, 10, 2 );
-
 
 		add_filter( 'map_meta_cap', function ($caps, $cap, $user_id, $args) {
 			$target_post_type = static::getPrefixedKey();
@@ -283,6 +280,9 @@ class SettingsController extends AbstractCustomPostController {
 
 	public function render_submitdiv( $post ) {
 		submit_button( __( 'Publish', 'justb2b' ), 'primary', 'publish', false );
+	}
+
+	public function registerACF(): void {
 	}
 
 }

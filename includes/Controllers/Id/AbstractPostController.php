@@ -54,14 +54,17 @@ abstract class AbstractPostController extends AbstractIdController {
 		$fields = $this->getDefinitions();
 		$postType = self::getPrefixedKey();
 
-		add_filter( "manage_edit-{$postType}_columns",
-			function ($columns) use ($fields) {
-				foreach ( $fields as $field ) {
-					/** @var AbstractField $field */
-					$columns[ $field->getKey()] = $field->getLabel();
-				}
-				return $columns;
-			} );
+		add_filter( "manage_edit-{$postType}_columns", function ($columns) use ($fields) {
+			foreach ( $fields as $field ) {
+				/** @var AbstractField $field */
+				$columns[ $field->getKey()] = sprintf(
+					'<span class="justb2b-column-index" title="%s">%s</span>',
+					esc_attr( $field->getLabel() ),
+					esc_attr( $field->getIndex() )
+				);
+			}
+			return $columns;
+		} );
 
 		add_action( "manage_{$postType}_posts_custom_column",
 			function ($column, $postId) use ($fields) {

@@ -13,9 +13,7 @@ abstract class AbstractKeyController extends AbstractController {
 		parent::__construct();
 		register_activation_hook( JUSTB2B_PLUGIN_FILE, [ $this, 'create_setting_post' ] );
 		do_action( 'wpml_register_post_type_translation', static::getPrefixedKey(), [ 'translate' => false ] );
-
 	}
-
 	public function create_setting_post() {
 		$post_type = 'justb2b_setting';
 

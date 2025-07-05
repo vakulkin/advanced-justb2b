@@ -36,27 +36,35 @@ class PriceDisplay {
 		], $extra );
 	}
 
+	public static function isLessThan( string|float $a, string|float $b ): bool {
+		return bccomp( (string) $a, (string) $b, 2 ) === -1;
+	}
 	public function getBaseNetPrice(): string {
 		return self::getFromRuntimeCache( function () {
 			$calculator = $this->product->getPriceCalculator();
 			$baseNet = $calculator->getBaseNetPrice();
 			$yourNet = $calculator->getYourNetPrice();
-			$shouldDisplay = $baseNet > 0 || $baseNet > $yourNet;
+
+			$shouldDisplay = self::isLessThan( 0, $baseNet ) || self::isLessThan( $yourNet, $baseNet );
 			$formatted = $shouldDisplay ? wc_price( $baseNet ) : '';
+
 			return apply_filters( 'justb2b_display_base_net_price', $formatted, $this );
 		}, $this->cacheContext() );
 	}
-
 
 	public function getBaseGrossPrice(): string {
 		return self::getFromRuntimeCache( function () {
 			$calc = $this->product->getPriceCalculator();
 			$base = $calc->getBaseGrossPrice();
 			$final = $calc->getYourGrossPrice();
-			$formatted = $base > 0 || $base > $final ? wc_price( $base ) : '';
+
+			$shouldDisplay = self::isLessThan( 0, $base ) || self::isLessThan( $final, $base );
+			$formatted = $shouldDisplay ? wc_price( $base ) : '';
+
 			return apply_filters( 'justb2b_display_base_gross_price', $formatted, $this );
 		}, $this->cacheContext() );
 	}
+
 
 	public function getYourNetPrice(): string {
 		return self::getFromRuntimeCache( function () {
@@ -106,9 +114,10 @@ class PriceDisplay {
 		return self::getFromRuntimeCache( function () {
 			$calc = $this->product->getPriceCalculator();
 			$price = $calc->getFinalNetPerItemPrice();
+			$your = $calc->getYourNetPrice();
 
-			if ( $price < $calc->getYourNetPrice() ) {
-				$formatted = $price > 0 ? wc_price( $price ) : '';
+			if ( self::isLessThan( $price, $your ) ) {
+				$formatted = self::isLessThan( 0, $price ) ? wc_price( $price ) : '';
 			} else {
 				$formatted = '';
 			}
@@ -121,9 +130,10 @@ class PriceDisplay {
 		return self::getFromRuntimeCache( function () {
 			$calc = $this->product->getPriceCalculator();
 			$price = $calc->getFinalGrossPerItemPrice();
+			$your = $calc->getYourGrossPrice();
 
-			if ( $price < $calc->getYourGrossPrice() ) {
-				$formatted = $price > 0 ? wc_price( $price ) : '';
+			if ( self::isLessThan( $price, $your ) ) {
+				$formatted = self::isLessThan( 0, $price ) ? wc_price( $price ) : '';
 			} else {
 				$formatted = '';
 			}
@@ -131,6 +141,7 @@ class PriceDisplay {
 			return apply_filters( 'justb2b_display_final_gross_per_item_price', $formatted, $this );
 		}, $this->cacheContext() );
 	}
+
 
 	public function getGiftsSaleNetTotal(): string {
 		return self::getFromRuntimeCache( function () {
@@ -435,7 +446,6 @@ class PriceDisplay {
 			'<thead>',
 			'<tr>',
 			'<th>' . esc_html__( 'Title', 'justb2b' ) . '</th>',
-			'<th>' . esc_html__( 'Price source', 'justb2b' ) . '</th>',
 			'<th>' . esc_html__( 'Priority', 'justb2b' ) . '</th>',
 			'<th>' . esc_html__( 'Min qty', 'justb2b' ) . '</th>',
 			'<th>' . esc_html__( 'Max qty', 'justb2b' ) . '</th>',
@@ -461,7 +471,6 @@ class PriceDisplay {
 		$html = implode( '', [ 
 			'<tr>',
 			'<td>' . esc_html( $rule->getTitle() ) . '</td>',
-			'<td>' . esc_html( $rule->getPrimaryPriceSource() ) . '</td>',
 			'<td>' . esc_html( $rule->getPriority() ) . '</td>',
 			'<td>' . esc_html( $rule->getMinQty() ) . '</td>',
 			'<td>' . esc_html( $rule->getMaxQty() ) . '</td>',

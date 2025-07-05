@@ -10,8 +10,6 @@ defined( 'ABSPATH' ) || exit;
 
 class CheckoutController extends AbstractKeyController {
 	use RuntimeCacheTrait;
-
-	private string $key = 'checkout';
 	protected CheckoutModel $checkoutModelObject;
 	protected function __construct() {
 		parent::__construct();

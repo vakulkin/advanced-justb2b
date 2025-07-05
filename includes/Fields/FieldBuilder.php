@@ -12,7 +12,6 @@ class FieldBuilder {
 		$index = 1;
 		foreach ( $definitions as $definition ) {
 			/** @var AbstractField $definition */
-			$definition->setIndex( $index );
 			$fields[] = $definition->toACF();
 			$index++;
 		}

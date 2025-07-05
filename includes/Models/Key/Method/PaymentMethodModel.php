@@ -3,6 +3,7 @@
 namespace JustB2b\Models\Key\Method;
 
 use WC_Payment_Gateway;
+use JustB2b\Models\Key\PaymentModel;
 use JustB2b\Controllers\Key\PaymentController;
 use JustB2b\Models\Key\AbstractKeyModel;
 use JustB2b\Controllers\Id\UsersController;
@@ -157,30 +158,9 @@ class PaymentMethodModel extends AbstractKeyModel {
 		}, $this->cacheContext() );
 	}
 
-
 	public static function getFieldsDefinition(): array {
-		return self::getFromRuntimeCache( function () {
-			$fields = [];
-			foreach ( PaymentController::getPaymentMethods() as $method ) {
-				$fields = array_merge( $fields, $method->getFields() );
-			}
-			return $fields;
-		} );
-	}
-
-
-	public static function getFieldsDefinition2(): array {
-		return self::getFromRuntimeCache( function () {
-			$boxes = [];
-			foreach ( PaymentController::getPaymentMethods() as $method ) {
-				$boxes[] = [ 
-					'fields' => $method->getFields(),
-					'label' => $method->getLabel(),
-					'key' => $method->getKey(),
-				];
-			}
-			return $boxes;
-		} );
+		// todo: fix repeating definition
+		return PaymentModel::getFieldsDefinition();
 	}
 
 }

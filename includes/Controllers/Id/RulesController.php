@@ -89,8 +89,6 @@ class RulesController extends AbstractCustomPostController {
 				] );
 			}
 		} );
-
-
 	}
 
 	public static function prepareAssocField( array $field ): array {
@@ -110,7 +108,6 @@ class RulesController extends AbstractCustomPostController {
 
 		return $field;
 	}
-
 
 	public function addImageRelation( $title, $post, $field, $post_id ) {
 		// if ( isset( $field['name'] ) && $field['name'] === 'your_relationship_field_name' ) {

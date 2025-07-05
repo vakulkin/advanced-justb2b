@@ -5,8 +5,8 @@
 }
 
 .justb2b-association-field {
-    padding: .2rem;
-    font-size: .7rem;
+    padding: .15rem;
+    font-size: .6rem;
     line-height: 1;
     border-radius: 25px;
     white-space: nowrap;
@@ -42,8 +42,8 @@
 
 .justb2b-scalar-field {
     display: inline-block;
-    padding: .2rem;
-    font-size: .7rem;
+    padding: .15rem;
+    font-size: .6rem;
     line-height: 1;
     border-radius: 25px;
     white-space: nowrap;
@@ -52,8 +52,6 @@
     border: 1px solid #d1bfa7;
     color: #9c805f;
 }
-
-
 
 .acf-field {
     position: relative;
@@ -75,7 +73,7 @@
     text-align: center;
     font-weight: bold;
     z-index: 10;
-    pointer-events: none;
+    /* pointer-events: none; */
 }
 
 .justb2b-buttons {
@@ -124,5 +122,23 @@
     text-align: center;
     font-weight: bold;
     z-index: 10;
-    pointer-events: none;
+    /* pointer-events: none; */
+}
+
+th.manage-column a {
+    display: flex;
+}
+
+.justb2b-column-index {
+    display: inline-block;
+    background: #d0e7ff;
+    color: #005799;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    font-size: 8px;
+    line-height: 18px;
+    text-align: center;
+    font-weight: bold;
+    cursor: help!important;
 }
