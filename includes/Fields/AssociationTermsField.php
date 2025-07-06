@@ -2,50 +2,58 @@
 
 namespace JustB2b\Fields;
 
-defined( 'ABSPATH' ) || exit;
+use JustB2b\Traits\RuntimeCacheTrait;
 
-class AssociationTermsField extends AbstractOptionsField {
+defined('ABSPATH') || exit;
 
-	public function __construct( string $key, string $label ) {
-		parent::__construct( $key, $label );
-		$this->setOptions( $this->getCombinedProductTerms() );
-		$this->defaultValue = [];
-	}
+class AssociationTermsField extends AbstractOptionsField
+{
+    use RuntimeCacheTrait;
 
-	public function toACF(): array {
-		$field = parent::toACF();
-		$field['type'] = 'checkbox';
-		$field['multiple'] = 1;
-		return $field;
-	}
+    public function __construct(string $key, string $label)
+    {
+        parent::__construct($key, $label);
+        $this->setOptions($this->getCombinedProductTerms());
+        $this->defaultValue = [];
+    }
 
-	public function getValue( int $id ): array {
-		$terms = parent::getValue( $id );
-		$result = [];
-		if ( is_array( $terms ) ) {
-			foreach ( $terms as $termId ) {
-				if ( $termId && ( $term = get_term( $termId ) ) && ! is_wp_error( $term ) ) {
-					$result[ $term->term_id ] = [ 
-						'key' => $term->name,
-						'type' => 'term',
-						'valid' => true,
-					];
-				} else {
-					$result[ $termId ] = [ 
-						'key' => "removed taxomony {$termId}",
-						'type' => 'error',
-						'valid' => false,
-					];
-				}
-			}
-		}
-		return $result;
-	}
+    public function toACF(): array
+    {
+        $field = parent::toACF();
+        $field['type'] = 'checkbox';
+        $field['multiple'] = 1;
+        return $field;
+    }
 
-	public function getCombinedProductTerms(): array {
-		global $wpdb;
+    public function getValue(int $id): array
+    {
+        $terms = parent::getValue($id);
+        $result = [];
+        if (is_array($terms)) {
+            foreach ($terms as $termId) {
+                if ($termId && ($term = get_term($termId)) && ! is_wp_error($term)) {
+                    $result[ $term->term_id ] = [
+                        'key' => $term->name,
+                        'type' => 'term',
+                        'valid' => true,
+                    ];
+                } else {
+                    $result[ $termId ] = [
+                        'key' => "removed taxomony {$termId}",
+                        'type' => 'error',
+                        'valid' => false,
+                    ];
+                }
+            }
+        }
+        return $result;
+    }
 
-		$results = $wpdb->get_results( "SELECT 
+    public function getCombinedProductTerms(): array
+    {
+        return self::getFromRuntimeCache(function () {
+            global $wpdb;
+            $results = $wpdb->get_results("SELECT 
                 t.term_id,
                 t.name,
                 tt.taxonomy
@@ -53,17 +61,18 @@ class AssociationTermsField extends AbstractOptionsField {
             INNER JOIN {$wpdb->prefix}term_taxonomy tt ON t.term_id = tt.term_id
             WHERE tt.taxonomy = 'product_cat'
             OR tt.taxonomy = 'product_tag'
-            OR tt.taxonomy LIKE 'pa_%'" );
+            OR tt.taxonomy LIKE 'pa_%'");
 
-		$choices = [];
+            $choices = [];
 
-		foreach ( $results as $row ) {
-			$label = $row->name . ' (' . $row->taxonomy . ')';
-			$choices[ $row->term_id ] = $label;
-		}
+            foreach ($results as $row) {
+                $label = $row->name . ' (' . $row->taxonomy . ')';
+                $choices[ $row->term_id ] = $label;
+            }
 
-		return $choices;
-	}
+            return $choices;
+        });
+    }
 
 
 }

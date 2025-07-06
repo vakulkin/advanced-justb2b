@@ -24,7 +24,6 @@ jQuery(document).ready(function () {
 
 
         const priceContainer = getPriceContainer();
-        console.log(priceContainer);
         const qtyInput = jQuery(Selectors.qtyInput);
 
         const quantity = qtyInput.length ? parseInt(qtyInput.val(), 10) : 1;
