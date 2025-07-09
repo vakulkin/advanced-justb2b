@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>JustB2B Features [pl]</title>
+<style>body{font-family:sans-serif;padding:2rem;}h1,h2{color:#2c3e50;}section{margin-bottom:3rem;}ul{padding-left:1.2rem;}</style>
+</head>
+<body>
+<h1>📘 JustB2B Features [pl]</h1>
+<section>
+<h2>Elastyczne reguły ustalania cen</h2>
+<p>Moduł ustalania cen JustB2B obsługuje zaawansowaną logikę: rabaty i narzuty w zależności od ilości, ról, grup, kategorii, warunków i priorytetów. Umożliwia precyzyjne zarządzanie cenami B2B na poziomie pojedynczego produktu.</p>
+<ul>
+<li><strong>Źródła cen: WooCommerce lub JustB2B</strong><br><small>Wtyczka obsługuje ceny bazowe zarówno z WooCommerce, jak i z własnych pól meta JustB2B.</small></li>
+<li><strong>Obsługa sugerowanej ceny detalicznej (RRP)</strong><br><small>Oblicza i wyświetla cenę RRP z obsługą źródła podstawowego i zapasowego — jeśli główne źródło zwróci 0, zostanie użyte drugie.</small></li>
+<li><strong>Automatyczne wykrywanie stawki podatku</strong><br><small>Uwzględnia stawkę podatku na podstawie ustawień sklepu i lokalizacji klienta.</small></li>
+</ul>
+</section>
+<section>
+<h2>Reguły ustalania cen</h2>
+<p>Zarządzają rabatami, narzutami, widocznością cen i warunkami zakupu w zależności od ról, produktów, kategorii i ilości.</p>
+<ul>
+<li><strong>Typy reguł</strong><br><small>Obsługa różnych typów obliczeń: procent, kwota stała, cena końcowa, cena ze źródła, RRP, zakaz zakupu i inne.</small></li>
+<li><strong>Warunki zastosowania</strong><br><small>Stosowanie reguł na podstawie ról, użytkowników, produktów, kategorii i ilości. Obsługiwane są wyjątki.</small></li>
+<li><strong>Ograniczenia ilościowe</strong><br><small>Ustawianie min./maks. ilości, gratisów i schematów typu „1 gratis na każde 3”.</small></li>
+<li><strong>Źródła cen</strong><br><small>Wskazanie głównego i zapasowych źródeł ceny oraz ceny katalogowej (RRP) do obliczeń.</small></li>
+<li><strong>Widoczność reguł i cen</strong><br><small>Zarządzanie widocznością reguł i cen – można je ukryć na stronie produktu, w liście lub całkowicie.</small></li>
+<li><strong>Tabela cen ilościowych</strong><br><small>Pokazuje reguły z priorytetami i zakresami ilości. Można je włączyć lub ukryć dla każdej reguły.</small></li>
+<li><strong>Baner i HTML pod ceną</strong><br><small>Do każdej reguły można dodać baner lub blok HTML wyświetlany na stronie produktu.</small></li>
+<li><strong>Priorytet reguł</strong><br><small>Każda reguła ma wartość priorytetu. Im niższa liczba, tym wcześniej reguła zostanie zastosowana.</small></li>
+<li><strong>Typ klienta</strong><br><small>Reguła może być stosowana tylko dla klientów B2B, tylko dla B2C lub dla wszystkich.</small></li>
+</ul>
+</section>
+<section>
+<h2>Typ klienta (B2B/B2C)</h2>
+<p>Administrator przypisuje klientowi typ. Ma to wpływ na ceny i warunki zakupu.</p>
+</section>
+<section>
+<h2>Zarządzanie regułami cenowymi</h2>
+<p>Możesz łatwo tworzyć i edytować reguły, które automatycznie zmieniają cenę w zależności od roli klienta, ilości, kategorii i innych warunków.</p>
+<ul>
+<li><strong>Wszystko pod kontrolą — w jednym miejscu</strong><br><small>Wszystkie reguły cenowe są zebrane w przejrzystej tabeli w panelu administracyjnym.</small></li>
+</ul>
+</section>
+<section>
+<h2>Zarządzanie rolami klientów</h2>
+<p>Tworzenie ról B2B i przypisywanie ich użytkownikom. Role są wykorzystywane w regułach cenowych i wyświetlaniu produktów.</p>
+<ul>
+<li><strong>Powiązanie użytkowników z rolami</strong><br><small>Użytkownicy są ręcznie przypisywani do ról, które wpływają na ceny i widoczność produktów.</small></li>
+</ul>
+</section>
+<section>
+<h2>Zarządzanie wyświetlaniem i cenami produktów</h2>
+<p>JustB2B pozwala wyświetlać każdemu klientowi dokładnie te produkty i ceny, które chcesz.</p>
+<ul>
+<li><strong>Zarządzanie produktami</strong><br><small>Wtyczka automatycznie zarządza widocznością produktów, cenami, możliwością zakupu i obecnością w katalogu – wystarczy ustawić reguły.</small></li>
+<li><strong>Ceny zmieniające się w czasie rzeczywistym</strong><br><small>JustB2B dynamicznie zmienia ceny na stronie produktu WooCommerce w zależności od roli użytkownika, ilości, reguł i warunków – bez przeładowania strony.</small></li>
+<li><strong>Natychmiastowa aktualizacja ceny po zmianie ilości</strong><br><small>Zmiana ilości produktu automatycznie aktualizuje cenę przez AJAX – klient od razu widzi swoją cenę.</small></li>
+<li><strong>Całkowite ukrywanie produktów</strong><br><small>Jeśli reguła mówi „nie pokazuj” – klient nie będzie mógł nawet otworzyć strony produktu. Pełna kontrola nad tym, kto co widzi.</small></li>
+<li><strong>Prośba o cenę zamiast cyfry</strong><br><small>Możesz ukryć cenę produktu i zastąpić ją napisem „Cena na zapytanie” – np. dla produktów ekskluzywnych lub klientów hurtowych.</small></li>
+</ul>
+</section>
+<section>
+<h2>Logika produktów i kalkulacji cen</h2>
+<p>JustB2B automatycznie dopasowuje reguły i oblicza cenę dla każdego produktu w zależności od warunków.</p>
+<ul>
+<li><strong>Powiązanie reguł z produktami</strong><br><small>Produkt może podlegać wielu regułom. Zastosowana zostanie najbardziej odpowiednia.</small></li>
+<li><strong>Dopasowanie reguł</strong><br><small>Reguły są dopasowywane na podstawie użytkownika, ról, ilości, kategorii i innych warunków.</small></li>
+<li><strong>Priorytet reguł</strong><br><small>Stosowana jest reguła o najniższym priorytecie, która spełnia warunki.</small></li>
+<li><strong>Obliczanie ceny</strong><br><small>Cena jest obliczana z uwzględnieniem warunków, ilości, rabatów, narzutów i podatków.</small></li>
+<li><strong>Wyświetlanie obliczonej ceny</strong><br><small>Wyświetlana jest wyłącznie cena odpowiednia dla danego klienta.</small></li>
+<li><strong>Źródła cen bazowych</strong><br><small>Obsługa do 5 cen bazowych i ceny katalogowej (RRP). Wykorzystywane w obliczeniach i prezentacji.</small></li>
+</ul>
+</section>
+<section>
+<h2>Wyświetlanie cen dla B2B i B2C</h2>
+<p>Zarządza wyświetlaniem cen w zależności od typu użytkownika, reguł i kontekstu (katalog lub strona produktu), z obsługą szablonów HTML i tabel ilościowych.</p>
+</section>
+<section>
+<h2>Ustawienia wyświetlania cen i szablonów</h2>
+<p>Zarządzanie wyświetlaniem cen, szablonów i bloków HTML bez potrzeby edycji kodu.</p>
+<ul>
+<li><strong>Tabela cen ilościowych</strong><br><small>Wyświetla tabelę reguł z priorytetami, zakresami i cenami. Można ją pokazać lub ukryć osobno dla B2B i B2C.</small></li>
+<li><strong>Format cen: netto / brutto</strong><br><small>Wybór formatu podstawowej ceny — z VAT lub bez, osobno dla każdej grupy cen.</small></li>
+<li><strong>Widoczność cen</strong><br><small>Włączanie lub ukrywanie każdej ceny osobno dla B2B i B2C.</small></li>
+<li><strong>Prefiksy i sufiksy cen</strong><br><small>Dodawanie prefiksów i sufiksów do każdej ceny.</small></li>
+<li><strong>Kontekstowe wyświetlanie cen</strong><br><small>Konfigurowanie wyświetlania cen na stronach produktów i w listach — osobno dla B2B i B2C.</small></li>
+<li><strong>Liczba dostępnych opcji</strong><br><small>Ponad 250 opcji konfiguracyjnych dotyczących wyświetlania cen.</small></li>
+<li><strong>Niestandardowy HTML pod cenami</strong><br><small>Wyświetlanie bloków HTML pod cenami — osobno dla B2B i B2C.</small></li>
+</ul>
+</section>
+<section>
+<h2>Konfiguracja metod płatności</h2>
+<p>Zarządzanie dostępnością metod płatności w zależności od typu klienta i wartości zamówienia.</p>
+<ul>
+<li><strong>Widoczność metod płatności w zależności od klienta</strong><br><small>Udostępniaj metody płatności klientom B2B lub B2C w zależności od warunków.</small></li>
+<li><strong>Dostępność metod płatności w zależności od wartości zamówienia</strong><br><small>Ograniczaj dostępność metod płatności według minimalnej i maksymalnej wartości zamówienia.</small></li>
+</ul>
+</section>
+<section>
+<h2>Oddzielne metody dostawy dla B2B i B2C</h2>
+<p>Konfiguracja widoczności i warunków dostawy w zależności od typu użytkownika i wartości zamówienia.</p>
+<ul>
+<li><strong>Zarządzanie dostępnością metod dostawy</strong><br><small>Metoda dostawy może być dostępna tylko dla B2B, tylko dla B2C lub dla wszystkich.</small></li>
+<li><strong>Darmowa dostawa od określonej kwoty</strong><br><small>Ustal minimalną wartość zamówienia netto, od której dostawa jest darmowa.</small></li>
+<li><strong>Etykiety i strefy dostawy</strong><br><small>Nazwa metody zawiera strefę i status — administrator widzi, gdzie i jak jest stosowana.</small></li>
+</ul>
+</section>
+<section>
+<h2>Integracja z WPBakery</h2>
+<p>JustB2B dodaje shortcode do wyświetlania banerów użytkownika w formacie karuzeli WPBakery.</p>
+<ul>
+<li><strong>Karuzela banerów WPBakery</strong><br><small>Shortcode [justb2b_wpbakery_user_banners] automatycznie wstawia banery bieżącego użytkownika w formacie vc_images_carousel.</small></li>
+</ul>
+</section>
+<section>
+<h2>Obsługa WPML i tłumaczeń</h2>
+<p>Rozszerza sprawdzanie warunków o uwzględnienie tłumaczeń produktów i terminów zgodnie z WPML.</p>
+<ul>
+<li><strong>Wyszukiwanie produktu wśród tłumaczeń</strong><br><small>Tłumaczenia produktów są uwzględniane podczas sprawdzania warunków zastosowania reguł.</small></li>
+<li><strong>Uwzględnianie tłumaczeń terminów</strong><br><small>Wtyczka wyszukuje zgodność terminów we wszystkich wersjach językowych produktu.</small></li>
+</ul>
+</section>
+</body>
+</html>

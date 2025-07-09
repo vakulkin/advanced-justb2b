@@ -18,28 +18,36 @@ defined('ABSPATH') || exit;
 /**
  * @feature-section shipping_ui
  * @title[ru] Отдельные методы доставки для B2B и B2C
+ * @title[pl] Oddzielne metody dostawy dla B2B i B2C
  * @desc[ru] Настройка видимости и условий доставки по типу пользователя и сумме заказа.
+ * @desc[pl] Konfiguracja widoczności i warunków dostawy w zależności od typu użytkownika i wartości zamówienia.
  * @order 700
  */
 
 /**
  * @feature shipping_ui method_visibility
  * @title[ru] Управление доступностью методов доставки
+ * @title[pl] Zarządzanie dostępnością metod dostawy
  * @desc[ru] Метод может быть доступен только B2B, только B2C или всем.
+ * @desc[pl] Metoda dostawy może być dostępna tylko dla B2B, tylko dla B2C lub dla wszystkich.
  * @order 701
  */
 
 /**
  * @feature shipping_ui free_shipping_threshold
  * @title[ru] Бесплатная доставка от суммы
+ * @title[pl] Darmowa dostawa od określonej kwoty
  * @desc[ru] Установка минимальной суммы заказа (нетто), при которой доставка становится бесплатной.
+ * @desc[pl] Ustal minimalną wartość zamówienia netto, od której dostawa jest darmowa.
  * @order 710
  */
 
 /**
  * @feature shipping_ui contextual_labels
  * @title[ru] Метки и зоны доставки
+ * @title[pl] Etykiety i strefy dostawy
  * @desc[ru] Название метода включает зону и статус — администратор видит, где и как он применяется.
+ * @desc[pl] Nazwa metody zawiera strefę i status — administrator widzi, gdzie i jak jest stosowana.
  * @order 720
  */
 

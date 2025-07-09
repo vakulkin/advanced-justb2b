@@ -12,9 +12,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @feature-section price_display
  * @title[ru] Отображение цен для B2B и B2C
+ * @title[pl] Wyświetlanie cen dla B2B i B2C
  * @desc[ru] Управляет отображением цен в зависимости от типа пользователя, правил, контекста (каталог или товар), с поддержкой HTML-шаблонов и таблиц количеств.
+ * @desc[pl] Zarządza wyświetlaniem cen w zależności od typu użytkownika, reguł i kontekstu (katalog lub strona produktu), z obsługą szablonów HTML i tabel ilościowych.
  * @order 500
  */
+
+
 class PriceDisplay {
 	use RuntimeCacheTrait;
 

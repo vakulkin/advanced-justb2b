@@ -15,9 +15,39 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @feature-section price_rules
  * @title[ru] Гибкие правила ценообразования
+ * @title[pl] Elastyczne reguły ustalania cen
  * @desc[ru] Модуль расчёта цен JustB2B поддерживает продвинутую логику: скидки и наценки на основе количества, ролей, групп, категорий, условий и приоритетов. Позволяет точно управлять B2B-ценами на уровне каждого товара.
+ * @desc[pl] Moduł ustalania cen JustB2B obsługuje zaawansowaną logikę: rabaty i narzuty w zależności od ilości, ról, grup, kategorii, warunków i priorytetów. Umożliwia precyzyjne zarządzanie cenami B2B na poziomie pojedynczego produktu.
  * @order 100
  */
+
+/**
+ * @feature price_rules tax_rate_detection
+ * @title[ru] Автоматическое определение налоговой ставки
+ * @title[pl] Automatyczne wykrywanie stawki podatku
+ * @desc[ru] Учитывает налоговую ставку в зависимости от настроек магазина и местоположения покупателя.
+ * @desc[pl] Uwzględnia stawkę podatku na podstawie ustawień sklepu i lokalizacji klienta.
+ * @order 440
+ */
+
+/**
+ * @feature price_rules rrp_support
+ * @title[ru] Поддержка рекомендуемой розничной цены (RRP)
+ * @title[pl] Obsługa sugerowanej ceny detalicznej (RRP)
+ * @desc[ru] Вычисляет и отображает RRP-цену с поддержкой первичного и вторичного источника: если основной источник возвращает 0, используется резервный.
+ * @desc[pl] Oblicza i wyświetla cenę RRP z obsługą źródła podstawowego i zapasowego — jeśli główne źródło zwróci 0, zostanie użyte drugie.
+ * @order 430
+ */
+
+/**
+ * @feature price_rules flexible_sources
+ * @title[ru] Источники цен: WC или JustB2B
+ * @title[pl] Źródła cen: WooCommerce lub JustB2B
+ * @desc[ru] Плагин поддерживает базовые цены как из WooCommerce, так и из собственных мета-полей JustB2B.
+ * @desc[pl] Wtyczka obsługuje ceny bazowe zarówno z WooCommerce, jak i z własnych pól meta JustB2B.
+ * @order 420
+ */
+
 
 class PriceCalculator {
 	use RuntimeCacheTrait;
@@ -35,12 +65,6 @@ class PriceCalculator {
 		], $extra );
 	}
 
-	/**
-	 * @feature price_rules tax_rate_detection
-	 * @title[ru] Автоматическое определение налоговой ставки
-	 * @desc[ru] Учитывает налоговую ставку в зависимости от настроек магазина и местоположения покупателя.
-	 * @order 440
-	 */
 	public function getTaxRates(): array {
 		return self::getFromRuntimeCache( function () {
 			$WCProduct = $this->product->getWCProduct();
@@ -61,12 +85,7 @@ class PriceCalculator {
 		}, $this->cacheContext() );
 	}
 
-	/**
-	 * @feature price_rules rrp_support
-	 * @title[ru] Поддержка рекомендуемой розничной цены (RRP)
-	 * @desc[ru] Вычисляет и отображает RRP-цену с поддержкой первичного и вторичного источника: если основной источник возвращает 0, используется резервный.
-	 * @order 430
-	 */
+
 	public function getRRPNet(): float {
 		return self::getFromRuntimeCache( function () {
 			$rule = $this->product->getFirstFullFitRule();
@@ -88,12 +107,6 @@ class PriceCalculator {
 		);
 	}
 
-	/**
-	 * @feature price_rules flexible_sources
-	 * @title[ru] Источники цен: WC или JustB2B
-	 * @desc[ru] Плагин поддерживает базовые цены как из WooCommerce, так и из собственных мета-полей JustB2B.
-	 * @order 420
-	 */
 	public function getBaseNetPrice(): float {
 		return self::getFromRuntimeCache( function () {
 			$rule = $this->product->getFirstFullFitRule();

@@ -1,9 +1,11 @@
 {
     "price_rules": {
         "title": {
+            "pl": "Elastyczne reguły ustalania cen",
             "ru": "Гибкие правила ценообразования"
         },
         "description": {
+            "pl": "Moduł ustalania cen JustB2B obsługuje zaawansowaną logikę: rabaty i narzuty w zależności od ilości, ról, grup, kategorii, warunków i priorytetów. Umożliwia precyzyjne zarządzanie cenami B2B na poziomie pojedynczego produktu.",
             "ru": "Модуль расчёта цен JustB2B поддерживает продвинутую логику: скидки и наценки на основе количества, ролей, групп, категорий, условий и приоритетов. Позволяет точно управлять B2B-ценами на уровне каждого товара."
         },
         "features": {
@@ -27,27 +29,33 @@
             },
             "flexible_sources": {
                 "title": {
+                    "pl": "Źródła cen: WooCommerce lub JustB2B",
                     "ru": "Источники цен: WC или JustB2B"
                 },
                 "description": {
+                    "pl": "Wtyczka obsługuje ceny bazowe zarówno z WooCommerce, jak i z własnych pól meta JustB2B.",
                     "ru": "Плагин поддерживает базовые цены как из WooCommerce, так и из собственных мета-полей JustB2B."
                 },
                 "order": 420
             },
             "rrp_support": {
                 "title": {
+                    "pl": "Obsługa sugerowanej ceny detalicznej (RRP)",
                     "ru": "Поддержка рекомендуемой розничной цены (RRP)"
                 },
                 "description": {
+                    "pl": "Oblicza i wyświetla cenę RRP z obsługą źródła podstawowego i zapasowego — jeśli główne źródło zwróci 0, zostanie użyte drugie.",
                     "ru": "Вычисляет и отображает RRP-цену с поддержкой первичного и вторичного источника: если основной источник возвращает 0, используется резервный."
                 },
                 "order": 430
             },
             "tax_rate_detection": {
                 "title": {
+                    "pl": "Automatyczne wykrywanie stawki podatku",
                     "ru": "Автоматическое определение налоговой ставки"
                 },
                 "description": {
+                    "pl": "Uwzględnia stawkę podatku na podstawie ustawień sklepu i lokalizacji klienta.",
                     "ru": "Учитывает налоговую ставку в зависимости от настроек магазина и местоположения покупателя."
                 },
                 "order": 440
@@ -57,89 +65,109 @@
     },
     "rules": {
         "title": {
+            "pl": "Reguły ustalania cen",
             "ru": "Правила ценообразования"
         },
         "description": {
+            "pl": "Zarządzają rabatami, narzutami, widocznością cen i warunkami zakupu w zależności od ról, produktów, kategorii i ilości.",
             "ru": "Управляют скидками, надбавками, видимостью цен и условиями покупки в зависимости от ролей, продуктов, категорий и количества."
         },
         "features": {
             "types": {
                 "title": {
+                    "pl": "Typy reguł",
                     "ru": "Типы правил"
                 },
                 "description": {
+                    "pl": "Obsługa różnych typów obliczeń: procent, kwota stała, cena końcowa, cena ze źródła, RRP, zakaz zakupu i inne.",
                     "ru": "Поддержка различных типов расчёта: процент, фиксированная сумма, итоговая цена, цена по источнику, RRP, запрет покупки и другие."
                 },
                 "order": 101
             },
             "conditions": {
                 "title": {
+                    "pl": "Warunki zastosowania",
                     "ru": "Условия применения"
                 },
                 "description": {
+                    "pl": "Stosowanie reguł na podstawie ról, użytkowników, produktów, kategorii i ilości. Obsługiwane są wyjątki.",
                     "ru": "Применение правил по ролям, пользователям, товарам, категориям и количеству. Поддерживаются исключения."
                 },
                 "order": 102
             },
             "qty_limits": {
                 "title": {
+                    "pl": "Ograniczenia ilościowe",
                     "ru": "Ограничения по количеству"
                 },
                 "description": {
+                    "pl": "Ustawianie min.\/maks. ilości, gratisów i schematów typu „1 gratis na każde 3”.",
                     "ru": "Настройка min\/max количества, подарков и схем вроде «1 бесплатно за каждые 3»."
                 },
                 "order": 103
             },
             "price_sources": {
                 "title": {
+                    "pl": "Źródła cen",
                     "ru": "Источники цен"
                 },
                 "description": {
+                    "pl": "Wskazanie głównego i zapasowych źródeł ceny oraz ceny katalogowej (RRP) do obliczeń.",
                     "ru": "Указание основного и резервных источников цены и RRP для расчёта."
                 },
                 "order": 104
             },
             "visibility": {
                 "title": {
+                    "pl": "Widoczność reguł i cen",
                     "ru": "Видимость правил и цен"
                 },
                 "description": {
+                    "pl": "Zarządzanie widocznością reguł i cen – można je ukryć na stronie produktu, w liście lub całkowicie.",
                     "ru": "Управление отображением правил и цен — можно скрыть на странице товара, в списке или полностью."
                 },
                 "order": 105
             },
             "qty_table": {
                 "title": {
+                    "pl": "Tabela cen ilościowych",
                     "ru": "Таблица цен по количеству"
                 },
                 "description": {
+                    "pl": "Pokazuje reguły z priorytetami i zakresami ilości. Można je włączyć lub ukryć dla każdej reguły.",
                     "ru": "Показывает правила с приоритетами и диапазонами количества. Можно включить или скрыть для каждого правила."
                 },
                 "order": 106
             },
             "html_banner": {
                 "title": {
+                    "pl": "Baner i HTML pod ceną",
                     "ru": "Баннер и HTML под ценой"
                 },
                 "description": {
+                    "pl": "Do każdej reguły można dodać baner lub blok HTML wyświetlany na stronie produktu.",
                     "ru": "К каждому правилу можно привязать баннер или HTML-блок, отображаемый на странице товара."
                 },
                 "order": 107
             },
             "priority": {
                 "title": {
+                    "pl": "Priorytet reguł",
                     "ru": "Приоритет правил"
                 },
                 "description": {
+                    "pl": "Każda reguła ma wartość priorytetu. Im niższa liczba, tym wcześniej reguła zostanie zastosowana.",
                     "ru": "У каждого правила есть числовой приоритет. Чем ниже значение, тем раньше применяется правило."
                 },
                 "order": 108
             },
             "customer_type": {
                 "title": {
+                    "pl": "Typ klienta",
                     "ru": "Тип клиента"
                 },
                 "description": {
+                    "pl": "Reguła może być stosowana tylko dla klientów B2B, tylko dla B2C lub dla wszystkich.",
                     "ru": "Правило может применяться только к B2B, только к B2C или ко всем клиентам."
                 },
                 "order": 109
@@ -149,9 +177,11 @@
     },
     "user_context": {
         "title": {
+            "pl": "Typ klienta (B2B\/B2C)",
             "ru": "Тип клиента (B2B\/B2C)"
         },
         "description": {
+            "pl": "Administrator przypisuje klientowi typ. Ma to wpływ na ceny i warunki zakupu.",
             "ru": "Администратор назначает тип клиента. Это влияет на цены и условия."
         },
         "features": [],
@@ -159,18 +189,22 @@
     },
     "admin_rules": {
         "title": {
-            "ru": "Удобное управление ценовыми правилами"
+            "pl": "Zarządzanie regułami cenowymi",
+            "ru": "Управление ценовыми правилами"
         },
         "description": {
-            "ru": "Вы можете легко создавать и редактировать правила, которые автоматически изменяют цену в зависимости от роли клиента, количества, категории и других условий — без необходимости в коде."
+            "pl": "Możesz łatwo tworzyć i edytować reguły, które automatycznie zmieniają cenę w zależności od roli klienta, ilości, kategorii i innych warunków.",
+            "ru": "Вы можете легко создавать и редактировать правила, которые автоматически изменяют цену в зависимости от роли клиента, количества, категории и других условий."
         },
         "features": {
             "controller": {
                 "title": {
+                    "pl": "Wszystko pod kontrolą — w jednym miejscu",
                     "ru": "Всё под контролем — в одном месте"
                 },
                 "description": {
-                    "ru": "Все ценовые правила собраны в удобной таблице в админке: редактируйте, фильтруйте, сортируйте."
+                    "pl": "Wszystkie reguły cenowe są zebrane w przejrzystej tabeli w panelu administracyjnym.",
+                    "ru": "Все ценовые правила собраны в удобной таблице в админке."
                 },
                 "order": 201
             }
@@ -179,73 +213,89 @@
     },
     "admin_roles": {
         "title": {
-            "ru": "Гибкое управление ролями клиентов"
+            "pl": "Zarządzanie rolami klientów",
+            "ru": "Управление ролями клиентов"
         },
         "description": {
-            "ru": "Создавайте B2B-роли (например, «оптовик», «дилер») и назначайте их пользователям. Используйте роли как условия для цен и отображения товаров."
+            "pl": "Tworzenie ról B2B i przypisywanie ich użytkownikom. Role są wykorzystywane w regułach cenowych i wyświetlaniu produktów.",
+            "ru": "Создание B2B-ролей и назначение их пользователям. Роли используются в правилах цен и отображении товаров."
         },
         "features": {
             "role_model": {
                 "title": {
+                    "pl": "Powiązanie użytkowników z rolami",
                     "ru": "Связь пользователей с ролями"
                 },
                 "description": {
-                    "ru": "Вы можете вручную привязывать пользователей к нужной роли — и эта роль будет использоваться при расчёте цен и отображении товаров."
+                    "pl": "Użytkownicy są ręcznie przypisywani do ról, które wpływają na ceny i widoczność produktów.",
+                    "ru": "Пользователи вручную привязываются к ролям, которые влияют на цены и товары."
                 },
                 "order": 221
             }
         },
         "order": 220
     },
-    "product_visibility": {
+    "product_controller": {
         "title": {
+            "pl": "Zarządzanie wyświetlaniem i cenami produktów",
             "ru": "Управление отображением и ценами товаров"
         },
         "description": {
-            "ru": "JustB2B позволяет показывать каждому клиенту именно те товары и цены, которые вы хотите. Цены обновляются автоматически."
+            "pl": "JustB2B pozwala wyświetlać każdemu klientowi dokładnie te produkty i ceny, które chcesz.",
+            "ru": "JustB2B позволяет показывать каждому клиенту именно те товары и цены, которые вы хотите."
         },
         "features": {
             "controller": {
                 "title": {
-                    "ru": "Управление товарами без кода"
+                    "pl": "Zarządzanie produktami",
+                    "ru": "Управление товарами"
                 },
                 "description": {
+                    "pl": "Wtyczka automatycznie zarządza widocznością produktów, cenami, możliwością zakupu i obecnością w katalogu – wystarczy ustawić reguły.",
                     "ru": "Плагин сам управляет отображением товаров, ценами, покупаемостью и видимостью в каталоге в зависимости от условий — вы просто задаёте правила."
                 },
                 "order": 301
             },
             "dynamic_price_display": {
                 "title": {
+                    "pl": "Ceny zmieniające się w czasie rzeczywistym",
                     "ru": "Цены, которые меняются в реальном времени"
                 },
                 "description": {
+                    "pl": "JustB2B dynamicznie zmienia ceny na stronie produktu WooCommerce w zależności od roli użytkownika, ilości, reguł i warunków – bez przeładowania strony.",
                     "ru": "JustB2B подменяет цены прямо на витрине WooCommerce в зависимости от роли пользователя, количества, правил и условий — без перезагрузки страницы."
                 },
                 "order": 310
             },
             "ajax_price_update": {
                 "title": {
+                    "pl": "Natychmiastowa aktualizacja ceny po zmianie ilości",
                     "ru": "Мгновенное обновление цены при изменении количества"
                 },
                 "description": {
-                    "ru": "При смене количества товарной позиции цена пересчитывается моментально с помощью AJAX — клиент сразу видит свою цену."
+                    "pl": "Zmiana ilości produktu automatycznie aktualizuje cenę przez AJAX – klient od razu widzi swoją cenę.",
+                    "ru": "При смене количества товарной позиции цена пересчитывается с помощью AJAX — клиент сразу видит свою цену."
                 },
                 "order": 320
             },
             "full_hiding": {
                 "title": {
+                    "pl": "Całkowite ukrywanie produktów",
                     "ru": "Скрытие товаров полностью"
                 },
                 "description": {
+                    "pl": "Jeśli reguła mówi „nie pokazuj” – klient nie będzie mógł nawet otworzyć strony produktu. Pełna kontrola nad tym, kto co widzi.",
                     "ru": "Если правило говорит «не показывать» — клиент даже не сможет открыть страницу товара. Абсолютный контроль над тем, кто что видит."
                 },
                 "order": 330
             },
             "request_price_mode": {
                 "title": {
+                    "pl": "Prośba o cenę zamiast cyfry",
                     "ru": "Запрос цены вместо цифры"
                 },
                 "description": {
+                    "pl": "Możesz ukryć cenę produktu i zastąpić ją napisem „Cena na zapytanie” – np. dla produktów ekskluzywnych lub klientów hurtowych.",
                     "ru": "Вы можете скрыть цену товара и заменить её надписью «Цена по запросу» — например, для эксклюзивных товаров или оптовых клиентов."
                 },
                 "order": 370
@@ -264,62 +314,76 @@
     },
     "product_logic": {
         "title": {
+            "pl": "Logika produktów i kalkulacji cen",
             "ru": "Логика товаров и расчёта цен"
         },
         "description": {
+            "pl": "JustB2B automatycznie dopasowuje reguły i oblicza cenę dla każdego produktu w zależności od warunków.",
             "ru": "JustB2B автоматически подбирает правила и рассчитывает цену для каждого товара с учётом условий."
         },
         "features": {
             "model": {
                 "title": {
+                    "pl": "Powiązanie reguł z produktami",
                     "ru": "Привязка правил к товарам"
                 },
                 "description": {
+                    "pl": "Produkt może podlegać wielu regułom. Zastosowana zostanie najbardziej odpowiednia.",
                     "ru": "Товар может участвовать в нескольких правилах. Применяется подходящее правило."
                 },
                 "order": 401
             },
             "rule_matching": {
                 "title": {
+                    "pl": "Dopasowanie reguł",
                     "ru": "Подбор правил"
                 },
                 "description": {
+                    "pl": "Reguły są dopasowywane na podstawie użytkownika, ról, ilości, kategorii i innych warunków.",
                     "ru": "Правила подбираются по пользователю, ролям, количеству, категориям и другим условиям."
                 },
                 "order": 410
             },
             "rule_priority": {
                 "title": {
+                    "pl": "Priorytet reguł",
                     "ru": "Приоритет правил"
                 },
                 "description": {
+                    "pl": "Stosowana jest reguła o najniższym priorytecie, która spełnia warunki.",
                     "ru": "Применяется правило с минимальным значением приоритета, подходящее по условиям."
                 },
                 "order": 420
             },
             "price_calculator": {
                 "title": {
+                    "pl": "Obliczanie ceny",
                     "ru": "Расчёт цены"
                 },
                 "description": {
+                    "pl": "Cena jest obliczana z uwzględnieniem warunków, ilości, rabatów, narzutów i podatków.",
                     "ru": "Цена рассчитывается с учётом условий, количества, скидок, наценок и налогов."
                 },
                 "order": 430
             },
             "price_display": {
                 "title": {
+                    "pl": "Wyświetlanie obliczonej ceny",
                     "ru": "Вывод рассчитанной цены"
                 },
                 "description": {
+                    "pl": "Wyświetlana jest wyłącznie cena odpowiednia dla danego klienta.",
                     "ru": "Показывается только та цена, которая применима к клиенту."
                 },
                 "order": 440
             },
             "base_prices": {
                 "title": {
+                    "pl": "Źródła cen bazowych",
                     "ru": "Источники базовых цен"
                 },
                 "description": {
+                    "pl": "Obsługa do 5 cen bazowych i ceny katalogowej (RRP). Wykorzystywane w obliczeniach i prezentacji.",
                     "ru": "Поддержка до 5 базовых цен и RRP. Используются в расчётах и отображении."
                 },
                 "order": 450
@@ -329,9 +393,11 @@
     },
     "price_display": {
         "title": {
+            "pl": "Wyświetlanie cen dla B2B i B2C",
             "ru": "Отображение цен для B2B и B2C"
         },
         "description": {
+            "pl": "Zarządza wyświetlaniem cen w zależności od typu użytkownika, reguł i kontekstu (katalog lub strona produktu), z obsługą szablonów HTML i tabel ilościowych.",
             "ru": "Управляет отображением цен в зависимости от типа пользователя, правил, контекста (каталог или товар), с поддержкой HTML-шаблонов и таблиц количеств."
         },
         "features": {
@@ -376,71 +442,87 @@
     },
     "settings_ui": {
         "title": {
+            "pl": "Ustawienia wyświetlania cen i szablonów",
             "ru": "Настройки отображения цен и шаблонов"
         },
         "description": {
+            "pl": "Zarządzanie wyświetlaniem cen, szablonów i bloków HTML bez potrzeby edycji kodu.",
             "ru": "Управление выводом цен, шаблонов и HTML-блоков без правки кода."
         },
         "features": {
             "quantity_table": {
                 "title": {
+                    "pl": "Tabela cen ilościowych",
                     "ru": "Таблица цен по количеству"
                 },
                 "description": {
+                    "pl": "Wyświetla tabelę reguł z priorytetami, zakresami i cenami. Można ją pokazać lub ukryć osobno dla B2B i B2C.",
                     "ru": "Показывает таблицу правил с приоритетами, границами и ценами. Можно скрыть или показать отдельно для B2B и B2C."
                 },
                 "order": 530
             },
             "net_gross_selector": {
                 "title": {
+                    "pl": "Format cen: netto \/ brutto",
                     "ru": "Настройка формата цен (нетто \/ брутто)"
                 },
                 "description": {
+                    "pl": "Wybór formatu podstawowej ceny — z VAT lub bez, osobno dla każdej grupy cen.",
                     "ru": "Выбор формата расчёта базовой цены — с НДС или без, отдельно для каждой группы цен."
                 },
                 "order": 601
             },
             "price_visibility": {
                 "title": {
+                    "pl": "Widoczność cen",
                     "ru": "Отображение цен"
                 },
                 "description": {
+                    "pl": "Włączanie lub ukrywanie każdej ceny osobno dla B2B i B2C.",
                     "ru": "Включение или скрытие каждой цены отдельно для B2B и B2C."
                 },
                 "order": 602
             },
             "price_format": {
                 "title": {
+                    "pl": "Prefiksy i sufiksy cen",
                     "ru": "Префиксы и постфиксы"
                 },
                 "description": {
+                    "pl": "Dodawanie prefiksów i sufiksów do każdej ceny.",
                     "ru": "Добавление префиксов и постфиксов к каждой цене."
                 },
                 "order": 603
             },
             "price_context": {
                 "title": {
+                    "pl": "Kontekstowe wyświetlanie cen",
                     "ru": "Контекстное отображение цен"
                 },
                 "description": {
+                    "pl": "Konfigurowanie wyświetlania cen na stronach produktów i w listach — osobno dla B2B i B2C.",
                     "ru": "Настройка отображения цен на страницах товаров и в списках — отдельно для B2B и B2C."
                 },
                 "order": 604
             },
             "price_options_count": {
                 "title": {
+                    "pl": "Liczba dostępnych opcji",
                     "ru": "Количество доступных опций"
                 },
                 "description": {
+                    "pl": "Ponad 250 opcji konfiguracyjnych dotyczących wyświetlania cen.",
                     "ru": "Более 250 параметров настройки отображения цен."
                 },
                 "order": 605
             },
             "custom_html_blocks": {
                 "title": {
+                    "pl": "Niestandardowy HTML pod cenami",
                     "ru": "Кастомный HTML под ценами"
                 },
                 "description": {
+                    "pl": "Wyświetlanie bloków HTML pod cenami — osobno dla B2B i B2C.",
                     "ru": "Вывод HTML-блоков под ценами — отдельно для B2B и B2C."
                 },
                 "order": 630
@@ -470,26 +552,32 @@
     },
     "payment_rules": {
         "title": {
+            "pl": "Konfiguracja metod płatności",
             "ru": "Настройка платёжных методов"
         },
         "description": {
+            "pl": "Zarządzanie dostępnością metod płatności w zależności od typu klienta i wartości zamówienia.",
             "ru": "Управление доступностью оплаты по типу клиента и сумме заказа."
         },
         "features": {
             "method_visibility": {
                 "title": {
+                    "pl": "Widoczność metod płatności w zależności od klienta",
                     "ru": "Отображение методов оплаты по клиенту"
                 },
                 "description": {
+                    "pl": "Udostępniaj metody płatności klientom B2B lub B2C w zależności od warunków.",
                     "ru": "Делайте способы оплаты доступными для B2B или B2C в зависимости от условий."
                 },
                 "order": 701
             },
             "amount_conditions": {
                 "title": {
+                    "pl": "Dostępność metod płatności w zależności od wartości zamówienia",
                     "ru": "Доступность методов оплаты по сумме заказа"
                 },
                 "description": {
+                    "pl": "Ograniczaj dostępność metod płatności według minimalnej i maksymalnej wartości zamówienia.",
                     "ru": "Ограничивайте доступ к способам оплаты по минимальной и максимальной сумме."
                 },
                 "order": 702
@@ -517,35 +605,43 @@
     },
     "shipping_ui": {
         "title": {
+            "pl": "Oddzielne metody dostawy dla B2B i B2C",
             "ru": "Отдельные методы доставки для B2B и B2C"
         },
         "description": {
+            "pl": "Konfiguracja widoczności i warunków dostawy w zależności od typu użytkownika i wartości zamówienia.",
             "ru": "Настройка видимости и условий доставки по типу пользователя и сумме заказа."
         },
         "features": {
             "method_visibility": {
                 "title": {
+                    "pl": "Zarządzanie dostępnością metod dostawy",
                     "ru": "Управление доступностью методов доставки"
                 },
                 "description": {
+                    "pl": "Metoda dostawy może być dostępna tylko dla B2B, tylko dla B2C lub dla wszystkich.",
                     "ru": "Метод может быть доступен только B2B, только B2C или всем."
                 },
                 "order": 701
             },
             "free_shipping_threshold": {
                 "title": {
+                    "pl": "Darmowa dostawa od określonej kwoty",
                     "ru": "Бесплатная доставка от суммы"
                 },
                 "description": {
+                    "pl": "Ustal minimalną wartość zamówienia netto, od której dostawa jest darmowa.",
                     "ru": "Установка минимальной суммы заказа (нетто), при которой доставка становится бесплатной."
                 },
                 "order": 710
             },
             "contextual_labels": {
                 "title": {
+                    "pl": "Etykiety i strefy dostawy",
                     "ru": "Метки и зоны доставки"
                 },
                 "description": {
+                    "pl": "Nazwa metody zawiera strefę i status — administrator widzi, gdzie i jak jest stosowana.",
                     "ru": "Название метода включает зону и статус — администратор видит, где и как он применяется."
                 },
                 "order": 720
@@ -558,19 +654,9 @@
             "ru": "Интеграция с WooCommerce Product Table"
         },
         "description": {
-            "ru": "JustB2B корректно рассчитывает и отображает итог корзины в таблицах продуктов, учитывая B2B\/B2C-пользователя."
+            "ru": "JustB2B корректно рассчитывает и отображает итог корзины в таблицах продуктов, учитывая тип B2B\/B2C-пользователя."
         },
-        "features": {
-            "override_total": {
-                "title": {
-                    "ru": "Правильный итог в таблице"
-                },
-                "description": {
-                    "ru": "Сумма в таблице товаров рассчитывается с учётом налогов и роли пользователя (нетто\/брутто)."
-                },
-                "order": 801
-            }
-        },
+        "features": [],
         "order": 800
     },
     "theme_integration": {
@@ -593,48 +679,23 @@
         },
         "order": 900
     },
-    "wcml_integration": {
-        "title": {
-            "ru": "Интеграция с WPML Multi Currency"
-        },
-        "description": {
-            "ru": "Добавляет поддержку мультивалютности в расчётах цен и настройках."
-        },
-        "features": {
-            "product_fields": {
-                "title": {
-                    "ru": "Базовые цены по валютам"
-                },
-                "description": {
-                    "ru": "Для каждой валюты создаются отдельные поля базовых цен."
-                },
-                "order": 901
-            },
-            "settings_fields": {
-                "title": {
-                    "ru": "Формат цен по валютам"
-                },
-                "description": {
-                    "ru": "В настройках можно указать, отображается цена в нетто или брутто — отдельно для каждой валюты."
-                },
-                "order": 902
-            }
-        },
-        "order": 900
-    },
     "wpbakery_integration": {
         "title": {
+            "pl": "Integracja z WPBakery",
             "ru": "Интеграция с WPBakery"
         },
         "description": {
+            "pl": "JustB2B dodaje shortcode do wyświetlania banerów użytkownika w formacie karuzeli WPBakery.",
             "ru": "JustB2B добавляет шорткод для вывода баннеров пользователя в формате WPBakery-карусели."
         },
         "features": {
             "user_banners_shortcode": {
                 "title": {
+                    "pl": "Karuzela banerów WPBakery",
                     "ru": "Карусель баннеров WPBakery"
                 },
                 "description": {
+                    "pl": "Shortcode [justb2b_wpbakery_user_banners] automatycznie wstawia banery bieżącego użytkownika w formacie vc_images_carousel.",
                     "ru": "Шорткод [justb2b_wpbakery_user_banners] автоматически подставляет баннеры текущего пользователя в формате vc_images_carousel."
                 },
                 "order": 911
@@ -644,26 +705,32 @@
     },
     "wpml_integration": {
         "title": {
+            "pl": "Obsługa WPML i tłumaczeń",
             "ru": "Поддержка WPML и переводов"
         },
         "description": {
+            "pl": "Rozszerza sprawdzanie warunków o uwzględnienie tłumaczeń produktów i terminów zgodnie z WPML.",
             "ru": "Расширяет проверку условий на переводы продуктов и терминов с учётом WPML."
         },
         "features": {
             "product_match": {
                 "title": {
+                    "pl": "Wyszukiwanie produktu wśród tłumaczeń",
                     "ru": "Поиск товара среди переводов"
                 },
                 "description": {
+                    "pl": "Tłumaczenia produktów są uwzględniane podczas sprawdzania warunków zastosowania reguł.",
                     "ru": "Учитываются переводы товаров при проверке условий применения правил."
                 },
                 "order": 911
             },
             "term_match": {
                 "title": {
+                    "pl": "Uwzględnianie tłumaczeń terminów",
                     "ru": "Учет переводов терминов"
                 },
                 "description": {
+                    "pl": "Wtyczka wyszukuje zgodność terminów we wszystkich wersjach językowych produktu.",
                     "ru": "Плагин ищет соответствие терминов в любых языковых версиях товара."
                 },
                 "order": 912

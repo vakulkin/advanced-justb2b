@@ -20,70 +20,90 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @feature-section rules
  * @title[ru] Правила ценообразования
+ * @title[pl] Reguły ustalania cen
  * @desc[ru] Управляют скидками, надбавками, видимостью цен и условиями покупки в зависимости от ролей, продуктов, категорий и количества.
+ * @desc[pl] Zarządzają rabatami, narzutami, widocznością cen i warunkami zakupu w zależności od ról, produktów, kategorii i ilości.
  * @order 100
  */
 
 /**
  * @feature rules types
  * @title[ru] Типы правил
+ * @title[pl] Typy reguł
  * @desc[ru] Поддержка различных типов расчёта: процент, фиксированная сумма, итоговая цена, цена по источнику, RRP, запрет покупки и другие.
+ * @desc[pl] Obsługa różnych typów obliczeń: procent, kwota stała, cena końcowa, cena ze źródła, RRP, zakaz zakupu i inne.
  * @order 101
  */
 
 /**
  * @feature rules conditions
  * @title[ru] Условия применения
+ * @title[pl] Warunki zastosowania
  * @desc[ru] Применение правил по ролям, пользователям, товарам, категориям и количеству. Поддерживаются исключения.
+ * @desc[pl] Stosowanie reguł na podstawie ról, użytkowników, produktów, kategorii i ilości. Obsługiwane są wyjątki.
  * @order 102
  */
 
 /**
  * @feature rules qty_limits
  * @title[ru] Ограничения по количеству
+ * @title[pl] Ograniczenia ilościowe
  * @desc[ru] Настройка min/max количества, подарков и схем вроде «1 бесплатно за каждые 3».
+ * @desc[pl] Ustawianie min./maks. ilości, gratisów i schematów typu „1 gratis na każde 3”.
  * @order 103
  */
 
 /**
  * @feature rules price_sources
  * @title[ru] Источники цен
+ * @title[pl] Źródła cen
  * @desc[ru] Указание основного и резервных источников цены и RRP для расчёта.
+ * @desc[pl] Wskazanie głównego i zapasowych źródeł ceny oraz ceny katalogowej (RRP) do obliczeń.
  * @order 104
  */
 
 /**
  * @feature rules visibility
  * @title[ru] Видимость правил и цен
+ * @title[pl] Widoczność reguł i cen
  * @desc[ru] Управление отображением правил и цен — можно скрыть на странице товара, в списке или полностью.
+ * @desc[pl] Zarządzanie widocznością reguł i cen – można je ukryć na stronie produktu, w liście lub całkowicie.
  * @order 105
  */
 
 /**
  * @feature rules qty_table
  * @title[ru] Таблица цен по количеству
+ * @title[pl] Tabela cen ilościowych
  * @desc[ru] Показывает правила с приоритетами и диапазонами количества. Можно включить или скрыть для каждого правила.
+ * @desc[pl] Pokazuje reguły z priorytetami i zakresami ilości. Można je włączyć lub ukryć dla każdej reguły.
  * @order 106
  */
 
 /**
  * @feature rules html_banner
  * @title[ru] Баннер и HTML под ценой
+ * @title[pl] Baner i HTML pod ceną
  * @desc[ru] К каждому правилу можно привязать баннер или HTML-блок, отображаемый на странице товара.
+ * @desc[pl] Do każdej reguły można dodać baner lub blok HTML wyświetlany na stronie produktu.
  * @order 107
  */
 
 /**
  * @feature rules priority
  * @title[ru] Приоритет правил
+ * @title[pl] Priorytet reguł
  * @desc[ru] У каждого правила есть числовой приоритет. Чем ниже значение, тем раньше применяется правило.
+ * @desc[pl] Każda reguła ma wartość priorytetu. Im niższa liczba, tym wcześniej reguła zostanie zastosowana.
  * @order 108
  */
 
 /**
  * @feature rules customer_type
  * @title[ru] Тип клиента
+ * @title[pl] Typ klienta
  * @desc[ru] Правило может применяться только к B2B, только к B2C или ко всем клиентам.
+ * @desc[pl] Reguła może być stosowana tylko dla klientów B2B, tylko dla B2C lub dla wszystkich.
  * @order 109
  */
 

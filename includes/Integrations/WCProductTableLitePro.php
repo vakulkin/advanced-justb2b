@@ -10,15 +10,8 @@ defined('ABSPATH') || exit;
 /**
  * @feature-section wcpt_integration
  * @title[ru] Интеграция с WooCommerce Product Table
- * @desc[ru] JustB2B корректно рассчитывает и отображает итог корзины в таблицах продуктов, учитывая B2B/B2C-пользователя.
+ * @desc[ru] JustB2B корректно рассчитывает и отображает итог корзины в таблицах продуктов, учитывая тип B2B/B2C-пользователя.
  * @order 800
- */
-
-/**
- * @feature wcpt_integration override_total
- * @title[ru] Правильный итог в таблице
- * @desc[ru] Сумма в таблице товаров рассчитывается с учётом налогов и роли пользователя (нетто/брутто).
- * @order 801
  */
 
 class WCProductTableLitePro

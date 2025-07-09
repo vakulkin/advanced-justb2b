@@ -17,21 +17,27 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @feature-section payment_rules
  * @title[ru] Настройка платёжных методов
+ * @title[pl] Konfiguracja metod płatności
  * @desc[ru] Управление доступностью оплаты по типу клиента и сумме заказа.
+ * @desc[pl] Zarządzanie dostępnością metod płatności w zależności od typu klienta i wartości zamówienia.
  * @order 700
  */
 
 /**
  * @feature payment_rules method_visibility
  * @title[ru] Отображение методов оплаты по клиенту
+ * @title[pl] Widoczność metod płatności w zależności od klienta
  * @desc[ru] Делайте способы оплаты доступными для B2B или B2C в зависимости от условий.
+ * @desc[pl] Udostępniaj metody płatności klientom B2B lub B2C w zależności od warunków.
  * @order 701
  */
 
 /**
  * @feature payment_rules amount_conditions
  * @title[ru] Доступность методов оплаты по сумме заказа
+ * @title[pl] Dostępność metod płatności w zależności od wartości zamówienia
  * @desc[ru] Ограничивайте доступ к способам оплаты по минимальной и максимальной сумме.
+ * @desc[pl] Ograniczaj dostępność metod płatności według minimalnej i maksymalnej wartości zamówienia.
  * @order 702
  */
 

@@ -39,6 +39,10 @@ class AdvancedJustB2b {
 	use SingletonTrait;
 
 	public function __construct() {
+		if ( ! class_exists( 'ACF' ) && class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+
 		$this->bootControllers();
 		$this->bootIntegrations();
 	}

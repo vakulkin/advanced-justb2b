@@ -10,16 +10,20 @@ use JustB2b\Models\Id\ProductModel;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * @feature-section product_visibility
+ * @feature-section product_controller
  * @title[ru] Управление отображением и ценами товаров
- * @desc[ru] JustB2B позволяет показывать каждому клиенту именно те товары и цены, которые вы хотите. Цены обновляются автоматически.
+ * @title[pl] Zarządzanie wyświetlaniem i cenami produktów
+ * @desc[ru] JustB2B позволяет показывать каждому клиенту именно те товары и цены, которые вы хотите.
+ * @desc[pl] JustB2B pozwala wyświetlać każdemu klientowi dokładnie te produkty i ceny, które chcesz.
  * @order 300
  */
 
 /**
- * @feature product_visibility controller
- * @title[ru] Управление товарами без кода
+ * @feature product_controller controller
+ * @title[ru] Управление товарами
+ * @title[pl] Zarządzanie produktami
  * @desc[ru] Плагин сам управляет отображением товаров, ценами, покупаемостью и видимостью в каталоге в зависимости от условий — вы просто задаёте правила.
+ * @desc[pl] Wtyczka automatycznie zarządza widocznością produktów, cenami, możliwością zakupu i obecnością w katalogu – wystarczy ustawić reguły.
  * @order 301
  */
 
@@ -48,7 +52,7 @@ class ProductsController extends AbstractPostController {
 			'terms' => [ 'variable' ],
 			'operator' => 'NOT IN',
 		];
-		
+
 		$args['lang'] = '';
 		return $args;
 	}
@@ -74,9 +78,11 @@ class ProductsController extends AbstractPostController {
 	}
 
 	/**
-	 * @feature product_visibility dynamic_price_display
+	 * @feature product_controller dynamic_price_display
 	 * @title[ru] Цены, которые меняются в реальном времени
+	 * @title[pl] Ceny zmieniające się w czasie rzeczywistym
 	 * @desc[ru] JustB2B подменяет цены прямо на витрине WooCommerce в зависимости от роли пользователя, количества, правил и условий — без перезагрузки страницы.
+	 * @desc[pl] JustB2B dynamicznie zmienia ceny na stronie produktu WooCommerce w zależności od roli użytkownika, ilości, reguł i warunków – bez przeładowania strony.
 	 * @order 310
 	 */
 	public function filterGetPriceHtml( $price_html, $product ) {
@@ -102,9 +108,11 @@ class ProductsController extends AbstractPostController {
 	}
 
 	/**
-	 * @feature product_visibility ajax_price_update
+	 * @feature product_controller ajax_price_update
 	 * @title[ru] Мгновенное обновление цены при изменении количества
-	 * @desc[ru] При смене количества товарной позиции цена пересчитывается моментально с помощью AJAX — клиент сразу видит свою цену.
+	 * @title[pl] Natychmiastowa aktualizacja ceny po zmianie ilości
+	 * @desc[ru] При смене количества товарной позиции цена пересчитывается с помощью AJAX — клиент сразу видит свою цену.
+	 * @desc[pl] Zmiana ilości produktu automatycznie aktualizuje cenę przez AJAX – klient od razu widzi swoją cenę.
 	 * @order 320
 	 */
 
@@ -133,7 +141,7 @@ class ProductsController extends AbstractPostController {
 	}
 
 	/**
-	 * @feature product_visibility hide_from_catalog
+	 * @feature product_controller hide_from_catalog
 	 * @title[ru] Скрытие товаров из каталога
 	 * @desc[ru] Вы можете полностью скрыть определённые товары из каталога, виджетов и витрин — они не будут видны неподходящим клиентам.
 	 * @order 380
@@ -163,11 +171,14 @@ class ProductsController extends AbstractPostController {
 		}
 	}
 
+
 	/**
-	 * @feature product_visibility full_hiding
-	 * @title[ru] Скрытие товаров полностью
-	 * @desc[ru] Если правило говорит «не показывать» — клиент даже не сможет открыть страницу товара. Абсолютный контроль над тем, кто что видит.
-	 * @order 330
+	 * @feature product_controller hide_from_catalog
+	 * @title[ru] Скрытие товаров из каталога
+	 * @title[pl] Ukrywanie produktów z katalogu
+	 * @desc[ru] Вы можете полностью скрыть определённые товары из каталога, виджетов и витрин — они не будут видны неподходящим клиентам.
+	 * @desc[pl] Możesz całkowicie ukryć wybrane produkty z katalogu, widżetów i witryn sklepowych – nie będą widoczne dla nieodpowiednich klientów.
+	 * @order 380
 	 */
 
 	public function redirectIfFullyHiddenProduct(): void {
@@ -191,11 +202,14 @@ class ProductsController extends AbstractPostController {
 	}
 
 	/**
-	 * @feature product_visibility request_price_mode
+	 * @feature product_controller request_price_mode
 	 * @title[ru] Запрос цены вместо цифры
+	 * @title[pl] Prośba o cenę zamiast cyfry
 	 * @desc[ru] Вы можете скрыть цену товара и заменить её надписью «Цена по запросу» — например, для эксклюзивных товаров или оптовых клиентов.
+	 * @desc[pl] Możesz ukryć cenę produktu i zastąpić ją napisem „Cena na zapytanie” – np. dla produktów ekskluzywnych lub klientów hurtowych.
 	 * @order 370
 	 */
+
 	public function filterZeroPriceRequest( $price, $product ) {
 		if ( is_admin() ) {
 			return $price;
@@ -212,9 +226,11 @@ class ProductsController extends AbstractPostController {
 	}
 
 	/**
-	 * @feature product_visibility full_hiding
+	 * @feature product_controller full_hiding
 	 * @title[ru] Скрытие товаров полностью
+	 * @title[pl] Całkowite ukrywanie produktów
 	 * @desc[ru] Если правило говорит «не показывать» — клиент даже не сможет открыть страницу товара. Абсолютный контроль над тем, кто что видит.
+	 * @desc[pl] Jeśli reguła mówi „nie pokazuj” – klient nie będzie mógł nawet otworzyć strony produktu. Pełna kontrola nad tym, kto co widzi.
 	 * @order 330
 	 */
 

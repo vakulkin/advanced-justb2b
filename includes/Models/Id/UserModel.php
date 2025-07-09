@@ -12,7 +12,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @feature-section user_context
  * @title[ru] Тип клиента (B2B/B2C)
+ * @title[pl] Typ klienta (B2B/B2C)
  * @desc[ru] Администратор назначает тип клиента. Это влияет на цены и условия.
+ * @desc[pl] Administrator przypisuje klientowi typ. Ma to wpływ na ceny i warunki zakupu.
  * @order 150
  */
 

@@ -9,21 +9,27 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @feature-section wpml_integration
  * @title[ru] Поддержка WPML и переводов
+ * @title[pl] Obsługa WPML i tłumaczeń
  * @desc[ru] Расширяет проверку условий на переводы продуктов и терминов с учётом WPML.
+ * @desc[pl] Rozszerza sprawdzanie warunków o uwzględnienie tłumaczeń produktów i terminów zgodnie z WPML.
  * @order 910
  */
 
 /**
  * @feature wpml_integration product_match
  * @title[ru] Поиск товара среди переводов
+ * @title[pl] Wyszukiwanie produktu wśród tłumaczeń
  * @desc[ru] Учитываются переводы товаров при проверке условий применения правил.
+ * @desc[pl] Tłumaczenia produktów są uwzględniane podczas sprawdzania warunków zastosowania reguł.
  * @order 911
  */
 
 /**
  * @feature wpml_integration term_match
  * @title[ru] Учет переводов терминов
+ * @title[pl] Uwzględnianie tłumaczeń terminów
  * @desc[ru] Плагин ищет соответствие терминов в любых языковых версиях товара.
+ * @desc[pl] Wtyczka wyszukuje zgodność terminów we wszystkich wersjach językowych produktu.
  * @order 912
  */
 
