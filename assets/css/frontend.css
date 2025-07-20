@@ -4,6 +4,10 @@
     align-items: baseline;
 }
 
+.justb2b-price-value {
+    flex-grow: 1;
+}
+
 .justb2b-rule-title {
     font-size: 0.5rem;
 }
